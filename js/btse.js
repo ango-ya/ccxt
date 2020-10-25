@@ -55,7 +55,16 @@ module.exports = class btse extends Exchange {
                 '1Y': '525600',
             },
             'urls': {
-                'test': 'https://testnet.btse.io',
+                'test': {
+                    'web': 'https://testnet.btse.io',
+                    'api': 'https://testapi.btse.io',
+                    'spotv2': 'https://testapi.btse.io/spot/api/v2',
+                    'spotv3': 'https://testapi.btse.io/spot/api/v3.2',
+                    'spotv3private': 'https://testapi.btse.io/spot/api/v3.2',
+                    'futuresv2': 'https://testapi.btse.io/futures/api/v2.1',
+                    'futuresv2private': 'https://testapi.btse.io/futures/api/v2.1',
+                    'testnet': 'https://testapi.btse.io',
+                },
                 'logo': '',
                 'api': {
                     'web': 'https://www.btse.com',
@@ -719,8 +728,8 @@ module.exports = class btse extends Exchange {
 
     cleanSignaturePath (api, url) {
         if (api === 'spotv3private') {
-            return url.replace ('https://api.btse.com/spot/', '');
+            return url.replace (this.urls['api']['api'] + '/spot/', '');
         }
-        return url.replace ('https://api.btse.com/futures/', '');
+        return url.replace (this.urls['api']['api'] + '/futures/', '');
     }
 };
