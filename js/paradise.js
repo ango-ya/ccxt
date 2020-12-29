@@ -11,10 +11,10 @@ const { InvalidOrder, ArgumentsRequired } = require ('./base/errors');
 module.exports = class paradise extends Exchange {
     describe () {
         return this.deepExtend (super.describe (), {
-            'id': 'btse',
-            'name': 'BTSE',
+            'id': 'paradise',
+            'name': 'PARADISE',
             'countries': ['BVI'],
-            'userAgent': 'sdk_ccxt/btse',
+            'userAgent': 'sdk_ccxt/paradise',
             'rateLimit': 3000,
             'certified': false,
             'has': {
@@ -56,25 +56,25 @@ module.exports = class paradise extends Exchange {
             },
             'urls': {
                 'test': {
-                    'web': 'https://testnet.btse.io',
-                    'api': 'https://testapi.btse.io',
-                    'spotv2': 'https://testapi.btse.io/spot/api/v2',
-                    'spotv3': 'https://testapi.btse.io/spot/api/v3.2',
-                    'spotv3private': 'https://testapi.btse.io/spot/api/v3.2',
-                    'futuresv2': 'https://testapi.btse.io/futures/api/v2.1',
-                    'futuresv2private': 'https://testapi.btse.io/futures/api/v2.1',
-                    'testnet': 'https://testapi.btse.io',
+                    'web': 'https://test.paradise.exchange',
+                    'api': 'https://testapi.paradise.exchange',
+                    'spotv2': 'https://testapi.paradise.exchange/spot/api/v2',
+                    'spotv3': 'https://testapi.paradise.exchange/spot/api/v3.2',
+                    'spotv3private': 'https://testapi.paradise.exchange/spot/api/v3.2',
+                    'futuresv2': 'https://testapi.paradise.exchange/futures/api/v2.1',
+                    'futuresv2private': 'https://testapi.paradise.exchange/futures/api/v2.1',
+                    'testnet': 'https://test.paradise.exchange',
                 },
                 'logo': '',
                 'api': {
-                    'web': 'https://www.btse.com',
-                    'api': 'https://api.btse.com',
-                    'spotv2': 'https://api.btse.com/spot/api/v2',
-                    'spotv3': 'https://api.btse.com/spot/api/v3.2',
-                    'spotv3private': 'https://api.btse.com/spot/api/v3.2',
-                    'futuresv2': 'https://api.btse.com/futures/api/v2.1',
-                    'futuresv2private': 'https://api.btse.com/futures/api/v2.1',
-                    'testnet': 'https://testapi.btse.io',
+                    'web': 'https://paradise.exchange',
+                    'api': 'https://api.paradise.exchange',
+                    'spotv2': 'https://api.paradise.exchange/spot/api/v2',
+                    'spotv3': 'https://api.paradise.exchange/spot/api/v3.2',
+                    'spotv3private': 'https://api.paradise.exchange/spot/api/v3.2',
+                    'futuresv2': 'https://api.paradise.exchange/futures/api/v2.1',
+                    'futuresv2private': 'https://api.paradise.exchange/futures/api/v2.1',
+                    'testnet': 'https://test.paradise.exchange',
                 },
                 'www': 'https://www.btse.com',
                 'doc': [
@@ -714,9 +714,9 @@ module.exports = class paradise extends Exchange {
         if (!(method === 'GET' || method === 'DELETE')) {
             signature = this.createSignature (this.secret, nonce, signaturePath, bodyText);
         }
-        headers['btse-nonce'] = nonce;
-        headers['btse-api'] = this.apiKey;
-        headers['btse-sign'] = signature;
+        headers['request-nonce'] = nonce;
+        headers['request-api'] = this.apiKey;
+        headers['request-sign'] = signature;
         headers['Content-Type'] = 'application/json';
         return headers;
     }
