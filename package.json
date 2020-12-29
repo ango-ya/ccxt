@@ -526,7 +526,10 @@
     "xena.exchange",
     "Xena Exchange",
     "bitget.com",
-    "Bitget"
+    "Bitget",
+    "btse.com",
+    "BTSE",
+    "PARADISE"
   ],
   "collective": {
     "type": "opencollective",

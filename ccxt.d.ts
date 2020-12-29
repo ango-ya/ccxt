@@ -466,6 +466,7 @@ declare module 'ccxt' {
     export class btcmarkets extends Exchange {}
     export class btctradeua extends Exchange {}
     export class btcturk extends Exchange {}
+    export class btse extends Exchange {}
     export class buda extends Exchange {}
     export class bw extends Exchange {}
     export class bybit extends Exchange {}
@@ -527,6 +528,7 @@ declare module 'ccxt' {
     export class oceanex extends Exchange {}
     export class okcoin extends okex {}
     export class okex extends Exchange {}
+    export class paradise extends Exchange {}
     export class paymium extends Exchange {}
     export class phemex extends Exchange {}
     export class poloniex extends Exchange {}
