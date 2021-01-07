@@ -528,7 +528,7 @@ class dsx(Exchange):
                 market = self.markets_by_id[id]
                 symbol = market['symbol']
             result[symbol] = self.parse_ticker(ticker, market)
-        return result
+        return self.filter_by_array(result, 'symbol', symbols)
 
     def fetch_ticker(self, symbol, params={}):
         tickers = self.fetch_tickers([symbol], params)
@@ -794,8 +794,11 @@ class dsx(Exchange):
             'datetime': self.iso8601(timestamp),
             'lastTradeTimestamp': lastTradeTimestamp,
             'type': orderType,
+            'timeInForce': None,
+            'postOnly': None,
             'side': side,
             'price': price,
+            'stopPrice': None,
             'cost': cost,
             'amount': amount,
             'remaining': remaining,
@@ -1114,7 +1117,7 @@ class dsx(Exchange):
             body = self.urlencode(self.extend({
                 'nonce': nonce,
             }, query))
-            signature = self.decode(self.hmac(self.encode(body), self.encode(self.secret), hashlib.sha512, 'base64'))
+            signature = self.hmac(self.encode(body), self.encode(self.secret), hashlib.sha512, 'base64')
             headers = {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Key': self.apiKey,

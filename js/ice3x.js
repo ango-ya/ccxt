@@ -213,7 +213,7 @@ module.exports = class ice3x extends Exchange {
                 result[symbol] = this.parseTicker (ticker, market);
             }
         }
-        return result;
+        return this.filterByArray (result, 'symbol', symbols);
     }
 
     async fetchOrderBook (symbol, limit = undefined, params = {}) {
@@ -344,8 +344,11 @@ module.exports = class ice3x extends Exchange {
             'status': status,
             'symbol': symbol,
             'type': 'limit',
-            'side': this.safeStrin (order, 'type'),
+            'timeInForce': undefined,
+            'postOnly': undefined,
+            'side': this.safeString (order, 'type'),
             'price': price,
+            'stopPrice': undefined,
             'cost': undefined,
             'amount': amount,
             'filled': filled,

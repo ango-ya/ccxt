@@ -217,7 +217,7 @@ class ice3x extends Exchange {
                 $result[$symbol] = $this->parse_ticker($ticker, $market);
             }
         }
-        return $result;
+        return $this->filter_by_array($result, 'symbol', $symbols);
     }
 
     public function fetch_order_book($symbol, $limit = null, $params = array ()) {
@@ -348,8 +348,11 @@ class ice3x extends Exchange {
             'status' => $status,
             'symbol' => $symbol,
             'type' => 'limit',
-            'side' => $this->safeStrin ($order, 'type'),
+            'timeInForce' => null,
+            'postOnly' => null,
+            'side' => $this->safe_string($order, 'type'),
             'price' => $price,
+            'stopPrice' => null,
             'cost' => null,
             'amount' => $amount,
             'filled' => $filled,
@@ -424,7 +427,7 @@ class ice3x extends Exchange {
             $request['items_per_page'] = $limit;
         }
         if ($since !== null) {
-            $request['date_from'] = intval ($since / 1000);
+            $request['date_from'] = intval($since / 1000);
         }
         $response = $this->privatePostTradeList (array_merge($request, $params));
         $data = $this->safe_value($response, 'response', array());

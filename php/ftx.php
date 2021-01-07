@@ -35,6 +35,7 @@ class ftx extends Exchange {
                 'cancelAllOrders' => true,
                 'cancelOrder' => true,
                 'createOrder' => true,
+                'editOrder' => true,
                 'fetchBalance' => true,
                 'fetchClosedOrders' => false,
                 'fetchCurrencies' => true,
@@ -196,6 +197,8 @@ class ftx extends Exchange {
             ),
             'exceptions' => array(
                 'exact' => array(
+                    'Size too small for provide' => '\\ccxt\\InvalidOrder', // array("error":"Size too small for provide","success":false)
+                    'Not logged in' => '\\ccxt\\AuthenticationError', // array("error":"Not logged in","success":false)
                     'Not enough balances' => '\\ccxt\\InsufficientFunds', // array("error":"Not enough balances","success":false)
                     'InvalidPrice' => '\\ccxt\\InvalidOrder', // array("error":"Invalid price","success":false)
                     'Size too small' => '\\ccxt\\InvalidOrder', // array("error":"Size too small","success":false)
@@ -208,7 +211,10 @@ class ftx extends Exchange {
                     'The requested URL was not found on the server' => '\\ccxt\\BadRequest',
                     'No such coin' => '\\ccxt\\BadRequest',
                     'No such market' => '\\ccxt\\BadRequest',
+                    'Do not send more than' => '\\ccxt\\RateLimitExceeded',
                     'An unexpected error occurred' => '\\ccxt\\ExchangeError', // array("error":"An unexpected error occurred, please try again later (58BC21C795).","success":false)
+                    'Please retry request' => '\\ccxt\\ExchangeNotAvailable', // array("error":"Please retry request","success":false)
+                    'Please try again' => '\\ccxt\\ExchangeNotAvailable', // array("error":"Please try again","success":false)
                 ),
             ),
             'precisionMode' => TICK_SIZE,
@@ -338,7 +344,7 @@ class ftx extends Exchange {
                 'amount' => $sizeIncrement,
                 'price' => $priceIncrement,
             );
-            $entry = array(
+            $result[] = array(
                 'id' => $id,
                 'symbol' => $symbol,
                 'base' => $base,
@@ -366,7 +372,6 @@ class ftx extends Exchange {
                 ),
                 'info' => $market,
             );
-            $result[] = $entry;
         }
         return $result;
     }
@@ -598,7 +603,7 @@ class ftx extends Exchange {
             $request['limit'] = $limit;
             $request['start_time'] = $request['end_time'] - $limit * $this->parse_timeframe($timeframe);
         } else {
-            $request['start_time'] = intval ($since / 1000);
+            $request['start_time'] = intval($since / 1000);
             $request['limit'] = $limit;
             $request['end_time'] = $this->sum($request['start_time'], $limit * $this->parse_timeframe($timeframe));
         }
@@ -730,7 +735,7 @@ class ftx extends Exchange {
             'market_name' => $marketId,
         );
         if ($since !== null) {
-            $request['start_time'] = intval ($since / 1000);
+            $request['start_time'] = intval($since / 1000);
             // start_time doesn't work without end_time
             $request['end_time'] = $this->seconds();
         }
@@ -855,7 +860,7 @@ class ftx extends Exchange {
 
     public function parse_order($order, $market = null) {
         //
-        // limit orders - fetchOrder, fetchOrders, fetchOpenOrders, createOrder
+        // limit orders - fetchOrder, fetchOrders, fetchOpenOrders, createOrder, editOrder
         //
         //     {
         //         "createdAt" => "2019-03-05T09:56:55.728933+00:00",
@@ -871,7 +876,7 @@ class ftx extends Exchange {
         //         "$type" => "limit",
         //         "reduceOnly" => false,
         //         "ioc" => false,
-        //         "postOnly" => false,
+        //         "$postOnly" => false,
         //         "clientId" => null,
         //     }
         //
@@ -886,7 +891,7 @@ class ftx extends Exchange {
         //         "$id" => 3109208514,
         //         "ioc" => True,
         //         "$market" => "BNBBULL/USD",
-        //         "postOnly" => False,
+        //         "$postOnly" => False,
         //         "$price" => None,
         //         "reduceOnly" => False,
         //         "remainingSize" => 0.0,
@@ -915,13 +920,62 @@ class ftx extends Exchange {
         //         "reduceOnly" => false
         //     }
         //
+        // editOrder (conditional, stop, trailing stop, take profit)
+        //
+        //     {
+        //         "createdAt" => "2019-03-05T09:56:55.728933+00:00",
+        //         "future" => "XRP-PERP",
+        //         "$id" => 9596912,
+        //         "$market" => "XRP-PERP",
+        //         "triggerPrice" => 0.306225,
+        //         "orderId" => null,
+        //         "$side" => "sell",
+        //         "size" => 31431,
+        //         "$status" => "open",
+        //         "$type" => "stop",
+        //         "orderPrice" => null,
+        //         "error" => null,
+        //         "triggeredAt" => null,
+        //         "reduceOnly" => false,
+        //         "orderType" => "$market",
+        //         "filledSize" => 0,
+        //         "avgFillPrice" => null,
+        //         "retryUntilFilled" => false
+        //     }
+        //
+        // canceled $order with a closed $status
+        //
+        //     {
+        //         "avgFillPrice":null,
+        //         "clientId":null,
+        //         "createdAt":"2020-09-01T13:45:57.119695+00:00",
+        //         "filledSize":0.0,
+        //         "future":null,
+        //         "$id":8553541288,
+        //         "ioc":false,
+        //         "liquidation":false,
+        //         "$market":"XRP/USDT",
+        //         "$postOnly":false,
+        //         "$price":0.5,
+        //         "reduceOnly":false,
+        //         "remainingSize":0.0,
+        //         "$side":"sell",
+        //         "size":46.0,
+        //         "$status":"closed",
+        //         "$type":"limit"
+        //     }
+        //
         $id = $this->safe_string($order, 'id');
         $timestamp = $this->parse8601($this->safe_string($order, 'createdAt'));
+        $status = $this->parse_order_status($this->safe_string($order, 'status'));
         $amount = $this->safe_float($order, 'size');
         $filled = $this->safe_float($order, 'filledSize');
         $remaining = $this->safe_float($order, 'remainingSize');
         if (($remaining === 0.0) && ($amount !== null) && ($filled !== null)) {
             $remaining = max ($amount - $filled, 0);
+            if ($remaining > 0) {
+                $status = 'canceled';
+            }
         }
         $symbol = null;
         $marketId = $this->safe_string($order, 'market');
@@ -938,7 +992,6 @@ class ftx extends Exchange {
         if (($symbol === null) && ($market !== null)) {
             $symbol = $market['symbol'];
         }
-        $status = $this->parse_order_status($this->safe_string($order, 'status'));
         $side = $this->safe_string($order, 'side');
         $type = $this->safe_string($order, 'type');
         $average = $this->safe_float($order, 'avgFillPrice');
@@ -949,6 +1002,8 @@ class ftx extends Exchange {
         }
         $lastTradeTimestamp = $this->parse8601($this->safe_string($order, 'triggeredAt'));
         $clientOrderId = $this->safe_string($order, 'clientId');
+        $stopPrice = $this->safe_float($order, 'triggerPrice');
+        $postOnly = $this->safe_value($order, 'postOnly');
         return array(
             'info' => $order,
             'id' => $id,
@@ -958,8 +1013,11 @@ class ftx extends Exchange {
             'lastTradeTimestamp' => $lastTradeTimestamp,
             'symbol' => $symbol,
             'type' => $type,
+            'timeInForce' => null,
+            'postOnly' => $postOnly,
             'side' => $side,
             'price' => $price,
+            'stopPrice' => $stopPrice,
             'amount' => $amount,
             'cost' => $cost,
             'average' => $average,
@@ -979,7 +1037,7 @@ class ftx extends Exchange {
             'side' => $side, // "buy" or "sell"
             // 'price' => 0.306525, // send null for $market orders
             'type' => $type, // "limit", "$market", "stop", "trailingStop", or "takeProfit"
-            'size' => floatval ($this->amount_to_precision($symbol, $amount)),
+            'size' => floatval($this->amount_to_precision($symbol, $amount)),
             // 'reduceOnly' => false, // optional, default is false
             // 'ioc' => false, // optional, default is false, limit or $market orders only
             // 'postOnly' => false, // optional, default is false, limit or $market orders only
@@ -992,7 +1050,7 @@ class ftx extends Exchange {
         }
         $priceToPrecision = null;
         if ($price !== null) {
-            $priceToPrecision = floatval ($this->price_to_precision($symbol, $price));
+            $priceToPrecision = floatval($this->price_to_precision($symbol, $price));
         }
         $method = 'privatePostConditionalOrders';
         if ($type === 'limit') {
@@ -1065,10 +1123,108 @@ class ftx extends Exchange {
         return $this->parse_order($result, $market);
     }
 
+    public function edit_order($id, $symbol, $type, $side, $amount, $price = null, $params = array ()) {
+        $this->load_markets();
+        $market = $this->market($symbol);
+        $request = array();
+        $method = null;
+        $clientOrderId = $this->safe_string_2($params, 'client_order_id', 'clientOrderId');
+        $triggerPrice = $this->safe_float($params, 'triggerPrice');
+        $orderPrice = $this->safe_float($params, 'orderPrice');
+        $trailValue = $this->safe_float($params, 'trailValue');
+        $params = $this->omit($params, array( 'client_order_id', 'clientOrderId', 'triggerPrice', 'orderPrice', 'trailValue' ));
+        $triggerPriceIsDefined = ($triggerPrice !== null);
+        $orderPriceIsDefined = ($orderPrice !== null);
+        $trailValueIsDefined = ($trailValue !== null);
+        if ($triggerPriceIsDefined || $orderPriceIsDefined || $trailValueIsDefined) {
+            $method = 'privatePostConditionalOrdersOrderIdModify';
+            $request['order_id'] = $id;
+            if ($triggerPriceIsDefined) {
+                $request['triggerPrice'] = floatval($this->price_to_precision($symbol, $triggerPrice));
+            }
+            if ($orderPriceIsDefined) {
+                // only for stop limit or take profit limit orders
+                $request['orderPrice'] = floatval($this->price_to_precision($symbol, $orderPrice));
+            }
+            if ($trailValueIsDefined) {
+                // negative for sell orders, positive for buy orders
+                $request['trailValue'] = floatval($this->price_to_precision($symbol, $trailValue));
+            }
+        } else {
+            if ($clientOrderId === null) {
+                $method = 'privatePostOrdersByClientIdClientOrderIdModify';
+                $request['client_order_id'] = $clientOrderId;
+                // $request['clientId'] = $clientOrderId;
+            } else {
+                $method = 'privatePostOrdersOrderIdModify';
+                $request['order_id'] = $id;
+            }
+            if ($price !== null) {
+                $request['price'] = floatval($this->price_to_precision($symbol, $price));
+            }
+        }
+        if ($amount !== null) {
+            $request['size'] = floatval($this->amount_to_precision($symbol, $amount));
+        }
+        $response = $this->$method (array_merge($request, $params));
+        //
+        // regular order
+        //
+        //     {
+        //         "success" => true,
+        //         "$result" => {
+        //             "createdAt" => "2019-03-05T11:56:55.728933+00:00",
+        //             "filledSize" => 0,
+        //             "future" => "XRP-PERP",
+        //             "$id" => 9596932,
+        //             "$market" => "XRP-PERP",
+        //             "$price" => 0.326525,
+        //             "remainingSize" => 31431,
+        //             "$side" => "sell",
+        //             "size" => 31431,
+        //             "status" => "open",
+        //             "$type" => "limit",
+        //             "reduceOnly" => false,
+        //             "ioc" => false,
+        //             "postOnly" => false,
+        //             "clientId" => null,
+        //         }
+        //     }
+        //
+        // conditional trigger order
+        //
+        //     {
+        //         "success" => true,
+        //         "$result" => {
+        //             "createdAt" => "2019-03-05T09:56:55.728933+00:00",
+        //             "future" => "XRP-PERP",
+        //             "$id" => 9596912,
+        //             "$market" => "XRP-PERP",
+        //             "$triggerPrice" => 0.306225,
+        //             "orderId" => null,
+        //             "$side" => "sell",
+        //             "size" => 31431,
+        //             "status" => "open",
+        //             "$type" => "stop",
+        //             "$orderPrice" => null,
+        //             "error" => null,
+        //             "triggeredAt" => null,
+        //             "reduceOnly" => false,
+        //             "orderType" => "$market",
+        //             "filledSize" => 0,
+        //             "avgFillPrice" => null,
+        //             "retryUntilFilled" => false
+        //         }
+        //     }
+        //
+        $result = $this->safe_value($response, 'result', array());
+        return $this->parse_order($result, $market);
+    }
+
     public function cancel_order($id, $symbol = null, $params = array ()) {
         $this->load_markets();
         $request = array(
-            'order_id' => intval ($id),
+            'order_id' => intval($id),
         );
         // support for canceling conditional orders
         // https://github.com/ccxt/ccxt/issues/6669
@@ -1078,7 +1234,7 @@ class ftx extends Exchange {
         $type = $this->safe_value($params, 'type');
         $clientOrderId = $this->safe_value_2($params, 'client_order_id', 'clientOrderId');
         if ($clientOrderId === null) {
-            $request['order_id'] = intval ($id);
+            $request['order_id'] = intval($id);
             if (($type === 'stop') || ($type === 'trailingStop') || ($type === 'takeProfit')) {
                 $method = 'privateDeleteConditionalOrdersOrderId';
             }
@@ -1218,7 +1374,7 @@ class ftx extends Exchange {
             $request['limit'] = $limit; // default 100, max 100
         }
         if ($since !== null) {
-            $request['start_time'] = intval ($since / 1000);
+            $request['start_time'] = intval($since / 1000);
         }
         // support for canceling conditional orders
         // https://github.com/ccxt/ccxt/issues/6669
@@ -1271,7 +1427,7 @@ class ftx extends Exchange {
             $request['limit'] = $limit;
         }
         if ($since !== null) {
-            $request['start_time'] = intval ($since / 1000);
+            $request['start_time'] = intval($since / 1000);
         }
         $response = $this->privateGetFills (array_merge($request, $params));
         //
@@ -1337,6 +1493,60 @@ class ftx extends Exchange {
         //
         $result = $this->safe_value($response, 'result', array());
         return $this->parse_transaction($result, $currency);
+    }
+
+    public function fetch_positions($symbols = null, $since = null, $limit = null, $params = array ()) {
+        $this->load_markets();
+        $response = $this->privateGetAccount ($params);
+        //
+        //     {
+        //         "$result":{
+        //             "backstopProvider":false,
+        //             "chargeInterestOnNegativeUsd":false,
+        //             "collateral":2830.2567913677476,
+        //             "freeCollateral":2829.670741867416,
+        //             "initialMarginRequirement":0.05,
+        //             "leverage":20.0,
+        //             "liquidating":false,
+        //             "maintenanceMarginRequirement":0.03,
+        //             "makerFee":0.0,
+        //             "marginFraction":null,
+        //             "openMarginFraction":null,
+        //             "positionLimit":null,
+        //             "positionLimitUsed":null,
+        //             "positions":array(
+        //                 array(
+        //                     "collateralUsed":0.0,
+        //                     "cost":0.0,
+        //                     "entryPrice":null,
+        //                     "estimatedLiquidationPrice":null,
+        //                     "future":"XRP-PERP",
+        //                     "initialMarginRequirement":0.05,
+        //                     "longOrderSize":0.0,
+        //                     "maintenanceMarginRequirement":0.03,
+        //                     "netSize":0.0,
+        //                     "openSize":0.0,
+        //                     "realizedPnl":0.016,
+        //                     "shortOrderSize":0.0,
+        //                     "side":"buy",
+        //                     "size":0.0,
+        //                     "unrealizedPnl":0.0,
+        //                 }
+        //             ),
+        //             "spotLendingEnabled":false,
+        //             "spotMarginEnabled":false,
+        //             "takerFee":0.0007,
+        //             "totalAccountValue":2830.2567913677476,
+        //             "totalPositionSize":0.0,
+        //             "useFttCollateral":true,
+        //             "username":"igor.kroitor@gmail.com"
+        //         ),
+        //         "success":true
+        //     }
+        //
+        $result = $this->safe_value($response, 'result', array());
+        // todo unify parsePosition/parsePositions
+        return $this->safe_value($result, 'positions', array());
     }
 
     public function fetch_deposit_address($code, $params = array ()) {
@@ -1408,13 +1618,17 @@ class ftx extends Exchange {
         //     }
         //
         $code = $this->safe_currency_code($this->safe_string($transaction, 'coin'));
-        $id = $this->safe_integer($transaction, 'id');
+        $id = $this->safe_string($transaction, 'id');
         $amount = $this->safe_float($transaction, 'size');
         $status = $this->parse_transaction_status($this->safe_string($transaction, 'status'));
         $timestamp = $this->parse8601($this->safe_string($transaction, 'time'));
         $txid = $this->safe_string($transaction, 'txid');
-        $address = $this->safe_string($transaction, 'address');
-        $tag = $this->safe_string($transaction, 'tag');
+        $tag = null;
+        $address = $this->safe_value($transaction, 'address');
+        if (gettype($address) !== 'string') {
+            $tag = $this->safe_string($address, 'tag');
+            $address = $this->safe_string($address, 'address');
+        }
         $fee = $this->safe_float($transaction, 'fee');
         $type = (is_array($transaction) && array_key_exists('destinationName', $transaction)) ? 'withdrawal' : 'deposit';
         return array(
@@ -1514,7 +1728,7 @@ class ftx extends Exchange {
             $timestamp = (string) $this->milliseconds();
             $auth = $timestamp . $method . $request;
             $headers = array();
-            if ($method === 'POST') {
+            if (($method === 'POST') || ($method === 'DELETE')) {
                 $body = $this->json($query);
                 $auth .= $body;
                 $headers['Content-Type'] = 'application/json';

@@ -4,12 +4,22 @@
 # https://github.com/ccxt/ccxt/blob/master/CONTRIBUTING.md#how-to-contribute-code
 
 from ccxt.async_support.base.exchange import Exchange
+
+# -----------------------------------------------------------------------------
+
+try:
+    basestring  # Python 3
+except NameError:
+    basestring = str  # Python 2
 import hashlib
 from ccxt.base.errors import ExchangeError
+from ccxt.base.errors import AuthenticationError
 from ccxt.base.errors import BadRequest
 from ccxt.base.errors import InsufficientFunds
 from ccxt.base.errors import InvalidOrder
 from ccxt.base.errors import OrderNotFound
+from ccxt.base.errors import RateLimitExceeded
+from ccxt.base.errors import ExchangeNotAvailable
 from ccxt.base.decimal_to_precision import TICK_SIZE
 
 
@@ -39,6 +49,7 @@ class ftx(Exchange):
                 'cancelAllOrders': True,
                 'cancelOrder': True,
                 'createOrder': True,
+                'editOrder': True,
                 'fetchBalance': True,
                 'fetchClosedOrders': False,
                 'fetchCurrencies': True,
@@ -200,6 +211,8 @@ class ftx(Exchange):
             },
             'exceptions': {
                 'exact': {
+                    'Size too small for provide': InvalidOrder,  # {"error":"Size too small for provide","success":false}
+                    'Not logged in': AuthenticationError,  # {"error":"Not logged in","success":false}
                     'Not enough balances': InsufficientFunds,  # {"error":"Not enough balances","success":false}
                     'InvalidPrice': InvalidOrder,  # {"error":"Invalid price","success":false}
                     'Size too small': InvalidOrder,  # {"error":"Size too small","success":false}
@@ -212,7 +225,10 @@ class ftx(Exchange):
                     'The requested URL was not found on the server': BadRequest,
                     'No such coin': BadRequest,
                     'No such market': BadRequest,
+                    'Do not send more than': RateLimitExceeded,
                     'An unexpected error occurred': ExchangeError,  # {"error":"An unexpected error occurred, please try again later(58BC21C795).","success":false}
+                    'Please retry request': ExchangeNotAvailable,  # {"error":"Please retry request","success":false}
+                    'Please try again': ExchangeNotAvailable,  # {"error":"Please try again","success":false}
                 },
             },
             'precisionMode': TICK_SIZE,
@@ -339,7 +355,7 @@ class ftx(Exchange):
                 'amount': sizeIncrement,
                 'price': priceIncrement,
             }
-            entry = {
+            result.append({
                 'id': id,
                 'symbol': symbol,
                 'base': base,
@@ -366,8 +382,7 @@ class ftx(Exchange):
                     },
                 },
                 'info': market,
-            }
-            result.append(entry)
+            })
         return result
 
     def parse_ticker(self, ticker, market=None):
@@ -823,7 +838,7 @@ class ftx(Exchange):
 
     def parse_order(self, order, market=None):
         #
-        # limit orders - fetchOrder, fetchOrders, fetchOpenOrders, createOrder
+        # limit orders - fetchOrder, fetchOrders, fetchOpenOrders, createOrder, editOrder
         #
         #     {
         #         "createdAt": "2019-03-05T09:56:55.728933+00:00",
@@ -883,13 +898,61 @@ class ftx(Exchange):
         #         "reduceOnly": False
         #     }
         #
+        # editOrder(conditional, stop, trailing stop, take profit)
+        #
+        #     {
+        #         "createdAt": "2019-03-05T09:56:55.728933+00:00",
+        #         "future": "XRP-PERP",
+        #         "id": 9596912,
+        #         "market": "XRP-PERP",
+        #         "triggerPrice": 0.306225,
+        #         "orderId": null,
+        #         "side": "sell",
+        #         "size": 31431,
+        #         "status": "open",
+        #         "type": "stop",
+        #         "orderPrice": null,
+        #         "error": null,
+        #         "triggeredAt": null,
+        #         "reduceOnly": False,
+        #         "orderType": "market",
+        #         "filledSize": 0,
+        #         "avgFillPrice": null,
+        #         "retryUntilFilled": False
+        #     }
+        #
+        # canceled order with a closed status
+        #
+        #     {
+        #         "avgFillPrice":null,
+        #         "clientId":null,
+        #         "createdAt":"2020-09-01T13:45:57.119695+00:00",
+        #         "filledSize":0.0,
+        #         "future":null,
+        #         "id":8553541288,
+        #         "ioc":false,
+        #         "liquidation":false,
+        #         "market":"XRP/USDT",
+        #         "postOnly":false,
+        #         "price":0.5,
+        #         "reduceOnly":false,
+        #         "remainingSize":0.0,
+        #         "side":"sell",
+        #         "size":46.0,
+        #         "status":"closed",
+        #         "type":"limit"
+        #     }
+        #
         id = self.safe_string(order, 'id')
         timestamp = self.parse8601(self.safe_string(order, 'createdAt'))
+        status = self.parse_order_status(self.safe_string(order, 'status'))
         amount = self.safe_float(order, 'size')
         filled = self.safe_float(order, 'filledSize')
         remaining = self.safe_float(order, 'remainingSize')
         if (remaining == 0.0) and (amount is not None) and (filled is not None):
             remaining = max(amount - filled, 0)
+            if remaining > 0:
+                status = 'canceled'
         symbol = None
         marketId = self.safe_string(order, 'market')
         if marketId is not None:
@@ -902,7 +965,6 @@ class ftx(Exchange):
                 symbol = marketId
         if (symbol is None) and (market is not None):
             symbol = market['symbol']
-        status = self.parse_order_status(self.safe_string(order, 'status'))
         side = self.safe_string(order, 'side')
         type = self.safe_string(order, 'type')
         average = self.safe_float(order, 'avgFillPrice')
@@ -912,6 +974,8 @@ class ftx(Exchange):
             cost = filled * price
         lastTradeTimestamp = self.parse8601(self.safe_string(order, 'triggeredAt'))
         clientOrderId = self.safe_string(order, 'clientId')
+        stopPrice = self.safe_float(order, 'triggerPrice')
+        postOnly = self.safe_value(order, 'postOnly')
         return {
             'info': order,
             'id': id,
@@ -921,8 +985,11 @@ class ftx(Exchange):
             'lastTradeTimestamp': lastTradeTimestamp,
             'symbol': symbol,
             'type': type,
+            'timeInForce': None,
+            'postOnly': postOnly,
             'side': side,
             'price': price,
+            'stopPrice': stopPrice,
             'amount': amount,
             'cost': cost,
             'average': average,
@@ -1021,6 +1088,96 @@ class ftx(Exchange):
         #
         #
         result = self.safe_value(response, 'result', [])
+        return self.parse_order(result, market)
+
+    async def edit_order(self, id, symbol, type, side, amount, price=None, params={}):
+        await self.load_markets()
+        market = self.market(symbol)
+        request = {}
+        method = None
+        clientOrderId = self.safe_string_2(params, 'client_order_id', 'clientOrderId')
+        triggerPrice = self.safe_float(params, 'triggerPrice')
+        orderPrice = self.safe_float(params, 'orderPrice')
+        trailValue = self.safe_float(params, 'trailValue')
+        params = self.omit(params, ['client_order_id', 'clientOrderId', 'triggerPrice', 'orderPrice', 'trailValue'])
+        triggerPriceIsDefined = (triggerPrice is not None)
+        orderPriceIsDefined = (orderPrice is not None)
+        trailValueIsDefined = (trailValue is not None)
+        if triggerPriceIsDefined or orderPriceIsDefined or trailValueIsDefined:
+            method = 'privatePostConditionalOrdersOrderIdModify'
+            request['order_id'] = id
+            if triggerPriceIsDefined:
+                request['triggerPrice'] = float(self.price_to_precision(symbol, triggerPrice))
+            if orderPriceIsDefined:
+                # only for stop limit or take profit limit orders
+                request['orderPrice'] = float(self.price_to_precision(symbol, orderPrice))
+            if trailValueIsDefined:
+                # negative for sell orders, positive for buy orders
+                request['trailValue'] = float(self.price_to_precision(symbol, trailValue))
+        else:
+            if clientOrderId is None:
+                method = 'privatePostOrdersByClientIdClientOrderIdModify'
+                request['client_order_id'] = clientOrderId
+                # request['clientId'] = clientOrderId
+            else:
+                method = 'privatePostOrdersOrderIdModify'
+                request['order_id'] = id
+            if price is not None:
+                request['price'] = float(self.price_to_precision(symbol, price))
+        if amount is not None:
+            request['size'] = float(self.amount_to_precision(symbol, amount))
+        response = await getattr(self, method)(self.extend(request, params))
+        #
+        # regular order
+        #
+        #     {
+        #         "success": True,
+        #         "result": {
+        #             "createdAt": "2019-03-05T11:56:55.728933+00:00",
+        #             "filledSize": 0,
+        #             "future": "XRP-PERP",
+        #             "id": 9596932,
+        #             "market": "XRP-PERP",
+        #             "price": 0.326525,
+        #             "remainingSize": 31431,
+        #             "side": "sell",
+        #             "size": 31431,
+        #             "status": "open",
+        #             "type": "limit",
+        #             "reduceOnly": False,
+        #             "ioc": False,
+        #             "postOnly": False,
+        #             "clientId": null,
+        #         }
+        #     }
+        #
+        # conditional trigger order
+        #
+        #     {
+        #         "success": True,
+        #         "result": {
+        #             "createdAt": "2019-03-05T09:56:55.728933+00:00",
+        #             "future": "XRP-PERP",
+        #             "id": 9596912,
+        #             "market": "XRP-PERP",
+        #             "triggerPrice": 0.306225,
+        #             "orderId": null,
+        #             "side": "sell",
+        #             "size": 31431,
+        #             "status": "open",
+        #             "type": "stop",
+        #             "orderPrice": null,
+        #             "error": null,
+        #             "triggeredAt": null,
+        #             "reduceOnly": False,
+        #             "orderType": "market",
+        #             "filledSize": 0,
+        #             "avgFillPrice": null,
+        #             "retryUntilFilled": False
+        #         }
+        #     }
+        #
+        result = self.safe_value(response, 'result', {})
         return self.parse_order(result, market)
 
     async def cancel_order(self, id, symbol=None, params={}):
@@ -1275,6 +1432,59 @@ class ftx(Exchange):
         result = self.safe_value(response, 'result', {})
         return self.parse_transaction(result, currency)
 
+    async def fetch_positions(self, symbols=None, since=None, limit=None, params={}):
+        await self.load_markets()
+        response = await self.privateGetAccount(params)
+        #
+        #     {
+        #         "result":{
+        #             "backstopProvider":false,
+        #             "chargeInterestOnNegativeUsd":false,
+        #             "collateral":2830.2567913677476,
+        #             "freeCollateral":2829.670741867416,
+        #             "initialMarginRequirement":0.05,
+        #             "leverage":20.0,
+        #             "liquidating":false,
+        #             "maintenanceMarginRequirement":0.03,
+        #             "makerFee":0.0,
+        #             "marginFraction":null,
+        #             "openMarginFraction":null,
+        #             "positionLimit":null,
+        #             "positionLimitUsed":null,
+        #             "positions":[
+        #                 {
+        #                     "collateralUsed":0.0,
+        #                     "cost":0.0,
+        #                     "entryPrice":null,
+        #                     "estimatedLiquidationPrice":null,
+        #                     "future":"XRP-PERP",
+        #                     "initialMarginRequirement":0.05,
+        #                     "longOrderSize":0.0,
+        #                     "maintenanceMarginRequirement":0.03,
+        #                     "netSize":0.0,
+        #                     "openSize":0.0,
+        #                     "realizedPnl":0.016,
+        #                     "shortOrderSize":0.0,
+        #                     "side":"buy",
+        #                     "size":0.0,
+        #                     "unrealizedPnl":0.0,
+        #                 }
+        #             ],
+        #             "spotLendingEnabled":false,
+        #             "spotMarginEnabled":false,
+        #             "takerFee":0.0007,
+        #             "totalAccountValue":2830.2567913677476,
+        #             "totalPositionSize":0.0,
+        #             "useFttCollateral":true,
+        #             "username":"igor.kroitor@gmail.com"
+        #         },
+        #         "success":true
+        #     }
+        #
+        result = self.safe_value(response, 'result', {})
+        # todo unify parsePosition/parsePositions
+        return self.safe_value(result, 'positions', [])
+
     async def fetch_deposit_address(self, code, params={}):
         await self.load_markets()
         currency = self.currency(code)
@@ -1342,13 +1552,16 @@ class ftx(Exchange):
         #     }
         #
         code = self.safe_currency_code(self.safe_string(transaction, 'coin'))
-        id = self.safe_integer(transaction, 'id')
+        id = self.safe_string(transaction, 'id')
         amount = self.safe_float(transaction, 'size')
         status = self.parse_transaction_status(self.safe_string(transaction, 'status'))
         timestamp = self.parse8601(self.safe_string(transaction, 'time'))
         txid = self.safe_string(transaction, 'txid')
-        address = self.safe_string(transaction, 'address')
-        tag = self.safe_string(transaction, 'tag')
+        tag = None
+        address = self.safe_value(transaction, 'address')
+        if not isinstance(address, basestring):
+            tag = self.safe_string(address, 'tag')
+            address = self.safe_string(address, 'address')
         fee = self.safe_float(transaction, 'fee')
         type = 'withdrawal' if ('destinationName' in transaction) else 'deposit'
         return {
@@ -1441,7 +1654,7 @@ class ftx(Exchange):
             timestamp = str(self.milliseconds())
             auth = timestamp + method + request
             headers = {}
-            if method == 'POST':
+            if (method == 'POST') or (method == 'DELETE'):
                 body = self.json(query)
                 auth += body
                 headers['Content-Type'] = 'application/json'

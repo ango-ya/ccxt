@@ -208,7 +208,7 @@ class ice3x(Exchange):
             if market is not None:
                 symbol = market['symbol']
                 result[symbol] = self.parse_ticker(ticker, market)
-        return result
+        return self.filter_by_array(result, 'symbol', symbols)
 
     def fetch_order_book(self, symbol, limit=None, params={}):
         self.load_markets()
@@ -323,8 +323,11 @@ class ice3x(Exchange):
             'status': status,
             'symbol': symbol,
             'type': 'limit',
-            'side': self.safeStrin(order, 'type'),
+            'timeInForce': None,
+            'postOnly': None,
+            'side': self.safe_string(order, 'type'),
             'price': price,
+            'stopPrice': None,
             'cost': None,
             'amount': amount,
             'filled': filled,
