@@ -1,4 +1,4 @@
-declare module 'ccxt' {
+declare module '@ango-ya/ccxt' {
 
     /**
      * Represents an associative array of a same type.
