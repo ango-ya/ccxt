@@ -56,14 +56,14 @@ module.exports = class paradise extends Exchange {
             },
             'urls': {
                 'test': {
-                    'web': 'https://test.paradise.exchange',
-                    'api': 'https://testapi.paradise.exchange',
-                    'spotv2': 'https://testapi.paradise.exchange/spot/api/v2',
-                    'spotv3': 'https://testapi.paradise.exchange/spot/api/v3.2',
-                    'spotv3private': 'https://testapi.paradise.exchange/spot/api/v3.2',
-                    'futuresv2': 'https://testapi.paradise.exchange/futures/api/v2.1',
-                    'futuresv2private': 'https://testapi.paradise.exchange/futures/api/v2.1',
-                    'testnet': 'https://test.paradise.exchange',
+                    'web': 'https://www.testparadise.exchange',
+                    'api': 'https://api.testparadise.exchange',
+                    'spotv2': 'https://api.testparadise.exchange/spot/api/v2',
+                    'spotv3': 'https://api.testparadise.exchange/spot/api/v3.2',
+                    'spotv3private': 'https://api.testparadise.exchange/spot/api/v3.2',
+                    'futuresv2': 'https://api.testparadise.exchange/futures/api/v2.1',
+                    'futuresv2private': 'https://api.testparadise.exchange/futures/api/v2.1',
+                    'testnet': 'https://www.testparadise.exchange',
                 },
                 'logo': '',
                 'api': {
@@ -74,7 +74,7 @@ module.exports = class paradise extends Exchange {
                     'spotv3private': 'https://api.paradise.exchange/spot/api/v3.2',
                     'futuresv2': 'https://api.paradise.exchange/futures/api/v2.1',
                     'futuresv2private': 'https://api.paradise.exchange/futures/api/v2.1',
-                    'testnet': 'https://test.paradise.exchange',
+                    'testnet': 'https://www.testparadise.exchange',
                 },
                 'www': 'https://www.btse.com',
                 'doc': [
