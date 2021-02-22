@@ -384,6 +384,29 @@ module.exports = class coincheck extends Exchange {
         return await this.privateDeleteExchangeOrdersId (this.extend (request, params));
     }
 
+    async withdraw(code, amount, address, tag = undefined, params = {}) {
+        await this.loadMarkets();
+        this.checkAddress(address);
+        const currency = this.currency(code);
+
+        if (currency.id !== 'btc') {
+            throw new BadSymbol (this.id + 'withdraw () currently supports BTC only');
+        }
+
+        const request = {
+            'amount': amount.toString(),
+            'address': address,
+        };
+        if (tag !== undefined) {
+            request['tag'] = tag;
+        }
+        const response = await this.privatePostSendMoney(this.extend(request, params));
+        return {
+            'id': response['id'],
+            'info': response,
+        };
+    }
+
     sign (path, api = 'public', method = 'GET', params = {}, headers = undefined, body = undefined) {
         let url = this.urls['api'] + '/' + this.implodeParams (path, params);
         const query = this.omit (params, this.extractParams (path));
