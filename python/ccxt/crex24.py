@@ -146,6 +146,7 @@ class crex24(Exchange):
                 'GHOST': 'GHOSTPRISM',
                 'IQ': 'IQ.Cash',
                 'PUT': 'PutinCoin',
+                'SBTC': 'SBTCT',  # SiamBitcoin
                 'UNI': 'Universe',
                 'YOYO': 'YOYOW',
             },
@@ -171,6 +172,7 @@ class crex24(Exchange):
                     "Parameter 'instrument' contains invalid value.": BadSymbol,
                 },
                 'broad': {
+                    'try again later': ExchangeNotAvailable,  # {"errorDescription":"Failed to process the request. Please, try again later."}
                     'API Key': AuthenticationError,  # "API Key '9edc48de-d5b0-4248-8e7e-f59ffcd1c7f1' doesn't exist."
                     'Insufficient funds': InsufficientFunds,  # "Insufficient funds: new order requires 10 ETH which is more than the available balance."
                     'has been delisted.': BadSymbol,  # {"errorDescription":"Instrument '$PAC-BTC' has been delisted."}
@@ -730,12 +732,12 @@ class crex24(Exchange):
             stopPriceIsRequired = True
         if priceIsRequired:
             if price is None:
-                raise InvalidOrder(self.id + ' createOrder method requires a price argument for a ' + type + ' order')
+                raise InvalidOrder(self.id + ' createOrder() requires a price argument for a ' + type + ' order')
             request['price'] = self.price_to_precision(symbol, price)
         if stopPriceIsRequired:
             stopPrice = self.safe_float(params, 'stopPrice')
             if stopPrice is None:
-                raise InvalidOrder(self.id + ' createOrder method requires a stopPrice extra param for a ' + type + ' order')
+                raise InvalidOrder(self.id + ' createOrder() requires a stopPrice extra param for a ' + type + ' order')
             else:
                 request['stopPrice'] = self.price_to_precision(symbol, stopPrice)
             params = self.omit(params, 'stopPrice')

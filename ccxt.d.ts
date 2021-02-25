@@ -56,16 +56,21 @@ declare module 'ccxt' {
         symbol: string;
         base: string;
         quote: string;
-        baseId: string,
-        quoteId: string,
+        baseId: string;
+        quoteId: string;
+        type?: string;
+        spot?: boolean;
+        margin?: boolean;
+        swap?: boolean;
+        future?: boolean;
         active: boolean;
         precision: { base: number, quote: number, amount: number, price: number };
         limits: { amount: MinMax, price: MinMax, cost?: MinMax };
-        tierBased: boolean,
-        percentage: boolean,
-        taker: number,
-        maker: number,
-        info: any,
+        tierBased: boolean;
+        percentage: boolean;
+        taker: number;
+        maker: number;
+        info: any;
     }
 
     export interface Order {
@@ -417,9 +422,9 @@ declare module 'ccxt' {
 
     /* tslint:disable */
 
+    export class aax extends Exchange {}
     export class acx extends Exchange {}
     export class aofex extends Exchange {}
-    export class bcex extends Exchange {}
     export class bequant extends hitbtc {}
     export class bibox extends Exchange {}
     export class bigone extends Exchange {}

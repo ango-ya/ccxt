@@ -223,10 +223,31 @@ class bitvavo extends Exchange {
                     'expires' => 1000, // 1 second
                 ),
             ),
+            'precisionMode' => SIGNIFICANT_DIGITS,
             'commonCurrencies' => array(
                 'MIOTA' => 'IOTA', // https://github.com/ccxt/ccxt/issues/7487
             ),
         ));
+    }
+
+    public function currency_to_precision($currency, $fee) {
+        return $this->decimal_to_precision($fee, 0, $this->currencies[$currency]['precision']);
+    }
+
+    public function amount_to_precision($symbol, $amount) {
+        // https://docs.bitfinex.com/docs/introduction#$amount-precision
+        // The $amount field allows up to 8 decimals.
+        // Anything exceeding this will be rounded to the 8th decimal.
+        return $this->decimal_to_precision($amount, TRUNCATE, $this->markets[$symbol]['precision']['amount'], DECIMAL_PLACES);
+    }
+
+    public function price_to_precision($symbol, $price) {
+        $price = $this->decimal_to_precision($price, ROUND, $this->markets[$symbol]['precision']['price'], $this->precisionMode);
+        // https://docs.bitfinex.com/docs/introduction#$price-precision
+        // The precision level of all trading prices is based on significant figures.
+        // All pairs on Bitfinex use up to 5 significant digits and up to 8 decimals (e.g. 1.2345, 123.45, 1234.5, 0.00012345).
+        // Prices submit with a precision larger than 5 will be cut by the API.
+        return $this->decimal_to_precision($price, TRUNCATE, 8, DECIMAL_PLACES);
     }
 
     public function fetch_time($params = array ()) {
@@ -770,16 +791,18 @@ class bitvavo extends Exchange {
         $request = array(
             'market' => $market['id'],
             'side' => $side,
-            'orderType' => $type,
+            'orderType' => $type, // 'market', 'limit', 'stopLoss', 'stopLossLimit', 'takeProfit', 'takeProfitLimit'
             // 'amount' => $this->amount_to_precision($symbol, $amount),
             // 'price' => $this->price_to_precision($symbol, $price),
             // 'amountQuote' => $this->cost_to_precision($symbol, $cost),
-            // 'timeInForce' => 'GTC', // "GTC" "IOC" "FOK"
-            // 'selfTradePrevention' => "decrementAndCancel", // "decrementAndCancel" "cancelOldest" "cancelNewest" "cancelBoth"
+            // 'timeInForce' => 'GTC', // 'GTC', 'IOC', 'FOK'
+            // 'selfTradePrevention' => 'decrementAndCancel', // 'decrementAndCancel', 'cancelOldest', 'cancelNewest', 'cancelBoth'
             // 'postOnly' => false,
             // 'disableMarketProtection' => false, // don't cancel if the next fill $price is 10% worse than the best fill $price
             // 'responseRequired' => true, // false is faster
         );
+        $isStopLimit = ($type === 'stopLossLimit') || ($type === 'takeProfitLimit');
+        $isStopMarket = ($type === 'stopLoss') || ($type === 'takeProfit');
         if ($type === 'market') {
             $cost = null;
             if ($price !== null) {
@@ -796,6 +819,26 @@ class bitvavo extends Exchange {
             $params = $this->omit($params, array( 'cost', 'amountQuote' ));
         } else if ($type === 'limit') {
             $request['price'] = $this->price_to_precision($symbol, $price);
+            $request['amount'] = $this->amount_to_precision($symbol, $amount);
+        } else if ($isStopMarket || $isStopLimit) {
+            $stopPrice = $this->safe_float_2($params, 'stopPrice', 'triggerAmount');
+            if ($stopPrice === null) {
+                if ($isStopLimit) {
+                    throw new ArgumentsRequired($this->id . ' createOrder requires a $stopPrice parameter for a ' . $type . ' order');
+                } else if ($isStopMarket) {
+                    if ($price === null) {
+                        throw new ArgumentsRequired($this->id . ' createOrder requires a $price argument or a $stopPrice parameter for a ' . $type . ' order');
+                    } else {
+                        $stopPrice = $price;
+                    }
+                }
+            }
+            if ($isStopLimit) {
+                $request['price'] = $this->price_to_precision($symbol, $price);
+            }
+            $params = $this->omit($params, array( 'stopPrice', 'triggerAmount' ));
+            $request['triggerAmount'] = $this->price_to_precision($symbol, $stopPrice);
+            $request['triggerType'] = 'price';
             $request['amount'] = $this->amount_to_precision($symbol, $amount);
         }
         $response = $this->privatePostOrder (array_merge($request, $params));
@@ -858,13 +901,13 @@ class bitvavo extends Exchange {
             $response = $this->privatePutOrder (array_merge($request, $params));
             return $this->parse_order($response, $market);
         } else {
-            throw new ArgumentsRequired($this->id . ' editOrder requires an $amount argument, or a $price argument, or non-empty params');
+            throw new ArgumentsRequired($this->id . ' editOrder() requires an $amount argument, or a $price argument, or non-empty params');
         }
     }
 
     public function cancel_order($id, $symbol = null, $params = array ()) {
         if ($symbol === null) {
-            throw new ArgumentsRequired($this->id . ' cancelOrder requires a $symbol argument');
+            throw new ArgumentsRequired($this->id . ' cancelOrder() requires a $symbol argument');
         }
         $this->load_markets();
         $market = $this->market($symbol);
@@ -902,7 +945,7 @@ class bitvavo extends Exchange {
 
     public function fetch_order($id, $symbol = null, $params = array ()) {
         if ($symbol === null) {
-            throw new ArgumentsRequired($this->id . ' fetchOrder requires a $symbol argument');
+            throw new ArgumentsRequired($this->id . ' fetchOrder() requires a $symbol argument');
         }
         $this->load_markets();
         $this->load_markets();
@@ -951,7 +994,7 @@ class bitvavo extends Exchange {
 
     public function fetch_orders($symbol = null, $since = null, $limit = null, $params = array ()) {
         if ($symbol === null) {
-            throw new ArgumentsRequired($this->id . ' fetchOrders requires a $symbol argument');
+            throw new ArgumentsRequired($this->id . ' fetchOrders() requires a $symbol argument');
         }
         $this->load_markets();
         $market = $this->market($symbol);
@@ -1073,6 +1116,7 @@ class bitvavo extends Exchange {
             'partiallyFilled' => 'open',
             'expired' => 'canceled',
             'rejected' => 'canceled',
+            'awaitingTrigger' => 'open', // https://github.com/ccxt/ccxt/issues/8489
         );
         return $this->safe_string($statuses, $status, $status);
     }
@@ -1175,6 +1219,8 @@ class bitvavo extends Exchange {
         }
         $timeInForce = $this->safe_string($order, 'timeInForce');
         $postOnly = $this->safe_value($order, 'postOnly');
+        // https://github.com/ccxt/ccxt/issues/8489
+        $stopPrice = $this->safe_float($order, 'triggerPrice');
         return array(
             'info' => $order,
             'id' => $id,
@@ -1188,7 +1234,7 @@ class bitvavo extends Exchange {
             'postOnly' => $postOnly,
             'side' => $side,
             'price' => $price,
-            'stopPrice' => null,
+            'stopPrice' => $stopPrice,
             'amount' => $amount,
             'cost' => $cost,
             'average' => $average,
@@ -1202,7 +1248,7 @@ class bitvavo extends Exchange {
 
     public function fetch_my_trades($symbol = null, $since = null, $limit = null, $params = array ()) {
         if ($symbol === null) {
-            throw new ArgumentsRequired($this->id . ' fetchMyTrades requires a $symbol argument');
+            throw new ArgumentsRequired($this->id . ' fetchMyTrades() requires a $symbol argument');
         }
         $this->load_markets();
         $market = $this->market($symbol);

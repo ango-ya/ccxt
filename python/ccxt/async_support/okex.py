@@ -26,6 +26,7 @@ from ccxt.base.errors import OrderNotFound
 from ccxt.base.errors import CancelPending
 from ccxt.base.errors import NotSupported
 from ccxt.base.errors import DDoSProtection
+from ccxt.base.errors import RateLimitExceeded
 from ccxt.base.errors import ExchangeNotAvailable
 from ccxt.base.errors import OnMaintenance
 from ccxt.base.errors import InvalidNonce
@@ -135,6 +136,7 @@ class okex(Exchange):
                         'accounts/{currency}',
                         'accounts/{currency}/ledger',
                         'orders',
+                        'amend_order/{instrument_id}',
                         'orders_pending',
                         'orders/{order_id}',
                         'orders/{client_oid}',
@@ -225,6 +227,7 @@ class okex(Exchange):
                     'post': [
                         'accounts/{underlying}/leverage',
                         'order',
+                        'amend_order/{instrument_id}',
                         'orders',
                         'cancel_order/{instrument_id}/{order_id}',
                         'cancel_order/{instrument_id}/{client_oid}',
@@ -271,10 +274,15 @@ class okex(Exchange):
                     'post': [
                         'accounts/{instrument_id}/leverage',
                         'order',
+                        'amend_order/{instrument_id}',
                         'orders',
                         'cancel_order/{instrument_id}/{order_id}',
                         'cancel_order/{instrument_id}/{client_oid}',
                         'cancel_batch_orders/{instrument_id}',
+                        'order_algo',
+                        'cancel_algos',
+                        'close_position',
+                        'cancel_all',
                         'order_algo',
                         'cancel_algos',
                     ],
@@ -553,7 +561,7 @@ class okex(Exchange):
                     '34021': InvalidAddress,  # {"code": 34021, "message": "Not verified address"}
                     '34022': ExchangeError,  # {"code": 34022, "message": "Withdrawals are not available for sub accounts"}
                     '34023': PermissionDenied,  # {"code": 34023, "message": "Please enable futures trading before transferring your funds"}
-                    '34026': ExchangeError,  # transfer too frequently(transfer too frequently)
+                    '34026': RateLimitExceeded,  # transfer too frequently(transfer too frequently)
                     '34036': ExchangeError,  # Parameter is incorrect, please refer to API documentation
                     '34037': ExchangeError,  # Get the sub-account balance interface, account type is not supported
                     '34038': ExchangeError,  # Since your C2C transaction is unusual, you are restricted from fund transfer. Please contact our customer support to cancel the restriction
@@ -582,7 +590,7 @@ class okex(Exchange):
                     '35031': InvalidOrder,  # {"code": 35031, "message": "Cancel order size too large"}
                     '35032': ExchangeError,  # {"code": 35032, "message": "Invalid user status"}
                     '35037': ExchangeError,  # No last traded price in cache
-                    '35039': ExchangeError,  # {"code": 35039, "message": "Open order quantity exceeds limit"}
+                    '35039': InsufficientFunds,  # {"code": 35039, "message": "Open order quantity exceeds limit"}
                     '35040': InvalidOrder,  # {"error_message":"Invalid order type","result":"true","error_code":"35040","order_id":"-1"}
                     '35044': ExchangeError,  # {"code": 35044, "message": "Invalid order status"}
                     '35046': InsufficientFunds,  # {"code": 35046, "message": "Negative account balance"}
@@ -635,6 +643,7 @@ class okex(Exchange):
                     '35097': ExchangeError,  # Order status and order ID cannot exist at the same time
                     '35098': ExchangeError,  # An order status or order ID must exist
                     '35099': ExchangeError,  # Algo order ID error
+                    '35102': RateLimitExceeded,  # {"error_message":"The operation that close all at market price is too frequent","result":"true","error_code":"35102","order_id":"-1"}
                     # option
                     '36001': BadRequest,  # Invalid underlying index.
                     '36002': BadRequest,  # Instrument does not exist.
@@ -704,6 +713,7 @@ class okex(Exchange):
                 'HOT': 'Hydro Protocol',
                 'HSR': 'HC',
                 'MAG': 'Maggie',
+                'SBTC': 'Super Bitcoin',
                 'YOYO': 'YOYOW',
                 'WIN': 'WinToken',  # https://github.com/ccxt/ccxt/issues/5701
             },
@@ -1678,7 +1688,7 @@ class okex(Exchange):
         defaultType = self.safe_string_2(self.options, 'fetchBalance', 'defaultType')
         type = self.safe_string(params, 'type', defaultType)
         if type is None:
-            raise ArgumentsRequired(self.id + " fetchBalance requires a type parameter(one of 'account', 'spot', 'margin', 'futures', 'swap')")
+            raise ArgumentsRequired(self.id + " fetchBalance() requires a type parameter(one of 'account', 'spot', 'margin', 'futures', 'swap')")
         await self.load_markets()
         suffix = 'Wallet' if (type == 'account') else 'Accounts'
         method = type + 'Get' + suffix
@@ -1908,7 +1918,7 @@ class okex(Exchange):
             defaultType = self.safe_string_2(self.options, 'cancelOrder', 'defaultType', market['type'])
             type = self.safe_string(params, 'type', defaultType)
         if type is None:
-            raise ArgumentsRequired(self.id + " cancelOrder requires a type parameter(one of 'spot', 'margin', 'futures', 'swap').")
+            raise ArgumentsRequired(self.id + " cancelOrder() requires a type parameter(one of 'spot', 'margin', 'futures', 'swap').")
         method = type + 'PostCancelOrder'
         request = {
             'instrument_id': market['id'],
@@ -2113,13 +2123,13 @@ class okex(Exchange):
 
     async def fetch_order(self, id, symbol=None, params={}):
         if symbol is None:
-            raise ArgumentsRequired(self.id + ' fetchOrder requires a symbol argument')
+            raise ArgumentsRequired(self.id + ' fetchOrder() requires a symbol argument')
         await self.load_markets()
         market = self.market(symbol)
         defaultType = self.safe_string_2(self.options, 'fetchOrder', 'defaultType', market['type'])
         type = self.safe_string(params, 'type', defaultType)
         if type is None:
-            raise ArgumentsRequired(self.id + " fetchOrder requires a type parameter(one of 'spot', 'margin', 'futures', 'swap').")
+            raise ArgumentsRequired(self.id + " fetchOrder() requires a type parameter(one of 'spot', 'margin', 'futures', 'swap').")
         instrumentId = 'InstrumentId' if (market['futures'] or market['swap']) else ''
         method = type + 'GetOrders' + instrumentId
         request = {
@@ -2184,7 +2194,7 @@ class okex(Exchange):
 
     async def fetch_orders_by_state(self, state, symbol=None, since=None, limit=None, params={}):
         if symbol is None:
-            raise ArgumentsRequired(self.id + ' fetchOrdersByState requires a symbol argument')
+            raise ArgumentsRequired(self.id + ' fetchOrdersByState() requires a symbol argument')
         await self.load_markets()
         market = self.market(symbol)
         type = None
@@ -2194,7 +2204,7 @@ class okex(Exchange):
             defaultType = self.safe_string_2(self.options, 'fetchOrder', 'defaultType', market['type'])
             type = self.safe_string(params, 'type', defaultType)
         if type is None:
-            raise ArgumentsRequired(self.id + " fetchOrder requires a type parameter(one of 'spot', 'margin', 'futures', 'swap').")
+            raise ArgumentsRequired(self.id + " fetchOrdersByState() requires a type parameter(one of 'spot', 'margin', 'futures', 'swap').")
         request = {
             'instrument_id': market['id'],
             # '-2': failed,
@@ -2500,6 +2510,7 @@ class okex(Exchange):
         #         "currency": "XMR",
         #         "from": "",
         #         "to": "48PjH3ksv1fiXniKvKvyH5UtFs5WhfS2Vf7U3TwzdRJtCc7HJWvCQe56dRahyhQyTAViXZ8Nzk4gQg6o4BJBMUoxNy8y8g7",
+        #         "tag": "1234567",
         #         "deposit_id": 11571659, <-- we can use self
         #         "timestamp": "2019-10-01T14:54:19.000Z",
         #         "status": "2"
@@ -2511,6 +2522,7 @@ class okex(Exchange):
         withdrawalId = self.safe_string(transaction, 'withdrawal_id')
         addressFrom = self.safe_string(transaction, 'from')
         addressTo = self.safe_string(transaction, 'to')
+        tagTo = self.safe_string(transaction, 'tag')
         if withdrawalId is not None:
             type = 'withdrawal'
             id = withdrawalId
@@ -2547,8 +2559,8 @@ class okex(Exchange):
             'addressTo': addressTo,
             'address': address,
             'tagFrom': None,
-            'tagTo': None,
-            'tag': None,
+            'tagTo': tagTo,
+            'tag': tagTo,
             'status': status,
             'type': type,
             'updated': None,
@@ -2709,7 +2721,7 @@ class okex(Exchange):
         # self aspect renders the 'fills' endpoint unusable for fetchOrderTrades
         # until either OKEX fixes the API or we workaround self on our side somehow
         if symbol is None:
-            raise ArgumentsRequired(self.id + ' fetchMyTrades requires a symbol argument')
+            raise ArgumentsRequired(self.id + ' fetchMyTrades() requires a symbol argument')
         await self.load_markets()
         market = self.market(symbol)
         if (limit is not None) and (limit > 100):
@@ -3087,15 +3099,26 @@ class okex(Exchange):
         if limit is not None:
             request['limit'] = limit
         currency = None
-        if (type == 'spot') or (type == 'futures'):
+        if type == 'spot':
             if code is None:
-                raise ArgumentsRequired(self.id + " fetchLedger requires a currency code argument for '" + type + "' markets")
+                raise ArgumentsRequired(self.id + " fetchLedger() requires a currency code argument for '" + type + "' markets")
             argument = 'Currency'
             currency = self.currency(code)
             request['currency'] = currency['id']
+        elif type == 'futures':
+            if code is None:
+                raise ArgumentsRequired(self.id + " fetchLedger() requires an underlying symbol for '" + type + "' markets")
+            argument = 'Underlying'
+            market = self.market(code)  # we intentionally put a market inside here for the margin and swap ledgers
+            marketInfo = self.safe_value(market, 'info', {})
+            settlementCurrencyId = self.safe_string(marketInfo, 'settlement_currency')
+            settlementCurrencyСode = self.safe_currency_code(settlementCurrencyId)
+            currency = self.currency(settlementCurrencyСode)
+            underlyingId = self.safe_string(marketInfo, 'underlying')
+            request['underlying'] = underlyingId
         elif (type == 'margin') or (type == 'swap'):
             if code is None:
-                raise ArgumentsRequired(self.id + " fetchLedger requires a code argument(a market symbol) for '" + type + "' markets")
+                raise ArgumentsRequired(self.id + " fetchLedger() requires a code argument(a market symbol) for '" + type + "' markets")
             argument = 'InstrumentId'
             market = self.market(code)  # we intentionally put a market inside here for the margin and swap ledgers
             currency = self.currency(market['base'])

@@ -702,7 +702,7 @@ class exmo(Exchange):
         now = self.milliseconds()
         if since is None:
             if limit is None:
-                raise ArgumentsRequired(self.id + ' fetchOHLCV requires a since argument or a limit argument')
+                raise ArgumentsRequired(self.id + ' fetchOHLCV() requires a since argument or a limit argument')
             else:
                 if limit > maxLimit:
                     raise BadRequest(self.id + ' fetchOHLCV will serve ' + str(maxLimit) + ' candles at most')
@@ -1359,12 +1359,20 @@ class exmo(Exchange):
         type = self.safe_string(transaction, 'type')
         currencyId = self.safe_string(transaction, 'curr')
         code = self.safe_currency_code(currencyId, currency)
-        address = self.safe_string(transaction, 'account')
-        if address is not None:
-            parts = address.split(':')
-            numParts = len(parts)
-            if numParts == 2:
-                address = parts[1].replace(' ', '')
+        address = None
+        tag = None
+        comment = None
+        account = self.safe_string(transaction, 'account')
+        if type == 'deposit':
+            comment = account
+        elif type == 'withdrawal':
+            address = account
+            if address is not None:
+                parts = address.split(':')
+                numParts = len(parts)
+                if numParts == 2:
+                    address = self.safe_string(parts, 1)
+                    address = address.replace(' ', '')
         fee = None
         # fixed funding fees only(for now)
         if not self.fees['funding']['percentage']:
@@ -1386,16 +1394,21 @@ class exmo(Exchange):
         return {
             'info': transaction,
             'id': None,
+            'timestamp': timestamp,
+            'datetime': self.iso8601(timestamp),
             'currency': code,
             'amount': amount,
             'address': address,
-            'tag': None,  # refix it properly
+            'addressTo': address,
+            'addressFrom': None,
+            'tag': tag,
+            'tagTo': tag,
+            'tagFrom': None,
             'status': status,
             'type': type,
             'updated': None,
+            'comment': comment,
             'txid': txid,
-            'timestamp': timestamp,
-            'datetime': self.iso8601(timestamp),
             'fee': fee,
         }
 

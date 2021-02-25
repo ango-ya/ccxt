@@ -113,6 +113,7 @@ class huobipro(Exchange):
                         'user/api-key',  # 母子用户API key信息查询
                     ],
                     'post': [
+                        'account/transfer',
                         'point/transfer',  # 点卡划转
                         'sub-user/management',  # 冻结/解冻子用户
                         'sub-user/creation',  # 子用户创建
@@ -210,9 +211,14 @@ class huobipro(Exchange):
                 },
             },
             'exceptions': {
+                'broad': {
+                    'contract is restricted of closing positions on API.  Please contact customer service': OnMaintenance,
+                    'maintain': OnMaintenance,
+                },
                 'exact': {
                     # err-code
                     'bad-request': BadRequest,
+                    'base-date-limit-error': BadRequest,  # {"status":"error","err-code":"base-date-limit-error","err-msg":"date less than system limit","data":null}
                     'api-not-support-temp-addr': PermissionDenied,  # {"status":"error","err-code":"api-not-support-temp-addr","err-msg":"API withdrawal does not support temporary addresses","data":null}
                     'timeout': RequestTimeout,  # {"ts":1571653730865,"status":"error","err-code":"timeout","err-msg":"Request Timeout"}
                     'gateway-internal-error': ExchangeNotAvailable,  # {"status":"error","err-code":"gateway-internal-error","err-msg":"Failed to load data. Try again later.","data":null}
@@ -260,6 +266,7 @@ class huobipro(Exchange):
                 # https://coinmarketcap.com/currencies/penta/markets/
                 # https://en.cryptonomist.ch/blog/eidoo/the-edo-to-pnt-upgrade-what-you-need-to-know-updated/
                 'PNT': 'Penta',
+                'SBTC': 'Super Bitcoin',
             },
         })
 
@@ -658,7 +665,8 @@ class huobipro(Exchange):
         if limit is not None:
             request['size'] = limit  # 1-100 orders, default is 100
         if since is not None:
-            request['start-date'] = self.ymd(since)  # maximum query window size is 2 days, query window shift should be within past 120 days
+            request['start-date'] = self.ymd(since)  # a date within 61 days from today
+            request['end-date'] = self.ymd(self.sum(since, 86400000))
         response = self.privateGetOrderMatchresults(self.extend(request, params))
         trades = self.parse_trades(response['data'], market, since, limit)
         return trades
@@ -904,7 +912,7 @@ class huobipro(Exchange):
 
     def fetch_open_orders_v1(self, symbol=None, since=None, limit=None, params={}):
         if symbol is None:
-            raise ArgumentsRequired(self.id + ' fetchOpenOrdersV1 requires a symbol argument')
+            raise ArgumentsRequired(self.id + ' fetchOpenOrdersV1() requires a symbol argument')
         return self.fetch_orders_by_states('pre-submitted,submitted,partial-filled', symbol, since, limit, params)
 
     def fetch_closed_orders(self, symbol=None, since=None, limit=None, params={}):
@@ -913,7 +921,7 @@ class huobipro(Exchange):
     def fetch_open_orders_v2(self, symbol=None, since=None, limit=None, params={}):
         self.load_markets()
         if symbol is None:
-            raise ArgumentsRequired(self.id + ' fetchOpenOrders requires a symbol argument')
+            raise ArgumentsRequired(self.id + ' fetchOpenOrders() requires a symbol argument')
         market = self.market(symbol)
         accountId = self.safe_string(params, 'account-id')
         if accountId is None:
@@ -1392,6 +1400,7 @@ class huobipro(Exchange):
             if status == 'error':
                 code = self.safe_string(response, 'err-code')
                 feedback = self.id + ' ' + body
+                self.throw_broadly_matched_exception(self.exceptions['broad'], body, feedback)
                 self.throw_exactly_matched_exception(self.exceptions['exact'], code, feedback)
                 message = self.safe_string(response, 'err-msg')
                 self.throw_exactly_matched_exception(self.exceptions['exact'], message, feedback)
