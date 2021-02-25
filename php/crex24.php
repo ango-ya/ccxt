@@ -142,6 +142,7 @@ class crex24 extends Exchange {
                 'GHOST' => 'GHOSTPRISM',
                 'IQ' => 'IQ.Cash',
                 'PUT' => 'PutinCoin',
+                'SBTC' => 'SBTCT', // SiamBitcoin
                 'UNI' => 'Universe',
                 'YOYO' => 'YOYOW',
             ),
@@ -167,6 +168,7 @@ class crex24 extends Exchange {
                     "Parameter 'instrument' contains invalid value." => '\\ccxt\\BadSymbol',
                 ),
                 'broad' => array(
+                    'try again later' => '\\ccxt\\ExchangeNotAvailable', // array("errorDescription":"Failed to process the request. Please, try again later.")
                     'API Key' => '\\ccxt\\AuthenticationError', // "API Key '9edc48de-d5b0-4248-8e7e-f59ffcd1c7f1' doesn't exist."
                     'Insufficient funds' => '\\ccxt\\InsufficientFunds', // "Insufficient funds => new order requires 10 ETH which is more than the available balance."
                     'has been delisted.' => '\\ccxt\\BadSymbol', // array("errorDescription":"Instrument '$PAC-BTC' has been delisted.")
@@ -766,14 +768,14 @@ class crex24 extends Exchange {
         }
         if ($priceIsRequired) {
             if ($price === null) {
-                throw new InvalidOrder($this->id . ' createOrder method requires a $price argument for a ' . $type . ' order');
+                throw new InvalidOrder($this->id . ' createOrder() requires a $price argument for a ' . $type . ' order');
             }
             $request['price'] = $this->price_to_precision($symbol, $price);
         }
         if ($stopPriceIsRequired) {
             $stopPrice = $this->safe_float($params, 'stopPrice');
             if ($stopPrice === null) {
-                throw new InvalidOrder($this->id . ' createOrder method requires a $stopPrice extra param for a ' . $type . ' order');
+                throw new InvalidOrder($this->id . ' createOrder() requires a $stopPrice extra param for a ' . $type . ' order');
             } else {
                 $request['stopPrice'] = $this->price_to_precision($symbol, $stopPrice);
             }

@@ -18,6 +18,7 @@ from ccxt.base.errors import BadRequest
 from ccxt.base.errors import InsufficientFunds
 from ccxt.base.errors import InvalidOrder
 from ccxt.base.errors import OrderNotFound
+from ccxt.base.errors import CancelPending
 from ccxt.base.errors import RateLimitExceeded
 from ccxt.base.errors import ExchangeNotAvailable
 from ccxt.base.decimal_to_precision import TICK_SIZE
@@ -30,7 +31,7 @@ class ftx(Exchange):
             'id': 'ftx',
             'name': 'FTX',
             'countries': ['HK'],
-            'rateLimit': 100,
+            'rateLimit': 50,
             'certified': True,
             'pro': True,
             'hostname': 'ftx.com',  # or ftx.us
@@ -115,9 +116,11 @@ class ftx(Exchange):
                         'wallet/coins',
                         'wallet/balances',
                         'wallet/all_balances',
-                        'wallet/deposit_address/{coin}',
+                        'wallet/deposit_address/{coin}',  # ?method={method}
                         'wallet/deposits',
                         'wallet/withdrawals',
+                        'wallet/airdrops',
+                        'wallet/saved_addresses',
                         'orders',  # ?market={market}
                         'orders/history',  # ?market={market}
                         'orders/{order_id}',
@@ -125,6 +128,14 @@ class ftx(Exchange):
                         'conditional_orders',  # ?market={market}
                         'conditional_orders/{conditional_order_id}/triggers',
                         'conditional_orders/history',  # ?market={market}
+                        'spot_margin/borrow_rates',
+                        'spot_margin/lending_rates',
+                        'spot_margin/borrow_summary',
+                        'spot_margin/market_info',  # ?market={market}
+                        'spot_margin/borrow_history',
+                        'spot_margin/lending_history',
+                        'spot_margin/offers',
+                        'spot_margin/lending_info',
                         'fills',  # ?market={market}
                         'funding_payments',
                         # leverage tokens
@@ -143,15 +154,23 @@ class ftx(Exchange):
                         'options/account_info',
                         'options/positions',
                         'options/fills',
+                        # staking
+                        'staking/stakes',
+                        'staking/unstake_requests',
+                        'staking/balances',
+                        'staking/staking_rewards',
                     ],
                     'post': [
                         'account/leverage',
                         'wallet/withdrawals',
+                        'wallet/saved_addresses',
                         'orders',
                         'conditional_orders',
                         'orders/{order_id}/modify',
                         'orders/by_client_id/{client_order_id}/modify',
                         'conditional_orders/{order_id}/modify',
+                        # spot margin
+                        'spot_margin/offers',
                         # leverage tokens
                         'lt/{token_name}/create',
                         'lt/{token_name}/redeem',
@@ -166,8 +185,12 @@ class ftx(Exchange):
                         'options/requests',
                         'options/requests/{request_id}/quotes',
                         'options/quotes/{quote_id}/accept',
+                        # staking
+                        'staking/unstake_requests',
+                        'srm_stakes/stakes',
                     ],
                     'delete': [
+                        'wallet/saved_addresses/{saved_address_id}',
                         'orders/{order_id}',
                         'orders/by_client_id/{client_order_id}',
                         'orders',
@@ -177,6 +200,8 @@ class ftx(Exchange):
                         # options
                         'options/requests/{request_id}',
                         'options/quotes/{quote_id}',
+                        # staking
+                        'staking/unstake_requests/{request_id}',
                     ],
                 },
             },
@@ -211,6 +236,7 @@ class ftx(Exchange):
             },
             'exceptions': {
                 'exact': {
+                    'Please slow down': RateLimitExceeded,  # {"error":"Please slow down","success":false}
                     'Size too small for provide': InvalidOrder,  # {"error":"Size too small for provide","success":false}
                     'Not logged in': AuthenticationError,  # {"error":"Not logged in","success":false}
                     'Not enough balances': InsufficientFunds,  # {"error":"Not enough balances","success":false}
@@ -219,14 +245,16 @@ class ftx(Exchange):
                     'Missing parameter price': InvalidOrder,  # {"error":"Missing parameter price","success":false}
                     'Order not found': OrderNotFound,  # {"error":"Order not found","success":false}
                     'Order already closed': InvalidOrder,  # {"error":"Order already closed","success":false}
+                    'Order already queued for cancellation': CancelPending,  # {"error":"Order already queued for cancellation","success":false}
                 },
                 'broad': {
+                    'Account does not have enough margin for order': InsufficientFunds,
                     'Invalid parameter': BadRequest,  # {"error":"Invalid parameter start_time","success":false}
                     'The requested URL was not found on the server': BadRequest,
                     'No such coin': BadRequest,
                     'No such market': BadRequest,
                     'Do not send more than': RateLimitExceeded,
-                    'An unexpected error occurred': ExchangeError,  # {"error":"An unexpected error occurred, please try again later(58BC21C795).","success":false}
+                    'An unexpected error occurred': ExchangeNotAvailable,  # {"error":"An unexpected error occurred, please try again later(58BC21C795).","success":false}
                     'Please retry request': ExchangeNotAvailable,  # {"error":"Please retry request","success":false}
                     'Please try again': ExchangeNotAvailable,  # {"error":"Please try again","success":false}
                 },
@@ -662,21 +690,39 @@ class ftx(Exchange):
         #         "type": "order"
         #     }
         #
+        #     {
+        #         "baseCurrency": "BTC",
+        #         "fee": 0,
+        #         "feeCurrency": "USD",
+        #         "feeRate": 0,
+        #         "future": null,
+        #         "id": 664079556,
+        #         "liquidity": "taker",
+        #         "market": null,
+        #         "orderId": null,
+        #         "price": 34830.61359,
+        #         "quoteCurrency": "USD",
+        #         "side": "sell",
+        #         "size": 0.0005996,
+        #         "time": "2021-01-15T16:05:29.246135+00:00",
+        #         "tradeId": null,
+        #         "type": "otc"
+        #     }
+        #
         id = self.safe_string(trade, 'id')
         takerOrMaker = self.safe_string(trade, 'liquidity')
         marketId = self.safe_string(trade, 'market')
         symbol = None
-        if marketId is not None:
-            if marketId in self.markets_by_id:
-                market = self.markets_by_id[marketId]
-                symbol = market['symbol']
+        if marketId in self.markets_by_id:
+            market = self.markets_by_id[marketId]
+            symbol = market['symbol']
+        else:
+            base = self.safe_currency_code(self.safe_string(trade, 'baseCurrency'))
+            quote = self.safe_currency_code(self.safe_string(trade, 'quoteCurrency'))
+            if (base is not None) and (quote is not None):
+                symbol = base + '/' + quote
             else:
-                base = self.safe_currency_code(self.safe_string(trade, 'baseCurrency'))
-                quote = self.safe_currency_code(self.safe_string(trade, 'quoteCurrency'))
-                if (base is not None) and (quote is not None):
-                    symbol = base + '/' + quote
-                else:
-                    symbol = marketId
+                symbol = marketId
         timestamp = self.parse8601(self.safe_string(trade, 'time'))
         price = self.safe_float(trade, 'price')
         amount = self.safe_float(trade, 'size')
@@ -1116,12 +1162,12 @@ class ftx(Exchange):
                 request['trailValue'] = float(self.price_to_precision(symbol, trailValue))
         else:
             if clientOrderId is None:
+                method = 'privatePostOrdersOrderIdModify'
+                request['order_id'] = id
+            else:
                 method = 'privatePostOrdersByClientIdClientOrderIdModify'
                 request['client_order_id'] = clientOrderId
                 # request['clientId'] = clientOrderId
-            else:
-                method = 'privatePostOrdersOrderIdModify'
-                request['order_id'] = id
             if price is not None:
                 request['price'] = float(self.price_to_precision(symbol, price))
         if amount is not None:
@@ -1182,9 +1228,7 @@ class ftx(Exchange):
 
     def cancel_order(self, id, symbol=None, params={}):
         self.load_markets()
-        request = {
-            'order_id': int(id),
-        }
+        request = {}
         # support for canceling conditional orders
         # https://github.com/ccxt/ccxt/issues/6669
         options = self.safe_value(self.options, 'cancelOrder', {})
@@ -1212,11 +1256,16 @@ class ftx(Exchange):
 
     def cancel_all_orders(self, symbol=None, params={}):
         self.load_markets()
+        conditionalOrdersOnly = self.safe_value(params, 'conditionalOrdersOnly')
         request = {
             # 'market': market['id'],  # optional
-            'conditionalOrdersOnly': False,  # cancel conditional orders only
-            'limitOrdersOnly': False,  # cancel existing limit orders(non-conditional orders) only
+            # 'conditionalOrdersOnly': False,  # cancel conditional orders only
+            # 'limitOrdersOnly': False,  # cancel existing limit orders(non-conditional orders) only
         }
+        if conditionalOrdersOnly:
+            request['conditionalOrdersOnly'] = conditionalOrdersOnly
+        else:
+            request['limitOrdersOnly'] = True
         marketId = self.get_market_id(symbol, 'market', params)
         if marketId is not None:
             request['market'] = marketId
@@ -1370,6 +1419,7 @@ class ftx(Exchange):
             request['limit'] = limit
         if since is not None:
             request['start_time'] = int(since / 1000)
+            request['end_time'] = self.seconds()
         response = self.privateGetFills(self.extend(request, params))
         #
         #     {
@@ -1551,6 +1601,15 @@ class ftx(Exchange):
         #         "txid": "0x8078356ae4b06a036d64747546c274af19581f1c78c510b60505798a7ffcaf1"
         #     }
         #
+        #     {
+        #         "coin": 'BTC',
+        #         "id": 1969806,
+        #         "notes": 'Transfer to Dd6gi7m2Eg4zzBbPAxuwfEaHs6tYvyUX5hbPpsTcNPXo',
+        #         "size": 0.003,
+        #         "status": 'complete',
+        #         "time": '2021-02-03T20:28:54.918146+00:00'
+        #     }
+        #
         code = self.safe_currency_code(self.safe_string(transaction, 'coin'))
         id = self.safe_string(transaction, 'id')
         amount = self.safe_float(transaction, 'size')
@@ -1562,8 +1621,12 @@ class ftx(Exchange):
         if not isinstance(address, basestring):
             tag = self.safe_string(address, 'tag')
             address = self.safe_string(address, 'address')
+        if address is None:
+            # parse address from internal transfer
+            notes = self.safe_string(transaction, 'notes')
+            if notes is not None:
+                address = notes[12:]
         fee = self.safe_float(transaction, 'fee')
-        type = 'withdrawal' if ('destinationName' in transaction) else 'deposit'
         return {
             'info': transaction,
             'id': id,
@@ -1576,7 +1639,7 @@ class ftx(Exchange):
             'tagFrom': None,
             'tag': tag,
             'tagTo': tag,
-            'type': type,
+            'type': None,
             'amount': amount,
             'currency': code,
             'status': status,
@@ -1612,7 +1675,7 @@ class ftx(Exchange):
         currency = None
         if code is not None:
             currency = self.currency(code)
-        return self.parse_transactions(result, currency, since, limit)
+        return self.parse_transactions(result, currency, since, limit, {'type': 'deposit'})
 
     def fetch_withdrawals(self, code=None, since=None, limit=None, params={}):
         self.load_markets()
@@ -1637,7 +1700,7 @@ class ftx(Exchange):
         currency = None
         if code is not None:
             currency = self.currency(code)
-        return self.parse_transactions(result, currency, since, limit)
+        return self.parse_transactions(result, currency, since, limit, {'type': 'withdrawal'})
 
     def sign(self, path, api='public', method='GET', params={}, headers=None, body=None):
         request = '/api/' + self.implode_params(path, params)

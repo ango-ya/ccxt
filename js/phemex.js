@@ -102,6 +102,7 @@ module.exports = class phemex extends Exchange {
                         'exchange/spot/order/trades', // ?symbol=<symbol>&start=<start>&end=<end>&limit=<limit>&offset=<offset>
                         // swap
                         'accounts/accountPositions', // ?currency=<currency>
+                        'accounts/positions', // ?currency=<currency>
                         'orders/activeList', // ?symbol=<symbol>
                         'exchange/order/list', // ?symbol=<symbol>&start=<start>&end=<end>&offset=<offset>&limit=<limit>&ordStatus=<ordStatus>&withCount=<withCount>
                         'exchange/order', // ?symbol=<symbol>&orderID=<orderID1,orderID2>
@@ -728,7 +729,7 @@ module.exports = class phemex extends Exchange {
 
     parseBidAsk (bidask, priceKey = 0, amountKey = 1, market = undefined) {
         if (market === undefined) {
-            throw new ArgumentsRequired (this.id + ' parseBidAsk requires a market argument');
+            throw new ArgumentsRequired (this.id + ' parseBidAsk() requires a market argument');
         }
         let amount = this.safeFloat (bidask, amountKey);
         if (market['spot']) {
@@ -821,6 +822,9 @@ module.exports = class phemex extends Exchange {
     }
 
     fromEn (en, scale, precision, precisionMode = undefined) {
+        if (en === undefined) {
+            return en;
+        }
         precisionMode = (precisionMode === undefined) ? this.precisionMode : precisionMode;
         return parseFloat (this.decimalToPrecision (en * Math.pow (10, -scale), ROUND, precision, precisionMode));
     }
@@ -903,7 +907,7 @@ module.exports = class phemex extends Exchange {
             request['from'] = now - duration * this.sum (limit, 1);
             request['to'] = now;
         } else {
-            throw new ArgumentsRequired (this.id + ' fetchOHLCV requires a since argument, or a limit argument, or both');
+            throw new ArgumentsRequired (this.id + ' fetchOHLCV() requires a since argument, or a limit argument, or both');
         }
         await this.loadMarkets ();
         const market = this.market (symbol);
@@ -1408,7 +1412,7 @@ module.exports = class phemex extends Exchange {
             } else {
                 const currency = this.safeString (params, 'currency');
                 if (currency === undefined) {
-                    throw new ArgumentsRequired (this.id + ' fetchBalance requires a code parameter or a currency parameter for ' + type + ' type');
+                    throw new ArgumentsRequired (this.id + ' fetchBalance() requires a code parameter or a currency parameter for ' + type + ' type');
                 }
             }
             method = 'privateGetAccountsAccountPositions';
@@ -1796,8 +1800,10 @@ module.exports = class phemex extends Exchange {
         };
         if (market['spot']) {
             let qtyType = this.safeValue (params, 'qtyType', 'ByBase');
-            if (price !== undefined) {
-                qtyType = 'ByQuote';
+            if ((type === 'Market') || (type === 'Stop') || (type === 'MarketIfTouched')) {
+                if (price !== undefined) {
+                    qtyType = 'ByQuote';
+                }
             }
             request['qtyType'] = qtyType;
             if (qtyType === 'ByQuote') {
@@ -1807,7 +1813,7 @@ module.exports = class phemex extends Exchange {
                     if (price !== undefined) {
                         cost = amount * price;
                     } else if (cost === undefined) {
-                        throw new ArgumentsRequired (this.id + ' createOrder ' + qtyType + ' requires a price argument or a cost parameter');
+                        throw new ArgumentsRequired (this.id + ' createOrder() ' + qtyType + ' requires a price argument or a cost parameter');
                     }
                 }
                 cost = (cost === undefined) ? amount : cost;
@@ -1910,7 +1916,7 @@ module.exports = class phemex extends Exchange {
 
     async cancelOrder (id, symbol = undefined, params = {}) {
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' cancelOrder requires a symbol argument');
+            throw new ArgumentsRequired (this.id + ' cancelOrder() requires a symbol argument');
         }
         await this.loadMarkets ();
         const market = this.market (symbol);
@@ -1950,7 +1956,7 @@ module.exports = class phemex extends Exchange {
 
     async fetchOrder (id, symbol = undefined, params = {}) {
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' fetchOrder requires a symbol argument');
+            throw new ArgumentsRequired (this.id + ' fetchOrder() requires a symbol argument');
         }
         await this.loadMarkets ();
         const market = this.market (symbol);
@@ -1984,7 +1990,7 @@ module.exports = class phemex extends Exchange {
 
     async fetchOrders (symbol = undefined, since = undefined, limit = undefined, params = {}) {
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' fetchOrders requires a symbol argument');
+            throw new ArgumentsRequired (this.id + ' fetchOrders() requires a symbol argument');
         }
         await this.loadMarkets ();
         const market = this.market (symbol);
@@ -2006,7 +2012,7 @@ module.exports = class phemex extends Exchange {
 
     async fetchOpenOrders (symbol = undefined, since = undefined, limit = undefined, params = {}) {
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' fetchOpenOrders requires a symbol argument');
+            throw new ArgumentsRequired (this.id + ' fetchOpenOrders() requires a symbol argument');
         }
         await this.loadMarkets ();
         const market = this.market (symbol);
@@ -2030,7 +2036,7 @@ module.exports = class phemex extends Exchange {
 
     async fetchClosedOrders (symbol = undefined, since = undefined, limit = undefined, params = {}) {
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' fetchClosedOrders requires a symbol argument');
+            throw new ArgumentsRequired (this.id + ' fetchClosedOrders() requires a symbol argument');
         }
         await this.loadMarkets ();
         const market = this.market (symbol);
@@ -2092,7 +2098,7 @@ module.exports = class phemex extends Exchange {
 
     async fetchMyTrades (symbol = undefined, since = undefined, limit = undefined, params = {}) {
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' fetchClosedOrders requires a symbol argument');
+            throw new ArgumentsRequired (this.id + ' fetchClosedOrders() requires a symbol argument');
         }
         await this.loadMarkets ();
         const market = this.market (symbol);
@@ -2327,7 +2333,7 @@ module.exports = class phemex extends Exchange {
         const currencyId = this.safeString (transaction, 'currency');
         currency = this.safeCurrency (currencyId, currency);
         const code = currency['code'];
-        const timestamp = this.safeInteger (transaction, 'createdAt');
+        const timestamp = this.safeInteger2 (transaction, 'createdAt', 'submitedAt');
         let type = this.safeStringLower (transaction, 'type');
         const feeCost = this.fromEn (this.safeFloat (transaction, 'feeEv'), currency['valueScale'], currency['precision']);
         let fee = undefined;

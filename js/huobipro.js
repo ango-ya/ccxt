@@ -98,6 +98,7 @@ module.exports = class huobipro extends Exchange {
                         'user/api-key', // 母子用户API key信息查询
                     ],
                     'post': [
+                        'account/transfer',
                         'point/transfer', // 点卡划转
                         'sub-user/management', // 冻结/解冻子用户
                         'sub-user/creation', // 子用户创建
@@ -195,9 +196,14 @@ module.exports = class huobipro extends Exchange {
                 },
             },
             'exceptions': {
+                'broad': {
+                    'contract is restricted of closing positions on API.  Please contact customer service': OnMaintenance,
+                    'maintain': OnMaintenance,
+                },
                 'exact': {
                     // err-code
                     'bad-request': BadRequest,
+                    'base-date-limit-error': BadRequest, // {"status":"error","err-code":"base-date-limit-error","err-msg":"date less than system limit","data":null}
                     'api-not-support-temp-addr': PermissionDenied, // {"status":"error","err-code":"api-not-support-temp-addr","err-msg":"API withdrawal does not support temporary addresses","data":null}
                     'timeout': RequestTimeout, // {"ts":1571653730865,"status":"error","err-code":"timeout","err-msg":"Request Timeout"}
                     'gateway-internal-error': ExchangeNotAvailable, // {"status":"error","err-code":"gateway-internal-error","err-msg":"Failed to load data. Try again later.","data":null}
@@ -245,6 +251,7 @@ module.exports = class huobipro extends Exchange {
                 // https://coinmarketcap.com/currencies/penta/markets/
                 // https://en.cryptonomist.ch/blog/eidoo/the-edo-to-pnt-upgrade-what-you-need-to-know-updated/
                 'PNT': 'Penta',
+                'SBTC': 'Super Bitcoin',
             },
         });
     }
@@ -677,7 +684,8 @@ module.exports = class huobipro extends Exchange {
             request['size'] = limit; // 1-100 orders, default is 100
         }
         if (since !== undefined) {
-            request['start-date'] = this.ymd (since); // maximum query window size is 2 days, query window shift should be within past 120 days
+            request['start-date'] = this.ymd (since); // a date within 61 days from today
+            request['end-date'] = this.ymd (this.sum (since, 86400000));
         }
         const response = await this.privateGetOrderMatchresults (this.extend (request, params));
         const trades = this.parseTrades (response['data'], market, since, limit);
@@ -945,7 +953,7 @@ module.exports = class huobipro extends Exchange {
 
     async fetchOpenOrdersV1 (symbol = undefined, since = undefined, limit = undefined, params = {}) {
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' fetchOpenOrdersV1 requires a symbol argument');
+            throw new ArgumentsRequired (this.id + ' fetchOpenOrdersV1() requires a symbol argument');
         }
         return await this.fetchOrdersByStates ('pre-submitted,submitted,partial-filled', symbol, since, limit, params);
     }
@@ -957,7 +965,7 @@ module.exports = class huobipro extends Exchange {
     async fetchOpenOrdersV2 (symbol = undefined, since = undefined, limit = undefined, params = {}) {
         await this.loadMarkets ();
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' fetchOpenOrders requires a symbol argument');
+            throw new ArgumentsRequired (this.id + ' fetchOpenOrders() requires a symbol argument');
         }
         const market = this.market (symbol);
         let accountId = this.safeString (params, 'account-id');
@@ -1487,6 +1495,7 @@ module.exports = class huobipro extends Exchange {
             if (status === 'error') {
                 const code = this.safeString (response, 'err-code');
                 const feedback = this.id + ' ' + body;
+                this.throwBroadlyMatchedException (this.exceptions['broad'], body, feedback);
                 this.throwExactlyMatchedException (this.exceptions['exact'], code, feedback);
                 const message = this.safeString (response, 'err-msg');
                 this.throwExactlyMatchedException (this.exceptions['exact'], message, feedback);
