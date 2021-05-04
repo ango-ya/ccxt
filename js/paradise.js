@@ -28,9 +28,10 @@ module.exports = class paradise extends Exchange {
                 'fetchMyTrades': true,
                 'fetchOHLCV': true,
                 'fetchOpenOrders': true,
-                'fetchOrder': true,
+                'fetchOrder': false,
                 'fetchOrderBook': true,
                 'fetchOrders': false,
+                'fetchOrderTrades': true,
                 'fetchTicker': true,
                 'fetchTickers': false,
                 'fetchTrades': true,
@@ -359,6 +360,26 @@ module.exports = class paradise extends Exchange {
         const method = (type === 'spot') ? 'spotv3privateGetUserTradeHistory' : 'futuresv2privateGetUserTradeHistory';
         const response = await this[method] (this.extend (request, params));
         return this.parseTrades (response, market, since, limit);
+    }
+
+    async fetchOrderTrades(id, symbol = undefined, since = undefined, limit = undefined, params = {}) {
+        await this.loadMarkets();
+        const market = this.market(symbol);
+        const request = {
+            'symbol': market['id'],
+            'orderID': id
+        };
+        if (limit !== undefined) {
+            request['count'] = limit;
+        }
+        if (since !== undefined) {
+            request['startTime'] = parseInt(since / 1000);
+        }
+        const defaultType = this.safeString2(this.options, 'GetUserTradeHistory', 'defaultType', 'spot');
+        const type = this.safeString(params, 'type', defaultType);
+        const method = (type === 'spot') ? 'spotv3privateGetUserTradeHistory' : 'futuresv2privateGetUserTradeHistory';
+        const response = await this[method](this.extend(request, params));
+        return this.parseTrades(response, market, since, limit);
     }
 
     parseTrade (trade, market = undefined) {
