@@ -337,15 +337,15 @@ module.exports = class coincheck extends Exchange {
         return this.parseTrades (transactions, market, since, limit);
     }
 
-    async fetchOrderTrades(id, symbol = undefined, since = undefined, limit = undefined, params = {}) {
-        await this.loadMarkets();
+    async fetchOrderTrades (id, symbol = undefined, since = undefined, limit = undefined, params = {}) {
+        await this.loadMarkets ();
         const request = {};
         request['limit'] = 100;
         request['order'] = 'desc';
-        const response = await this.privateGetExchangeOrdersTransactionsPagination(this.extend(request, params));
-        const transactions = this.safeValue(response, 'transactions', []);
-        const trades = this.parseTrades(transactions);
-        return trades.filter(trade => trade.order === id)
+        const response = await this.privateGetExchangeOrdersTransactionsPagination (this.extend (request, params));
+        const transactions = this.safeValue (response, 'transactions', []);
+        const trades = this.parseTrades (transactions);
+        return trades.filter ((trade) => trade.order === id);
     }
 
     async fetchTrades (symbol, since = undefined, limit = undefined, params = {}) {
