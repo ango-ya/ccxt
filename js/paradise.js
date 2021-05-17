@@ -4,7 +4,7 @@
 
 const Exchange = require ('./base/Exchange');
 const { TICK_SIZE } = require ('./base/functions/number');
-const { InvalidOrder, ArgumentsRequired } = require ('./base/errors');
+const { InvalidOrder, ArgumentsRequired, AuthenticationError } = require ('./base/errors');
 
 //  ---------------------------------------------------------------------------
 
@@ -172,6 +172,9 @@ module.exports = class paradise extends Exchange {
                     'maker': -0.01 / 100,
                     'taker': 0.06 / 100,
                 },
+            },
+            'httpExceptions': {
+                '403': AuthenticationError,
             },
             'exceptions': {},
             'precisionMode': TICK_SIZE,
