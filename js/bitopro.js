@@ -32,6 +32,7 @@ module.exports = class bitopro extends Exchange {
                 'createOrder': true,
                 'cancelOrder': true,
                 'fetchOrder': true,
+                'withdraw': true,
             },
             'timeframes': {
                 '1m': '1m',
@@ -76,6 +77,7 @@ module.exports = class bitopro extends Exchange {
                     ],
                     'post': [
                         'orders/{pair}',
+                        'wallet/withdraw/{currency}',
                     ],
                     'delete': [
                         'orders/{pair}/{id}',
@@ -306,6 +308,7 @@ module.exports = class bitopro extends Exchange {
     }
 
     async fetchTicker (symbol, params = {}) {
+        await this.loadMarkets ();
         const market = this.market (symbol);
         const request = {
             'pair': market['id'],
@@ -547,6 +550,23 @@ module.exports = class bitopro extends Exchange {
             }
         }
         return result;
+    }
+
+    async withdraw (code, amount, address, tag = undefined, params = {}) {
+        await this.loadMarkets ();
+        const currency = this.currency (code);
+        const request = {
+            'currency': currency['id'],
+            'address': address,
+            'amount': amount,
+        };
+        const response = await this.privatePostWalletWithdrawCurrency (this.extend (request, params));
+        const data = this.safeValue (response, 'data', {});
+        const serial = this.safeString (data, 'serial');
+        return {
+            'id': serial,
+            'info': response,
+        };
     }
 
     nonce () {

@@ -445,6 +445,7 @@ declare module '@ango-ya/ccxt' {
     export class bitmart extends Exchange {}
     export class bitmax extends Exchange {}
     export class bitmex extends Exchange {}
+    export class bitopro extends Exchange {}
     export class bitpanda extends Exchange {}
     export class bitso extends Exchange {}
     export class bitstamp extends Exchange {}
