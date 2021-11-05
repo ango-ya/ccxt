@@ -143,6 +143,8 @@ module.exports = class adambit extends Exchange {
                 '40025': ExchangeError,
                 '40013': OrderNotFound,
                 '40014': OrderNotFound,
+                '40006': ExchangeError,
+                '40022': ExchangeError,
                 '50008': PermissionDenied,
                 '50009': OrderNotFound,
                 '50010': OrderNotFound,
@@ -416,16 +418,15 @@ module.exports = class adambit extends Exchange {
         this.timeout = 10000;
         await this.loadMarkets ();
         const market = this.market (symbol);
-        if (price === undefined) {
-            throw new InvalidOrder (this.id + ' createOrder() requires a price argument for both market and limit orders');
-        }
         const request = {
             'pair': market['id'],
             'amount': this.amountToPrecision (symbol, amount),
-            'price': this.priceToPrecision (symbol, price),
             'side': side,
             'type': type,
         };
+        if (price !== undefined) {
+            request['price'] = this.priceToPrecision (symbol, price);
+        }
         const response = await this.privatePostUserOrderCreate (this.extend (request, params));
         const data = this.safeValue (response, 'data');
         return this.parseOrder (data, market);

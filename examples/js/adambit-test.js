@@ -9,24 +9,14 @@ require ('ansicolor').nice
 
 let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
 
-// Check arguments
-if (argv.length < 1) {
-    console.log('Invalid arguments!');
-    console.log('node adambit-test.js FUNCTION [PARAM1] [PARAM2] [PARAM3] ...');
-    process.exit(0);
-}
-
 ;(async () => {
 
     // instantiate the exchange
     let adambit = new ccxt.adambit({
-        'apiKey': 'uAQLtn4Iq7Wu7DANfQqwPfkp5Pq42cPr',
-        'secret': 'LbXqhtdjAOT+dYWSM7whMxzcfkVnd8ljnfrv700G6QvZ9x4D5Enk4Q==',
-    });
-
-    let adambit_admin = new ccxt.adambit({
-        'apiKey': 'iqu18^&reqwu34QQWERRWEQqi1324==',
-        'secret': 'Q!QQWE^#*#&I#()EIEIRREI=-===QEWRWERQEWREWr',
+        'apiKey': 'YOUR_API_KEY',
+        'secret': 'YOUR_SECRET',
+        'enableRateLimit': true,
+        'timeout': 1000 * 10,
     });
 
     try {
@@ -43,51 +33,98 @@ if (argv.length < 1) {
                 break;
 
             case 'fetchTicker':
-                // fetchTicker
+                if (argv.length < 2) {
+                    log.bright.yellow('Invalid arguments!');
+                    log.bright.red('node adambit-test.js fetchTicker PAIR');
+                    process.exit(0);
+                }
+                
                 result = await adambit.fetchTicker(argv[1]);
                 log(adambit.name.green, 'fetchTicker', result);
                 break;
 
             case 'fetchBalance':
-                // fetchBalance;
                 result = await adambit.fetchBalance();
                 log(adambit.name.green, 'fetchBalance', result);
                 break;
 
             case 'fetchOrderBook':
+                if (argv.length < 2) {
+                    log.bright.yellow('Invalid arguments!');
+                    log.bright.red('node adambit-test.js fetchOrderBook PAIR');
+                    process.exit(0);
+                }
+                
                 result = await adambit.fetchOrderBook(argv[1]);
                 log(adambit.name.green, 'fetchOrderBook', result);
                 break;
 
             case 'createOrder':
-                result = await adambit.createOrder('BTC/ETH', 'limit', 'sell', '0.0001', '450000');
+                if (argv.length < 5) {
+                    log.bright.yellow('Invalid arguments!');
+                    log.bright.red('node adambit-test.js createOrder PAIR TYPE CMD LOTS PRICE');
+                    log.bright.red('   TYPE: limit/market');
+                    log.bright.red('   CMD : sell/buy');
+                    process.exit(0);
+                }
+                
+                result = await adambit.createOrder(argv[1], argv[2], argv[3], argv[4], argv[5]);
                 log(adambit.name.green, 'createOrder', result);
                 break;
 
             case 'cancelOrder':
-                result = await adambit.cancelOrder('101801054729', 'BTC/ETH');
+                if (argv.length < 3) {
+                    log.bright.yellow('Invalid arguments!');
+                    log.bright.red('node adambit-test.js cancelOrder ORDER_ID PAIR');
+                    process.exit(0);
+                }
+                
+                result = await adambit.cancelOrder(argv[1], argv[2]);
                 log(adambit.name.green, 'cancelOrder', result);
                 break;
 
-            case 'fetchOrder':  
+            case 'fetchOrder':
+                if (argv.length < 3) {
+                    log.bright.yellow('Invalid arguments!');
+                    log.bright.red('node adambit-test.js fetchOrder ORDER_ID PAIR');
+                    process.exit(0);
+                }
+                
                 result = await adambit.fetchOrder('101801054729', 'BTC/ETH');
                 log(adambit.name.green, 'fetchOrder', result);
                 break;
 
             case 'fetchOpenOrders':
-                result = await adambit.fetchOpenOrders('BTC/ETH', 1634531210960, 5);
+                if (argv.length < 4) {
+                    log.bright.yellow('Invalid arguments!');
+                    log.bright.red('node adambit-test.js fetchOpenOrders PAIR SINCE COUNT');
+                    process.exit(0);
+                }
+                
+                result = await adambit.fetchOpenOrders(argv[1], argv[2], argv[3]);
                 log(adambit.name.green, 'fetchOpenOrders', result);
                 break;
 
             case 'fetchDepositAddress':
-                result = await adambit_admin.fetchDepositAddress(argv[1]);
-                log(adambit_admin.name.green, 'fetchDepositAddress', result);
+                if (argv.length < 2) {
+                    log.bright.yellow('Invalid arguments!');
+                    log.bright.red('node adambit-test.js fetchDepositAddress CURRENCY');
+                    process.exit(0);
+                }
+                
+                result = await adambit.fetchDepositAddress(argv[1]);
+                log(adambit.name.green, 'fetchDepositAddress', result);
                 break;
 
             case 'withdraw':
-                //result = await adambit_admin.withdraw('ETH', '0.001', '0xf2D214fa592b14b4176157d7d8287f8b7a057c8b');
-                result = await adambit_admin.withdraw('BTC', '0.0001', 'msA5PDxvJZnKPqVzhFv5Zj9pHV2MGzz8mU');
-                log(adambit_admin.name.green, 'withdraw', result);
+                if (argv.length < 4) {
+                    log.bright.yellow('Invalid arguments!');
+                    log.bright.red('node adambit-test.js withdraw CURRENCY AMOUNT ADDRESS');
+                    process.exit(0);
+                }
+                
+                result = await adambit.withdraw(argv[1], argv[2], argv[3]);
+                log(adambit.name.green, 'withdraw', result);
                 break;
     
             }
