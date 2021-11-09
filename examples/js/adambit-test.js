@@ -75,11 +75,11 @@ let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
             case 'cancelOrder':
                 if (argv.length < 3) {
                     log.bright.yellow('Invalid arguments!');
-                    log.bright.red('node adambit-test.js cancelOrder ORDER_ID PAIR');
+                    log.bright.red('node adambit-test.js cancelOrder ORDER_ID PAIR AMOUNT');
                     process.exit(0);
                 }
                 
-                result = await adambit.cancelOrder(argv[1], argv[2]);
+                result = await adambit.cancelOrder(argv[1], argv[2], argv[3]);
                 log(adambit.name.green, 'cancelOrder', result);
                 break;
 

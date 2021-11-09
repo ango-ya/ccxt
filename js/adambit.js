@@ -432,13 +432,14 @@ module.exports = class adambit extends Exchange {
         return this.parseOrder (data, market);
     }
 
-    async cancelOrder (id, symbol = undefined, params = {}) {
+    async cancelOrder (id, symbol = undefined, amount = undefined, params = {}) {
         this.timeout = 10000;
         await this.loadMarkets ();
         const market = this.market (symbol);
         const request = {
             'order_id': id,
             'pair': market['id'],
+            'amount': (amount === undefined ? 0 : amount),
         };
         const response = await this.privatePostUserOrderCancel (this.extend (request, params));
         const data = this.safeValue (response, 'data');
