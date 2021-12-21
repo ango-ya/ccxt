@@ -1,6 +1,6 @@
 {
   "name": "@ango-ya/ccxt",
-  "version": "1.42.21",
+  "version": "1.42.22",
   "description": "A JavaScript / Python / PHP cryptocurrency trading library with support for 130+ exchanges",
   "main": "./ccxt.js",
   "unpkg": "dist/ccxt.browser.js",
@@ -554,7 +554,9 @@
     "PARADISE",
     "aax.com",
     "AAX",
-    "aaxpro.com"
+    "aaxpro.com",
+    "x-gain.adam-bit.net",
+    "adambit"
   ],
   "collective": {
     "type": "opencollective",
