@@ -419,13 +419,16 @@ declare module '@ango-ya/ccxt' {
         symbol (symbol: string): string;
         withdraw (currency: string, amount: number, address: string, tag?: string, params?: Params): Promise<WithdrawalResponse>;
         YmdHMS (timestamp: string, infix: string) : string;
+	    resetBalance (currencies: string): Promise<any>; // 引数の例） "BTC,ETH,ADAB"
+	    sendBalance (toAccount: number, currency: string, amount: string): Promise<any>;
     }
 
     /* tslint:disable */
 
     export class aax extends Exchange {}
     export class acx extends Exchange {}
-    export class adambit extends Exchange {}
+    export class adambitgreen extends Exchange {}
+    export class adambitred extends Exchange {}
     export class aofex extends Exchange {}
     export class bequant extends hitbtc {}
     export class bibox extends Exchange {}

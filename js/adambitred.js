@@ -7,11 +7,11 @@ const { ExchangeError, AuthenticationError, InvalidNonce, InsufficientFunds, Inv
 
 //  ---------------------------------------------------------------------------
 
-module.exports = class adambit extends Exchange {
+module.exports = class adambitred extends Exchange {
     describe () {
         return this.deepExtend (super.describe (), {
-            'id': 'adambit',
-            'name': 'adambit',
+            'id': 'adambit-red',
+            'name': 'adambit-red',
             'countries': [ 'JP' ],
             'version': 'v1',
             'has': {
@@ -41,14 +41,14 @@ module.exports = class adambit extends Exchange {
                 '1w': '1week',
             },
             'urls': {
-                'logo': 'https://x-gain.adam-bit.net/images/logo_main.png',
+                'logo': 'https://adam-bit.net/images/logo_main.png',
                 'api': {
-                    'public': 'https://x-gain.adam-bit.net/api',
-                    'private': 'https://x-gain.adam-bit.net/api',
+                    'public': 'https://adam-bit.net/api',
+                    'private': 'https://adam-bit.net/api',
                 },
-                'www': 'https://x-gain.adam-bit.net',
-                'doc': 'https://x-gain.adam-bit.net/docs/',
-                'fees': 'https://x-gain.adam-bit.net/docs/fees/',
+                'www': 'https://adam-bit.net',
+                'doc': 'https://adam-bit.net/docs/',
+                'fees': 'https://adam-bit.net/docs/fees/',
             },
             'api': {
                 'public': {
@@ -81,24 +81,13 @@ module.exports = class adambit extends Exchange {
                 'ETH/BTC': { 'id': 'eth_btc', 'symbol': 'ETH/BTC', 'base': 'ETH', 'quote': 'BTC', 'baseId': 'eth', 'quoteId': 'btc' },
                 'BTC/USDT': { 'id': 'btc_usdt', 'symbol': 'BTC/USDT', 'base': 'BTC', 'quote': 'USDT', 'baseId': 'btc', 'quoteId': 'usdt' },
                 'XRP/BTC': { 'id': 'xrp_btc', 'symbol': 'XRP/BTC', 'base': 'XRP', 'quote': 'BTC', 'baseId': 'xrp', 'quoteId': 'btc' },
-                'LTC/BTC': { 'id': 'ltc_btc', 'symbol': 'LTC/BTC', 'base': 'LTC', 'quote': 'BTC', 'baseId': 'ltc', 'quoteId': 'btc' },
                 'ADAB/BTC': { 'id': 'adab_btc', 'symbol': 'ADAB/BTC', 'base': 'ADAB', 'quote': 'BTC', 'baseId': 'adab', 'quoteId': 'btc' },
-                'WCP/BTC': { 'id': 'wcp_btc', 'symbol': 'WCP/BTC', 'base': 'WCP', 'quote': 'BTC', 'baseId': 'wcp', 'quoteId': 'btc' },
                 'ETH/USDT': { 'id': 'eth_usdt', 'symbol': 'ETH/USDT', 'base': 'ETH', 'quote': 'USDT', 'baseId': 'eth', 'quoteId': 'usdt' },
                 'XRP/ETH': { 'id': 'xrp_eth', 'symbol': 'XRP/ETH', 'base': 'XRP', 'quote': 'ETH', 'baseId': 'xrp', 'quoteId': 'eth' },
-                'LTC/ETH': { 'id': 'ltc_eth', 'symbol': 'LTC/ETH', 'base': 'LTC', 'quote': 'ETH', 'baseId': 'ltc', 'quoteId': 'eth' },
                 'ADAB/ETH': { 'id': 'adab_eth', 'symbol': 'ADAB/ETH', 'base': 'ADAB', 'quote': 'ETH', 'baseId': 'adab', 'quoteId': 'eth' },
-                'WCP/ETH': { 'id': 'wcp_eth', 'symbol': 'WCP/ETH', 'base': 'WCP', 'quote': 'ETH', 'baseId': 'wcp', 'quoteId': 'eth' },
                 'XRP/USDT': { 'id': 'xrp_usdt', 'symbol': 'XRP/USDT', 'base': 'XRP', 'quote': 'USDT', 'baseId': 'xrp', 'quoteId': 'usdt' },
-                'LTC/USDT': { 'id': 'ltc_usdt', 'symbol': 'LTC/USDT', 'base': 'LTC', 'quote': 'USDT', 'baseId': 'ltc', 'quoteId': 'usdt' },
                 'ADAB/USDT': { 'id': 'adab_usdt', 'symbol': 'ADAB/USDT', 'base': 'ADAB', 'quote': 'USDT', 'baseId': 'adab', 'quoteId': 'usdt' },
-                'WCP/USDT': { 'id': 'wcp_usdt', 'symbol': 'WCP/USDT', 'base': 'WCP', 'quote': 'USDT', 'baseId': 'wcp', 'quoteId': 'usdt' },
-                'LTC/XRP': { 'id': 'ltc_xrp', 'symbol': 'LTC/XRP', 'base': 'LTC', 'quote': 'XRP', 'baseId': 'ltc', 'quoteId': 'xrp' },
                 'XRP/ADAB': { 'id': 'xrp_adab', 'symbol': 'XRP/ADAB', 'base': 'XRP', 'quote': 'ADAB', 'baseId': 'xrp', 'quoteId': 'adab' },
-                'WCP/XRP': { 'id': 'wcp_xrp', 'symbol': 'WCP/XRP', 'base': 'WCP', 'quote': 'XRP', 'baseId': 'wcp', 'quoteId': 'xrp' },
-                'LTC/ADAB': { 'id': 'ltc_adab', 'symbol': 'LTC/ADAB', 'base': 'LTC', 'quote': 'ADAB', 'baseId': 'ltc', 'quoteId': 'adab' },
-                'WCP/LTC': { 'id': 'wcp_ltc', 'symbol': 'WCP/LTC', 'base': 'WCP', 'quote': 'LTC', 'baseId': 'wcp', 'quoteId': 'ltc' },
-                'WCP/ADAB': { 'id': 'wcp_adab', 'symbol': 'WCP/ADAB', 'base': 'WCP', 'quote': 'ADAB', 'baseId': 'wcp', 'quoteId': 'adab' },
             },
             'fees': {
                 'trading': {
