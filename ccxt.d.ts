@@ -427,8 +427,6 @@ declare module '@ango-ya/ccxt' {
 
     export class aax extends Exchange {}
     export class acx extends Exchange {}
-    export class adambitgreen extends Exchange {}
-    export class adambitred extends Exchange {}
     export class aofex extends Exchange {}
     export class bequant extends hitbtc {}
     export class bibox extends Exchange {}

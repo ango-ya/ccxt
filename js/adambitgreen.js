@@ -353,7 +353,6 @@ module.exports = class adambitgreen extends Exchange {
         };
         const response = await this.privatePostUserSetAccount (this.extend (request, params));
         const result = { 'info': response };
-
         return result;
     }
 
@@ -365,7 +364,6 @@ module.exports = class adambitgreen extends Exchange {
         };
         const response = await this.privatePostUserResetBalance (this.extend (request, params));
         const result = { 'info': response };
-
         return result;
     }
 
@@ -379,7 +377,6 @@ module.exports = class adambitgreen extends Exchange {
         };
         const response = await this.privatePostUserSendBalance (this.extend (request, params));
         const result = { 'info': response };
-
         return result;
     }
 
