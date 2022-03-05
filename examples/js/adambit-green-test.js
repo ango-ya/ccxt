@@ -44,12 +44,7 @@ let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
                 break;
 
             case 'fetchBalance':
-                let account = 0;
-                if (argv.length > 1) {
-                    account = argv[1];
-                }
-
-                result = await adambit.fetchBalance(account);
+                result = await adambit.fetchBalance();
                 log(adambit.name.green, 'fetchBalance', result);
                 break;
 
@@ -135,7 +130,8 @@ let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
                 break;
     
             case 'setAccountNumber':
-                if (argv.length < 2) {
+                // Disabled
+                /*if (argv.length < 2) {
                     log.bright.yellow('Invalid arguments!');
                     log.bright.red('node adambit-green-test.js setAccountNumber ACCOUNT_NUMBER');
                     log.bright.blue('Ex: node adambit-green-test.js setAccountNumber 02098458');
@@ -144,30 +140,33 @@ let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
                 
                 result = await adambit.setAccountNumber(argv[1]);
                 log(adambit.name.green, 'setAccountNumber', result);
-                break;
+                break;*/
 
             case 'resetBalance':
-                if (argv.length < 2) {
+                if (argv.length < 1) {
                     log.bright.yellow('Invalid arguments!');
-                    log.bright.red('node adambit-green-test.js resetBalance ACCOUNT_NUMBER CURRENCIES');
-                    log.bright.blue('Ex: node adambit-green-test.js resetBalance 02098458 BTC,ETH,USDT');
+                    log.bright.red('node adambit-green-test.js resetBalance CURRENCIES');
+                    log.bright.blue('Ex: node adambit-green-test.js resetBalance BTC,ETH,USDT');
                     process.exit(0);
                 }
 
-                result = await adambit.resetBalance(argv[1], argv[2]);
+                result = await adambit.resetBalance(argv[1]);
                 log(adambit.name.green, 'resetBalance', result);
                 break;
 
             case 'sendBalance':
-                if (argv.length < 5) {
+                if (argv.length < 4) {
                     log.bright.yellow('Invalid arguments!');
-                    log.bright.red('node adambit-green-test.js sendBalance FROM_ACCOUNT TO_ACCOUNT CURRENCY AMOUNT');
+                    log.bright.red('node adambit-green-test.js sendBalance TO_ACCOUNT CURRENCY AMOUNT');
                     process.exit(0);
                 }
 
-                result = await adambit.sendBalance(argv[1], argv[2], argv[3], argv[4]);
+                result = await adambit.sendBalance(argv[1], argv[2], argv[3]);
                 log(adambit.name.green, 'sendBalance', result);
                 break;
+
+            default:
+                log(adambit.name.yellow, 'Invalid command!');
     
             }
 

@@ -126,6 +126,9 @@ let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
                 result = await adambit.withdraw(argv[1], argv[2], argv[3]);
                 log(adambit.name.green, 'withdraw', result);
                 break;
+
+            default:
+                log(adambit.name.yellow, 'Invalid command!');
     
             }
 

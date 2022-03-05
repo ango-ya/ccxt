@@ -56,11 +56,11 @@ module.exports = class adambitgreen extends Exchange {
             'api': {
                 'public': {
                     'get': [
-                        '{pair}/ticker',
-                        '{pair}/orderBook',
-                        '{pair}/transactions',
-                        '{pair}/transactions/{yyyymmdd}',
-                        '{pair}/candlestick/{candletype}/{yyyymmdd}',
+                        'sellbuy/{pair}/ticker',
+                        'sellbuy/{pair}/orderBook',
+                        'sellbuy/{pair}/transactions',
+                        'sellbuy/{pair}/transactions/{yyyymmdd}',
+                        'sellbuy/{pair}/candlestick/{candletype}/{yyyymmdd}',
                     ],
                 },
                 'private': {
@@ -190,7 +190,7 @@ module.exports = class adambitgreen extends Exchange {
         const request = {
             'pair': market['id'],
         };
-        const response = await this.publicGetPairTicker (this.extend (request, params));
+        const response = await this.publicGetSellbuyPairTicker (this.extend (request, params));
         const data = this.safeValue (response, 'data', {});
         return this.parseTicker (data, market);
     }
@@ -201,7 +201,7 @@ module.exports = class adambitgreen extends Exchange {
         const request = {
             'pair': this.marketId (symbol),
         };
-        const response = await this.publicGetPairOrderBook (this.extend (request, params));
+        const response = await this.publicGetSellbuyPairOrderBook (this.extend (request, params));
         const orderbook = this.safeValue (response, 'data', {});
         const timestamp = this.safeInteger (orderbook, 'timestamp');
         return this.parseOrderBook (orderbook, timestamp);
@@ -324,13 +324,10 @@ module.exports = class adambitgreen extends Exchange {
         return this.parseOHLCVs (ohlcv, market, timeframe, since, limit);
     }
 
-    async fetchBalance (account, params = {}) {
+    async fetchBalance (params = {}) {
         this.timeout = 10000;
         await this.loadMarkets ();
-        const request = {
-            'account': account,
-        };
-        const response = await this.privateGetUserAssets (this.extend (request, params));
+        const response = await this.privateGetUserAssets (params);
         const result = { 'info': response };
         const data = this.safeValue (response, 'data', {});
         const assets = this.safeValue (data, 'assets', []);
@@ -360,11 +357,10 @@ module.exports = class adambitgreen extends Exchange {
         return result;
     }
 
-    async resetBalance (account, currencies, params = {}) {
+    async resetBalance (currencies, params = {}) {
         this.timeout = 10000;
         await this.loadMarkets ();
         const request = {
-            'account': account,
             'currencies': currencies,
         };
         const response = await this.privatePostUserResetBalance (this.extend (request, params));
@@ -373,11 +369,10 @@ module.exports = class adambitgreen extends Exchange {
         return result;
     }
 
-    async sendBalance (fromAccount, toAccount, currency, amount, params = {}) {
+    async sendBalance (toAccount, currency, amount, params = {}) {
         this.timeout = 10000;
         await this.loadMarkets ();
         const request = {
-            'from_account': fromAccount,
             'to_account': toAccount,
             'currency': currency,
             'amount': amount,
