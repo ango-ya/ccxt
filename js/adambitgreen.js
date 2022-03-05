@@ -10,7 +10,7 @@ const { ExchangeError, AuthenticationError, InvalidNonce, InsufficientFunds, Inv
 module.exports = class adambitgreen extends Exchange {
     describe () {
         return this.deepExtend (super.describe (), {
-            'id': 'adambit-green',
+            'id': 'adambitgreen',
             'name': 'adambit-green',
             'countries': [ 'JP' ],
             'version': 'sellbuy/v1',
