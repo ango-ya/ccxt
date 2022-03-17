@@ -13,7 +13,7 @@ module.exports = class adambitgreen extends Exchange {
             'id': 'adambitgreen',
             'name': 'adambit-green',
             'countries': [ 'JP' ],
-            'version': 'sellbuy/v1',
+            'version': 'exchange/v1',
             'has': {
                 'cancelOrder': false,
                 'createOrder': true,
@@ -56,11 +56,11 @@ module.exports = class adambitgreen extends Exchange {
             'api': {
                 'public': {
                     'get': [
-                        'sellbuy/{pair}/ticker',
-                        'sellbuy/{pair}/orderBook',
-                        'sellbuy/{pair}/transactions',
-                        'sellbuy/{pair}/transactions/{yyyymmdd}',
-                        'sellbuy/{pair}/candlestick/{candletype}/{yyyymmdd}',
+                        'exchange/{pair}/ticker',
+                        'exchange/{pair}/orderBook',
+                        'exchange/{pair}/transactions',
+                        'exchange/{pair}/transactions/{yyyymmdd}',
+                        'exchange/{pair}/candlestick/{candletype}/{yyyymmdd}',
                     ],
                 },
                 'private': {
@@ -190,7 +190,7 @@ module.exports = class adambitgreen extends Exchange {
         const request = {
             'pair': market['id'],
         };
-        const response = await this.publicGetSellbuyPairTicker (this.extend (request, params));
+        const response = await this.publicGetExchangePairTicker (this.extend (request, params));
         const data = this.safeValue (response, 'data', {});
         return this.parseTicker (data, market);
     }
@@ -201,7 +201,7 @@ module.exports = class adambitgreen extends Exchange {
         const request = {
             'pair': this.marketId (symbol),
         };
-        const response = await this.publicGetSellbuyPairOrderBook (this.extend (request, params));
+        const response = await this.publicGetExchangePairOrderBook (this.extend (request, params));
         const orderbook = this.safeValue (response, 'data', {});
         const timestamp = this.safeInteger (orderbook, 'timestamp');
         return this.parseOrderBook (orderbook, timestamp);
