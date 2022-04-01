@@ -13,8 +13,8 @@ let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
 
     // instantiate the exchange
     let adambit = new ccxt.adambitgreen({
-        'apiKey': 'YOUR_API_KEY',
-        'secret': 'YOUR_SECRET',
+        'apiKey': '****',
+        'secret': '****',
         'enableRateLimit': true,
         'timeout': 1000 * 10,
     });
@@ -62,20 +62,18 @@ let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
             case 'createOrder':
                 if (argv.length < 5) {
                     log.bright.yellow('Invalid arguments!');
-                    log.bright.red('node adambit-green-test.js createOrder PAIR TYPE CMD LOTS');
-                    log.bright.red('   TYPE: market');
+                    log.bright.red('node adambit-green-test.js createOrder PAIR TYPE CMD LOTS PRICE');
+                    log.bright.red('   TYPE: limit/market');
                     log.bright.red('   CMD : sell/buy');
                     process.exit(0);
                 }
                 
-                result = await adambit.createOrder(argv[1], argv[2], argv[3], argv[4]);
+                result = await adambit.createOrder(argv[1], argv[2], argv[3], argv[4], argv[5]);
                 log(adambit.name.green, 'createOrder', result);
                 break;
 
             case 'cancelOrder':
-                log(adambit.name.yellow, 'cancelOrder is not supported!');
-                break;
-                /*if (argv.length < 3) {
+                if (argv.length < 3) {
                     log.bright.yellow('Invalid arguments!');
                     log.bright.red('node adambit-green-test.js cancelOrder ORDER_ID PAIR AMOUNT');
                     process.exit(0);
@@ -83,7 +81,7 @@ let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
                 
                 result = await adambit.cancelOrder(argv[1], argv[2], argv[3]);
                 log(adambit.name.green, 'cancelOrder', result);
-                break;*/
+                break;
 
             case 'fetchOrder':
                 if (argv.length < 3) {
@@ -143,7 +141,7 @@ let sleep = (ms) => new Promise (resolve => setTimeout (resolve, ms))
                 break;*/
 
             case 'resetBalance':
-                if (argv.length < 1) {
+                if (argv.length < 2) {
                     log.bright.yellow('Invalid arguments!');
                     log.bright.red('node adambit-green-test.js resetBalance CURRENCIES');
                     log.bright.blue('Ex: node adambit-green-test.js resetBalance BTC,ETH,USDT');
