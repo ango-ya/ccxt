@@ -2797,9 +2797,10 @@ module.exports = class bitget extends Exchange {
         return response;
     }
 
-    async withdraw (code, amount, address, tag = undefined, params = {}, chain) {
+    async withdraw (code, amount, address, tag = undefined, params = {}) {
         await this.loadMarkets ();
-        this.checkAddress (address);
+        this.checkAddress(address);
+        const chain = params.chain
         const request = {
             'coin': code,
             'address': address,
@@ -2820,7 +2821,7 @@ module.exports = class bitget extends Exchange {
         let request = '/' + this.implodeParams (path, params);
         if ((api === 'capi') || (api === 'swap')) {
             request = '/api/swap/' + this.version + request;
-        } else if (api === 'api' && path === 'wallet/withdrawal') {
+        } else if (path === 'wallet/withdrawal') {
             request = '/api/spot/v1' + request;
         } else {
             request = '/' + api + '/v1' + request;
@@ -2831,7 +2832,7 @@ module.exports = class bitget extends Exchange {
             if (Object.keys (query).length) {
                 url += '?' + this.urlencode (query);
             }
-        } else if ((api === 'swap') || (api === 'api' && path === 'wallet/withdrawal')) {
+        } else if ((api === 'swap') || (path === 'wallet/withdrawal')) {
             this.checkRequiredCredentials ();
             const timestamp = this.milliseconds ().toString ();
             let auth = timestamp + method + request;

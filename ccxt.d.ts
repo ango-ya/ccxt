@@ -417,7 +417,7 @@ declare module '@ango-ya/ccxt' {
         seconds (): number;
         setMarkets (markets: Market[], currencies?: Currency[]): Dictionary<Market>;
         symbol (symbol: string): string;
-        withdraw (currency: string, amount: number, address: string, tag?: string, params?: Params, chain?: string): Promise<WithdrawalResponse>;
+        withdraw (currency: string, amount: number, address: string, tag?: string, params?: Params): Promise<WithdrawalResponse>;
         YmdHMS (timestamp: string, infix: string) : string;
 	    resetBalance (currencies: string): Promise<any>; // 引数の例） "BTC,ETH,ADAB"
 	    sendBalance (toAccount: number, currency: string, amount: string): Promise<any>;
