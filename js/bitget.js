@@ -2819,9 +2819,9 @@ module.exports = class bitget extends Exchange {
     sign (path, api = 'public', method = 'GET', params = {}, headers = undefined, body = undefined) {
         let request = '/' + this.implodeParams (path, params);
         if ((api === 'capi') || (api === 'swap')) {
-          request = '/api/swap/' + this.version + request;
+            request = '/api/swap/' + this.version + request;
         } else if (api === 'api' && path === 'wallet/withdrawal') {
-          request = '/api/spot/v1' + request;
+            request = '/api/spot/v1' + request;
         } else {
             request = '/' + api + '/v1' + request;
         }
