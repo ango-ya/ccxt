@@ -106,7 +106,7 @@ module.exports = class bitget extends Exchange {
                         'order/orders/{order_id}/matchresults', // Query the transaction details of an order
                         'order/matchresults', // Query current order, order history
                         'wallet/withdrawal',
-                  ],
+                    ],
                 },
                 'capi': {
                     'get': [
@@ -2799,19 +2799,19 @@ module.exports = class bitget extends Exchange {
 
     async withdraw (code, amount, address, tag = undefined, params = {}) {
         await this.loadMarkets ();
-        this.checkAddress(address);
-        const chain = params.chain
-        delete params.chain
+        this.checkAddress (address);
+        const chain = params.chain;
+        delete params.chain;
         const request = {
             'coin': code,
             'address': address,
             'chain': chain,
-            'amount': amount.toString(),
+            'amount': amount.toString (),
         };
         if (tag !== undefined) {
             request['tag'] = tag;
         }
-        const response = await this.apiPostWalletWithdrawal(this.extend (request, params));
+        const response = await this.apiPostWalletWithdrawal (this.extend (request, params));
         return {
             'id': response['id'],
             'info': response,
