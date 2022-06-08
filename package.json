@@ -1,6 +1,6 @@
 {
-  "name": "ccxt",
-  "version": "1.42.18",
+  "name": "@ango-ya/ccxt",
+  "version": "1.42.26",
   "description": "A JavaScript / Python / PHP cryptocurrency trading library with support for 130+ exchanges",
   "main": "./ccxt.js",
   "unpkg": "dist/ccxt.browser.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ccxt/ccxt.git"
+    "url": "https://github.com/ango-ya/ccxt.git"
   },
   "readme": "README.md",
   "scripts": {
@@ -61,9 +61,9 @@
     "ololog": "1.1.155"
   },
   "author": {
-    "name": "Igor Kroitor",
-    "email": "igor.kroitor@gmail.com",
-    "url": "https://github.com/kroitor"
+    "name": "ango-ya",
+    "email": "tools@ango-ya.org",
+    "url": "https://github.com/ango-ya"
   },
   "license": "MIT",
   "bugs": {
@@ -549,9 +549,17 @@
     "gopax.co.kr",
     "Gopax",
     "GOPAX",
+    "btse.com",
+    "BTSE",
+    "PARADISE",
     "aax.com",
     "AAX",
-    "aaxpro.com"
+    "aaxpro.com",
+    "x-gain.adam-bit.net",
+    "adambit",
+    "adambit-green",
+    "adam-bit.net",
+    "adambit-red"
   ],
   "collective": {
     "type": "opencollective",

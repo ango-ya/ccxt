@@ -38,6 +38,7 @@ module.exports = class bitget extends Exchange {
                 'fetchTime': true,
                 'fetchTrades': true,
                 'fetchWithdrawals': true,
+                'withdraw': true,
             },
             'timeframes': {
                 '1m': '1m',
@@ -104,6 +105,7 @@ module.exports = class bitget extends Exchange {
                         'order/orders/{order_id}', // Query an order details
                         'order/orders/{order_id}/matchresults', // Query the transaction details of an order
                         'order/matchresults', // Query current order, order history
+                        'wallet/withdrawal',
                     ],
                 },
                 'capi': {
@@ -2795,10 +2797,33 @@ module.exports = class bitget extends Exchange {
         return response;
     }
 
+    async withdraw (code, amount, address, tag = undefined, params = {}) {
+        await this.loadMarkets ();
+        this.checkAddress (address);
+        const chain = params.chain;
+        delete params.chain;
+        const request = {
+            'coin': code,
+            'address': address,
+            'chain': chain,
+            'amount': amount.toString (),
+        };
+        if (tag !== undefined) {
+            request['tag'] = tag;
+        }
+        const response = await this.apiPostWalletWithdrawal (this.extend (request, params));
+        return {
+            'id': response['id'],
+            'info': response,
+        };
+    }
+
     sign (path, api = 'public', method = 'GET', params = {}, headers = undefined, body = undefined) {
         let request = '/' + this.implodeParams (path, params);
         if ((api === 'capi') || (api === 'swap')) {
             request = '/api/swap/' + this.version + request;
+        } else if (path === 'wallet/withdrawal') {
+            request = '/api/spot/v1' + request;
         } else {
             request = '/' + api + '/v1' + request;
         }
@@ -2808,7 +2833,7 @@ module.exports = class bitget extends Exchange {
             if (Object.keys (query).length) {
                 url += '?' + this.urlencode (query);
             }
-        } else if (api === 'swap') {
+        } else if ((api === 'swap') || (path === 'wallet/withdrawal')) {
             this.checkRequiredCredentials ();
             const timestamp = this.milliseconds ().toString ();
             let auth = timestamp + method + request;

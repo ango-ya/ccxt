@@ -1,4 +1,4 @@
-declare module 'ccxt' {
+declare module '@ango-ya/ccxt' {
 
     /**
      * Represents an associative array of a same type.
@@ -389,6 +389,7 @@ declare module 'ccxt' {
         fetchOrderBooks (...args: any): Promise<any>; // TODO: add function signatures
         fetchOrders (symbol?: string, since?: number, limit?: number, params?: Params): Promise<Order[]>;
         fetchOrderStatus (id: string, market: string): Promise<string>;
+        fetchOrderTrades(id: string, symbol?: string, since?: number, limit?: number, params?: Params): Promise<Order[]>;
         fetchStatus (...args: any): Promise<any>; // TODO: add function signatures
         fetchTicker (symbol: string, params?: Params): Promise<Ticker>;
         fetchTickers (symbols?: string[], params?: Params): Promise<Dictionary<Ticker>>;
@@ -418,12 +419,16 @@ declare module 'ccxt' {
         symbol (symbol: string): string;
         withdraw (currency: string, amount: number, address: string, tag?: string, params?: Params): Promise<WithdrawalResponse>;
         YmdHMS (timestamp: string, infix: string) : string;
+	    resetBalance (currencies: string): Promise<any>; // 引数の例） "BTC,ETH,ADAB"
+	    sendBalance (toAccount: number, currency: string, amount: string): Promise<any>;
     }
 
     /* tslint:disable */
 
     export class aax extends Exchange {}
     export class acx extends Exchange {}
+    export class adambitgreen extends Exchange {}
+    export class adambitred extends Exchange {}
     export class aofex extends Exchange {}
     export class bequant extends hitbtc {}
     export class bibox extends Exchange {}
@@ -459,6 +464,7 @@ declare module 'ccxt' {
     export class btcmarkets extends Exchange {}
     export class btctradeua extends Exchange {}
     export class btcturk extends Exchange {}
+    export class btse extends Exchange {}
     export class buda extends Exchange {}
     export class bw extends Exchange {}
     export class bybit extends Exchange {}
@@ -521,6 +527,7 @@ declare module 'ccxt' {
     export class oceanex extends Exchange {}
     export class okcoin extends okex {}
     export class okex extends Exchange {}
+    export class paradise extends Exchange {}
     export class paymium extends Exchange {}
     export class phemex extends Exchange {}
     export class poloniex extends Exchange {}

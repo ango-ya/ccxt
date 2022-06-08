@@ -337,6 +337,17 @@ module.exports = class coincheck extends Exchange {
         return this.parseTrades (transactions, market, since, limit);
     }
 
+    async fetchOrderTrades (id, symbol = undefined, since = undefined, limit = undefined, params = {}) {
+        await this.loadMarkets ();
+        const request = {};
+        request['limit'] = 100;
+        request['order'] = 'desc';
+        const response = await this.privateGetExchangeOrdersTransactionsPagination (this.extend (request, params));
+        const transactions = this.safeValue (response, 'transactions', []);
+        const trades = this.parseTrades (transactions);
+        return trades.filter ((trade) => trade.order === id);
+    }
+
     async fetchTrades (symbol, since = undefined, limit = undefined, params = {}) {
         if (symbol !== 'BTC/JPY') {
             throw new BadSymbol (this.id + ' fetchTrades () supports BTC/JPY only');
@@ -382,6 +393,27 @@ module.exports = class coincheck extends Exchange {
             'id': id,
         };
         return await this.privateDeleteExchangeOrdersId (this.extend (request, params));
+    }
+
+    async withdraw (code, amount, address, tag = undefined, params = {}) {
+        await this.loadMarkets ();
+        this.checkAddress (address);
+        const currency = this.currency (code);
+        if (currency.id !== 'btc') {
+            throw new BadSymbol (this.id + 'withdraw () currently supports BTC only');
+        }
+        const request = {
+            'amount': amount.toString (),
+            'address': address,
+        };
+        if (tag !== undefined) {
+            request['tag'] = tag;
+        }
+        const response = await this.privatePostSendMoney (this.extend (request, params));
+        return {
+            'id': response['id'],
+            'info': response,
+        };
     }
 
     sign (path, api = 'public', method = 'GET', params = {}, headers = undefined, body = undefined) {
