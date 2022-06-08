@@ -2797,7 +2797,7 @@ module.exports = class bitget extends Exchange {
         return response;
     }
 
-    async withdraw (code, amount, address, tag = undefined, params) {
+    async withdraw (code, amount, address, tag = undefined, params = {}) {
         await this.loadMarkets ();
         this.checkAddress(address);
         const chain = params.chain
