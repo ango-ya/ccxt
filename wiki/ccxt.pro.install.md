@@ -1,8 +1,10 @@
-[&#8962; Home](ccxt.pro)
-
 # How To Install
 
 Installing CCXT Pro requires visiting the https://ccxt.pro website and obtaining a CCXT Pro license. The license gives you the access to the CCXT Pro codebase in a private GitHub repository.
+
+CCXT Pro is a tool for professionals and it requires a certain expertise in programming, cryptocurrencies and trading.
+
+**You have to configure your** [GitHub authentication](https://docs.github.com/en/github/authenticating-to-github) **over SSH or HTTPS.**
 
 ```diff
 - this part of the doc is currenty a work in progress
@@ -45,6 +47,37 @@ Adding CCXT Pro as a dependency to `package.json` in your Node.js project or pac
 2. Run `npm install` in your project.
 3. To update it later run `npm update ccxt.pro` in your project.
 
+### JavaScript Installation From A Cloned Source Code Repository
+
+Steps to add changes or to make a custom build:
+
+```shell
+# Step 1: Clone the CCXT Pro repository
+# If you are using HTTPS authentication by login+password
+git clone https://github.com/kroitor/ccxt.pro.git
+# If you are using SSH authentication (recommended)
+# git clone ssh://git@github.com/kroitor/ccxt.pro.git
+
+# Step 2: Add your changes if necessary
+cd ccxt.pro
+# ...
+
+# Step 3: Install CCXT Pro's dependencies
+npm install
+
+# Step 4: Build the CCXT Pro library with Node.js and NPM
+# This step is optional, you don't have to build the library if you just want to install it.
+# The build-step is only necessary if you're making your own edited custom build.
+# npm run build
+
+# Step 5: Make an NPM link to CCXT Pro
+npm link
+
+# Step 6: Link your project to CCXT Pro
+cd path/to/your/project
+npm link ccxt
+```
+
 ## Python
 
 ```shell
@@ -73,12 +106,56 @@ setup(
 )
 ```
 
+### Python Installation From A Cloned Source Code Repository
+
+You will need Node.js and NPM for your system: https://nodejs.org/en/.
+By default, both Node.js and NPM are installed together from the same Node.js distribution.
+
+Steps to add changes or to make a custom build:
+
+```shell
+# Step 1: Clone the CCXT Pro repository
+# If you are using HTTPS authentication by login+password
+git clone https://github.com/kroitor/ccxt.pro.git
+# If you are using SSH authentication (recommended)
+# git clone ssh://git@github.com/kroitor/ccxt.pro.git
+
+# Step 2: Go to the cloned repository and add your changes if necessary
+cd ccxt.pro
+# ...
+
+# Step 3: Build the CCXT Pro library with Node.js and NPM
+# This step is optional, you don't have to build the library if you just want to install it.
+# The build-step is only necessary if you're making your own edited custom build.
+# npm run build
+
+# Step 4: Install the CCXT Pro Python package from the local repository
+# The actual command will depend on how Python is installed and configured in the system
+pip install python/
+# or
+# pip3 install python/
+
+# Step 5: Add to your project dependencies or import directly in Python
+#
+#
+#     # Python
+#
+#     import ccxtpro
+#
+#     # your code here
+#     print('CCXT Pro Version:', ccxtpro.__version__)
+#     print('CCXT Pro Exchanges:', ccxtpro.exchanges)
+#
+#
+#
+```
+
 ## PHP
 
 ```shell
 # in your project directory
 composer config repositories.ccxtpro '{"type": "git", "url": "https://github.com/kroitor/ccxt.pro.git"}'
-composer require ccxt/ccxtpro
+composer require --ignore-platform-reqs ccxt/ccxtpro
 ```
 
 ### PHP Dependency
@@ -101,3 +178,75 @@ The CCXT Pro is added as a dependency to `composer.json` in your PHP package wit
     // ...
 }
 ```
+
+### PHP Installation From A Cloned Source Code Repository
+
+You will need Node.js and NPM for your system: https://nodejs.org/en/.
+By default, both Node.js and NPM are installed together from the same Node.js distribution.
+
+Steps to add changes or to make a custom build:
+
+```shell
+# Step 1: Clone the CCXT Pro repository
+# If you are using HTTPS authentication by login+password
+git clone https://github.com/kroitor/ccxt.pro.git
+# If you are using SSH authentication (recommended)
+# git clone ssh://git@github.com/kroitor/ccxt.pro.git
+
+# Step 2: Add your changes if necessary
+cd ccxt.pro
+# ...
+
+# Step 3: Build the CCXT Pro library with Node.js and NPM
+# This step is optional, you don't have to build the library if you just want to install it.
+# The build-step is only necessary if you're making your own edited custom build.
+# npm run build
+
+# Step 4: Build the CCXT Pro PHP Composer package from the local repository
+composer install --ignore-platform-reqs
+
+# Step 5: Add to your project's composer.json
+cd path/to/your/project
+#
+#     "require": {
+#         ...
+#         "ccxtpro/ccxtpro": "dev-master",  # add this line to your requirements
+#         ...
+#     },
+#     "repositories": [
+#
+#         {
+#             "type": "vcs",
+#             "url": "../ccxt.pro"  # relative path to cloned repository of CCXT Pro
+#         }
+#     ]
+#
+
+# Step 6: Include into your project:
+#
+#
+#     <?php
+#
+#     include "vendor/autoload.php";
+#
+#     // your code here
+#     echo "CCXT Pro version: " . \ccxtpro\Exchange::VERSION . "\n";
+#     echo "CCXT Pro Exchanges:\n";
+#     print_r(\ccxtpro\Exchange::$exchanges);
+#
+#
+#
+```
+
+
+## Troubleshooting CCXT Pro Installation
+
+- Please check your GitHub credentials when installing it (install instructions above)
+- Check if you can access this link: https://github.com/kroitor/ccxt.pro
+- Also, check if you can git-clone it using your GitHub account.
+- Check if your account still has access here:
+- - https://ccxt.pro/account
+- - https://ccxt.pro/orders
+- If the above things work, that means something is wrong with your GitHub authentication config on your local machine.
+Make sure you use the correct account for it, and your subscription has not expired (you should receive emails to your primary GitHub email if it does).
+- If none of above helps, open an issue: https://github.com/ccxt/ccxt/issues

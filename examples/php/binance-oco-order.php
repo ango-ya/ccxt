@@ -10,7 +10,6 @@ $exchange = new \ccxt\binance(array(
     'apiKey' => 'YOUR_API_KEY', // replace with your keys
     'secret' => 'YOUR_SECRET',
     'verbose' => true,
-    'enableRateLimit' => true,
 ));
 
 try {
@@ -52,7 +51,7 @@ try {
         // 'newOrderRespType' => 'ACK', // or 'RESULT', or 'FULL', // set the response JSON
     );
 
-    $response = $exchange->private_post_order_oco($orderId, $symbol);
+    $response = $exchange->private_post_order_oco($params);
 
     var_dump($response);
 

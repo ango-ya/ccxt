@@ -64,17 +64,11 @@ const checkAgainst = strict ?
 
 ;(async function test () {
 
-    const { Agent } = require ('https')
-
     let exchanges = await Promise.all (ccxt.exchanges.map (async id => {
-
-        const agent = new Agent ({
-            ecdhCurve: 'auto',
-        })
 
         // instantiate the exchange
         let exchange = new ccxt[id] (ccxt.extend (localKeysFile ? (keys[id] || {}) : {}, {
-            agent, // set up keys and settings, if any
+            // agent, // set up keys and settings, if any
         }))
 
         if (exchange.has.publicAPI) {
@@ -118,9 +112,13 @@ const checkAgainst = strict ?
                         (market['baseId']  ? checkAgainst (market['baseId'],  argument) : false) ||
                         (market['quoteId'] ? checkAgainst (market['quoteId'], argument) : false) ||
                         checkAgainst (market['symbol'], argument) ||
-                        checkAgainst (market['id'].toString (), argument)
+                        checkAgainst (market['id'].toString (), argument) ||
+                        checkAgainst (market['type'], argument)
                     )
                 } catch (e) {
+                    if (debug) {
+                        log.red (e.constructor.name, e.message)
+                    }
                     return false
                 }
             })
@@ -156,5 +154,7 @@ const checkAgainst = strict ?
 
         log (currencies.length.toString ().yellow, 'currencies')
     }
+
+    process.exit ()
 
 }) ()

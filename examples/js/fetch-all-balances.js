@@ -1,5 +1,7 @@
 'use strict';
 
+const { PAD_WITH_ZERO } = require('../../js/base/functions/number.js');
+
 //-----------------------------------------------------------------------------
 
 const ccxt         = require ('../../ccxt.js')
@@ -57,11 +59,11 @@ let settings = localKeysFile ? (require (localKeysFile) || {}) : {}
 //-----------------------------------------------------------------------------
 
 const timeout = 30000
-const enableRateLimit = true
 
 const coins = [
     'BTC',
     'ETH',
+    'BNB',
     'EUR',
     'LTC',
     'USD',
@@ -71,6 +73,10 @@ const coins = [
     'XRP',
     'DOGE',
     'YFI',
+    'LINK',
+    'XLM',
+    'ADA',
+    'SOL',
 ]
 
 function initializeAllExchanges () {
@@ -80,12 +86,12 @@ function initializeAllExchanges () {
         'bitsane',
         'chbtc',
         'coinbasepro',
-        'coinmarketcap',
         'jubi',
         'hitbtc',
         'bitstamp1',
         'bitfinex2',
         'upbit',
+        'huobipro',
     ]
     const result = []
     ccxt.exchanges.filter (exchangeId => (!ignore.includes (exchangeId))).forEach (exchangeId => {
@@ -94,7 +100,6 @@ function initializeAllExchanges () {
             const exchange = new ccxt[exchangeId] ({
                 timeout,
                 verbose,
-                enableRateLimit,
                 ... (settings[exchangeId] || {})
             })
             exchange.checkRequiredCredentials ()
@@ -115,7 +120,7 @@ function initializeAllExchanges () {
     const exchanges = initializeAllExchanges ()
     console.log (exchanges.map (exchange => exchange.id))
     let results = []
-    const priceOracle = new ccxt.bitfinex ({ enableRateLimit })
+    const priceOracle = new ccxt.bitfinex ()
     const tickers = await priceOracle.fetchTickers ()
     await Promise.all (exchanges.map ((exchange) => (async function () {
 
@@ -194,7 +199,7 @@ function initializeAllExchanges () {
         })
         return extend ({
             'exchange': result.exchange,
-            '$': decimalToPrecision (value, ROUND, 8, DECIMAL_PLACES),
+            '$': decimalToPrecision (value, ROUND, 2, DECIMAL_PLACES, PAD_WITH_ZERO),
         }, result);
     })
 
@@ -203,5 +208,7 @@ function initializeAllExchanges () {
     log (table)
 
     log.green ('Currencies:', currencies)
+
+    console.log (new Date ())
 
 }) ()
