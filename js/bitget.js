@@ -2955,7 +2955,6 @@ module.exports = class bitget extends Exchange {
          * @param {object} params extra parameters specific to the bitget api endpoint
          * @returns {object} a [margin structure]{@link https://docs.ccxt.com/en/latest/manual.html#withdrawal}
          */
-
         await this.loadMarkets ();
         this.checkAddress (address);
         const chain = params.chain;
