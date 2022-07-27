@@ -77,7 +77,7 @@ module.exports = class bitget extends Exchange {
                 'setMarginMode': true,
                 'setPositionMode': false,
                 'transfer': false,
-                'withdraw': false,
+                'withdraw': true,
             },
             'timeframes': {
                 'spot': {
@@ -171,6 +171,7 @@ module.exports = class bitget extends Exchange {
                             'trade/open-orders': 1,
                             'trade/history': 1,
                             'trade/fills': 1,
+                            'wallet/withdrawal': 1,
                         },
                     },
                     'mix': {
@@ -2940,6 +2941,39 @@ module.exports = class bitget extends Exchange {
             throw new ArgumentsRequired (this.id + ' addMargin() requires a holdSide parameter, either long or short');
         }
         return await this.modifyMarginHelper (symbol, amount, 'add', params);
+    }
+
+    async withdraw(code, amount, address, tag = undefined, params = {}) {
+          /**
+         * @method
+         * @name bitget#withdraw
+         * @description The withdraw method can be used to withdraw funds from an account
+         * @param {string} code required unified CCXT currency code
+         * @param {float} amount required the amount of currency to withdraw
+         * @param {string} address required The recipient address of the withdrawal
+         * @param {string} tag required for some networks
+         * @param {object} params extra parameters specific to the bitget api endpoint
+         * @returns {object} a [margin structure]{@link https://docs.ccxt.com/en/latest/manual.html#withdrawal}
+         */
+
+        await this.loadMarkets ();
+        this.checkAddress (address);
+        const chain = params.chain;
+        delete params.chain;
+        const request = {
+            'coin': code,
+            'address': address,
+            'chain': chain,
+            'amount': amount.toString (),
+        };
+        if (tag !== undefined) {
+            request['tag'] = tag;
+        }
+        const response = await this.privateSpotPostWalletWithdrawal (this.extend (request, params));
+        return {
+            'id': response['id'],
+            'info': response,
+        };
     }
 
     sign (path, api = [], method = 'GET', params = {}, headers = undefined, body = undefined) {
