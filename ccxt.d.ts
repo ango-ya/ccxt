@@ -16,10 +16,12 @@ declare module '@ango-ya/ccxt' {
     export class ExchangeError extends BaseError {}
     export class AuthenticationError extends ExchangeError {}
     export class PermissionDenied extends AuthenticationError {}
+    export class AccountNotEnabled extends PermissionDenied {}
     export class AccountSuspended extends AuthenticationError {}
     export class ArgumentsRequired extends ExchangeError {}
     export class BadRequest extends ExchangeError {}
     export class BadSymbol extends BadRequest {}
+    export class MarginModeAlreadySet extends BadRequest {}
     export class BadResponse extends ExchangeError {}
     export class NullResponse extends BadResponse {}
     export class InsufficientFunds extends ExchangeError {}
