@@ -2943,8 +2943,8 @@ module.exports = class bitget extends Exchange {
         return await this.modifyMarginHelper (symbol, amount, 'add', params);
     }
 
-    async withdraw(code, amount, address, tag = undefined, params = {}) {
-          /**
+    async withdraw (code, amount, address, tag = undefined, params = {}) {
+        /**
          * @method
          * @name bitget#withdraw
          * @description The withdraw method can be used to withdraw funds from an account
