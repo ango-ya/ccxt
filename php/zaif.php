@@ -427,7 +427,7 @@ class zaif extends Exchange {
         //          ), ...
         //      )
         //
-        $numTrades = count($response);
+        $numTrades = is_array($response) ? count($response) : 0;
         if ($numTrades === 1) {
             $firstTrade = $response[0];
             if (!$firstTrade) {

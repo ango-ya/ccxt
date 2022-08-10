@@ -36,7 +36,6 @@ class woo extends Exchange {
                 'createDepositAddress' => false,
                 'createMarketOrder' => false,
                 'createOrder' => true,
-                'createReduceOnlyOrder' => true,
                 'createStopLimitOrder' => false,
                 'createStopMarketOrder' => false,
                 'createStopOrder' => false,
@@ -672,30 +671,19 @@ class woo extends Exchange {
          * @param {array} $params extra parameters specific to the woo api endpoint
          * @return {array} an {@link https://docs.ccxt.com/en/latest/manual.html#order-structure order structure}
          */
-        $reduceOnly = $this->safe_value($params, 'reduceOnly');
-        $orderType = strtoupper($type);
-        if ($reduceOnly !== null) {
-            if ($orderType !== 'LIMIT') {
-                throw new InvalidOrder($this->id . ' createOrder() only support $reduceOnly for limit orders');
-            }
-        }
         $this->load_markets();
         $market = $this->market($symbol);
-        $orderSide = strtoupper($side);
         $request = array(
             'symbol' => $market['id'],
-            'order_type' => $orderType, // LIMIT/MARKET/IOC/FOK/POST_ONLY/ASK/BID
-            'side' => $orderSide,
+            'order_type' => strtoupper($type), // LIMIT/MARKET/IOC/FOK/POST_ONLY/ASK/BID
+            'side' => strtoupper($side),
         );
-        if ($reduceOnly) {
-            $request['reduce_only'] = $reduceOnly;
-        }
         if ($price !== null) {
             $request['order_price'] = $this->price_to_precision($symbol, $price);
         }
-        if ($orderType === 'MARKET') {
+        if ($type === 'market') {
             // for $market buy it requires the $amount of quote currency to spend
-            if ($orderSide === 'BUY') {
+            if ($side === 'buy') {
                 $cost = $this->safe_number($params, 'cost');
                 if ($this->safe_value($this->options, 'createMarketBuyOrderRequiresPrice', true)) {
                     if ($cost === null) {
@@ -950,7 +938,6 @@ class woo extends Exchange {
             'type' => $orderType,
             'timeInForce' => null,
             'postOnly' => null, // TO_DO
-            'reduceOnly' => $this->safe_value($order, 'reduce_only'),
             'side' => $side,
             'price' => $price,
             'stopPrice' => null,
@@ -1420,7 +1407,7 @@ class woo extends Exchange {
             return $currency;
         } else {
             $parts = explode('_', $networkizedCode);
-            $partsLength = count($parts);
+            $partsLength = is_array($parts) ? count($parts) : 0;
             $firstPart = $this->safe_string($parts, 0);
             $currencyId = $this->safe_string($parts, 1, $firstPart);
             if ($partsLength > 2) {

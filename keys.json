@@ -4,7 +4,6 @@
     "aofex":         { "skip": true },
     "bcex":          { "skip": true },
     "bibox":         { "skip" :true, "has": { "fetchCurrencies": false }},
-    "bit2c":         { "skip": true },
     "bitbns":        { "skip": true },
     "bitbank":       { "skip": true },
     "bitcoincom":    { "skip": true },
@@ -15,7 +14,6 @@
     "bitmex":        { "skip": true },
     "bitso":         { "skip": true },
     "bitstamp1":     { "skip": true },
-    "btcalpha":      { "skip": true },
     "btcmarkets":    { "skip": true },
     "btctradeua":    { "skip": true },
     "braziliex":     { "skip": true },
@@ -50,7 +48,6 @@
     "mercado":       { "skip": true },
     "mexc":          { "skip": true },
     "mexc3":         { "skip": true },
-    "poloniex":      { "skip": true },
     "qtrade":        { "skip": true },
     "rightbtc":      { "skip": true },
     "stex":          { "skip": true },
@@ -58,7 +55,7 @@
     "tidex":         { "skip": true },
     "vcc":           { "skip": true },
     "woo":           { "skip": true },
-    "yobit":         { "skip": true },
+    "xbtce":         { "skip": true },
     "zaif":          { "skip": true },
     "zipmex":        { "skip": true }
 }

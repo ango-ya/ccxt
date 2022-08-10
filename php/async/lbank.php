@@ -165,7 +165,7 @@ class lbank extends Exchange {
             $parts = explode('_', $id);
             $baseId = null;
             $quoteId = null;
-            $numParts = count($parts);
+            $numParts = is_array($parts) ? count($parts) : 0;
             // lbank will return symbols like "vet_erc20_usdt"
             if ($numParts > 2) {
                 $baseId = $parts[0] . '_' . $parts[1];
@@ -643,7 +643,7 @@ class lbank extends Exchange {
         $response = yield $this->privatePostOrdersInfo (array_merge($request, $params));
         $data = $this->safe_value($response, 'orders', array());
         $orders = $this->parse_orders($data, $market);
-        $numOrders = count($orders);
+        $numOrders = is_array($orders) ? count($orders) : 0;
         if ($numOrders === 1) {
             return $orders[0];
         } else {

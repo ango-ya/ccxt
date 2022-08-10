@@ -1669,7 +1669,7 @@ class idex extends Exchange {
         $version = $this->safe_string($this->options, 'version', 'v1');
         $url = $this->urls['api'][$network] . '/' . $version . '/' . $path;
         $keys = is_array($params) ? array_keys($params) : array();
-        $length = count($keys);
+        $length = is_array($keys) ? count($keys) : 0;
         $query = null;
         if ($length > 0) {
             if ($method === 'GET') {

@@ -19,7 +19,7 @@ module.exports = class gemini extends Exchange {
             // 120 requests a minute = 2 requests per second => ( 1000ms / rateLimit ) / 2 = 5 (public endpoints)
             'rateLimit': 100,
             'version': 'v1',
-            'pro': false,
+            'pro': true,
             'has': {
                 'CORS': undefined,
                 'spot': true,
@@ -1105,13 +1105,13 @@ module.exports = class gemini extends Exchange {
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/en/latest/manual.html#order-structure}
          */
         await this.loadMarkets ();
-        if (type !== 'limit') {
+        if (type === 'market') {
             throw new ExchangeError (this.id + ' createOrder() allows limit orders only');
         }
         let clientOrderId = this.safeString2 (params, 'clientOrderId', 'client_order_id');
         params = this.omit (params, [ 'clientOrderId', 'client_order_id' ]);
         if (clientOrderId === undefined) {
-            clientOrderId = this.milliseconds ();
+            clientOrderId = this.nonce ();
         }
         const market = this.market (symbol);
         const amountString = this.amountToPrecision (symbol, amount);
@@ -1310,7 +1310,7 @@ module.exports = class gemini extends Exchange {
     }
 
     nonce () {
-        return this.seconds ();
+        return this.milliseconds ();
     }
 
     async fetchTransactions (code = undefined, since = undefined, limit = undefined, params = {}) {

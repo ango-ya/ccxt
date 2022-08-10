@@ -748,7 +748,7 @@ class bitfinex2 extends Exchange {
                 }
             }
             $keysNetworks = is_array($networks) ? array_keys($networks) : array();
-            $networksLength = count($keysNetworks);
+            $networksLength = is_array($keysNetworks) ? count($keysNetworks) : 0;
             if ($networksLength > 0) {
                 $result[$code]['networks'] = $networks;
             }
@@ -1056,7 +1056,7 @@ class bitfinex2 extends Exchange {
         //
         $timestamp = $this->milliseconds();
         $symbol = $this->safe_symbol(null, $market);
-        $length = count($ticker);
+        $length = is_array($ticker) ? count($ticker) : 0;
         $last = $this->safe_string($ticker, $length - 4);
         $percentage = $this->safe_string($ticker, $length - 5);
         return $this->safe_ticker(array(
@@ -1215,7 +1215,7 @@ class bitfinex2 extends Exchange {
         //         ...
         //     )
         //
-        $tradeLength = count($trade);
+        $tradeLength = is_array($trade) ? count($trade) : 0;
         $isPrivate = ($tradeLength > 5);
         $id = $this->safe_string($trade, 0);
         $amountIndex = $isPrivate ? 4 : 2;
@@ -2053,7 +2053,7 @@ class bitfinex2 extends Exchange {
         //         "Purchase of 100 pizzas", // WITHDRAW_TRANSACTION_NOTE, might also be => null
         //     )
         //
-        $transactionLength = count($transaction);
+        $transactionLength = is_array($transaction) ? count($transaction) : 0;
         $timestamp = null;
         $updated = null;
         $code = null;

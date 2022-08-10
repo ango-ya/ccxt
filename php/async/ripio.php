@@ -1004,7 +1004,7 @@ class ripio extends Exchange {
         $trades = null;
         $lastTradeTimestamp = null;
         if ($fills !== null) {
-            $numFills = count($fills);
+            $numFills = is_array($fills) ? count($fills) : 0;
             if ($numFills > 0) {
                 $filled = 0;
                 $cost = 0;

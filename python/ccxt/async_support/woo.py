@@ -41,7 +41,6 @@ class woo(Exchange):
                 'createDepositAddress': False,
                 'createMarketOrder': False,
                 'createOrder': True,
-                'createReduceOnlyOrder': True,
                 'createStopLimitOrder': False,
                 'createStopMarketOrder': False,
                 'createStopOrder': False,
@@ -661,26 +660,18 @@ class woo(Exchange):
         :param dict params: extra parameters specific to the woo api endpoint
         :returns dict: an `order structure <https://docs.ccxt.com/en/latest/manual.html#order-structure>`
         """
-        reduceOnly = self.safe_value(params, 'reduceOnly')
-        orderType = type.upper()
-        if reduceOnly is not None:
-            if orderType != 'LIMIT':
-                raise InvalidOrder(self.id + ' createOrder() only support reduceOnly for limit orders')
         await self.load_markets()
         market = self.market(symbol)
-        orderSide = side.upper()
         request = {
             'symbol': market['id'],
-            'order_type': orderType,  # LIMIT/MARKET/IOC/FOK/POST_ONLY/ASK/BID
-            'side': orderSide,
+            'order_type': type.upper(),  # LIMIT/MARKET/IOC/FOK/POST_ONLY/ASK/BID
+            'side': side.upper(),
         }
-        if reduceOnly:
-            request['reduce_only'] = reduceOnly
         if price is not None:
             request['order_price'] = self.price_to_precision(symbol, price)
-        if orderType == 'MARKET':
+        if type == 'market':
             # for market buy it requires the amount of quote currency to spend
-            if orderSide == 'BUY':
+            if side == 'buy':
                 cost = self.safe_number(params, 'cost')
                 if self.safe_value(self.options, 'createMarketBuyOrderRequiresPrice', True):
                     if cost is None:
@@ -916,7 +907,6 @@ class woo(Exchange):
             'type': orderType,
             'timeInForce': None,
             'postOnly': None,  # TO_DO
-            'reduceOnly': self.safe_value(order, 'reduce_only'),
             'side': side,
             'price': price,
             'stopPrice': None,

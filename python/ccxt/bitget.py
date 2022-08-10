@@ -764,8 +764,8 @@ class bitget(Exchange):
                 'defaultType': 'spot',  # 'spot', 'swap'
                 'defaultSubType': 'linear',  # 'linear', 'inverse'
                 'broker': {
-                    'spot': 'CCXT#',
-                    'swap': 'CCXT#',
+                    'spot': 'iauIBf#',
+                    'swap': 'iauIBf#',
                 },
             },
         })
@@ -2336,7 +2336,7 @@ class bitget(Exchange):
         timestamp = self.safe_integer(item, 'cTime')
         bizType = self.safe_string(item, 'bizType')
         direction = None
-        if bizType is not None and bizType.find('-') >= 0:
+        if bizType is not None:
             parts = bizType.split('-')
             direction = parts[1]
         type = self.safe_string(item, 'groupType')

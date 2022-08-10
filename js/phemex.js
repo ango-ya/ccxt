@@ -2832,7 +2832,6 @@ module.exports = class phemex extends Exchange {
             const position = positions[i];
             result.push (this.parsePosition (position));
         }
-        symbols = this.marketSymbols (symbols);
         return this.filterByArray (result, 'symbol', symbols, false);
     }
 

@@ -13,7 +13,7 @@ function test_ohlcv($exchange, $ohlcv, $symbol, $now) {
     $json = $exchange->json ($ohlcv);
     assert ($ohlcv);
     assert (gettype($ohlcv) === 'array' && array_keys($ohlcv) === array_keys(array_keys($ohlcv)), $json);
-    $length = count($ohlcv);
+    $length = is_array($ohlcv) ? count($ohlcv) : 0;
     assert ($length >= 6);
     for ($i = 0; $i < count($ohlcv); $i++) {
         assert (($ohlcv[$i] === null) || ((is_float($ohlcv[$i]) || is_int($ohlcv[$i]))), $json);

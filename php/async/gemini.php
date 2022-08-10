@@ -23,7 +23,7 @@ class gemini extends Exchange {
             // 120 requests a minute = 2 requests per second => ( 1000ms / rateLimit ) / 2 = 5 (public endpoints)
             'rateLimit' => 100,
             'version' => 'v1',
-            'pro' => false,
+            'pro' => true,
             'has' => array(
                 'CORS' => null,
                 'spot' => true,
@@ -275,18 +275,18 @@ class gemini extends Exchange {
     public function fetch_markets_from_web($params = array ()) {
         $response = yield $this->webGetRestApi ($params);
         $sections = explode('<h1 id="symbols-and-minimums">Symbols and minimums</h1>', $response);
-        $numSections = count($sections);
+        $numSections = is_array($sections) ? count($sections) : 0;
         $error = $this->id . ' fetchMarketsFromWeb() the ' . $this->name . ' API doc HTML markup has changed, breaking the parser of order limits and precision info for ' . $this->name . ' markets.';
         if ($numSections !== 2) {
             throw new NotSupported($error);
         }
         $tables = explode('tbody>', $sections[1]);
-        $numTables = count($tables);
+        $numTables = is_array($tables) ? count($tables) : 0;
         if ($numTables < 2) {
             throw new NotSupported($error);
         }
         $rows = explode("\n<tr>\n", $tables[1]); // eslint-disable-line quotes
-        $numRows = count($rows);
+        $numRows = is_array($rows) ? count($rows) : 0;
         if ($numRows < 2) {
             throw new NotSupported($error);
         }
@@ -295,7 +295,7 @@ class gemini extends Exchange {
         for ($i = 1; $i < $numRows; $i++) {
             $row = $rows[$i];
             $cells = explode("</td>\n", $row); // eslint-disable-line quotes
-            $numCells = count($cells);
+            $numCells = is_array($cells) ? count($cells) : 0;
             if ($numCells < 5) {
                 throw new NotSupported($error);
             }
@@ -1089,13 +1089,13 @@ class gemini extends Exchange {
          * @return {array} an {@link https://docs.ccxt.com/en/latest/manual.html#order-structure order structure}
          */
         yield $this->load_markets();
-        if ($type !== 'limit') {
+        if ($type === 'market') {
             throw new ExchangeError($this->id . ' createOrder() allows limit orders only');
         }
         $clientOrderId = $this->safe_string_2($params, 'clientOrderId', 'client_order_id');
         $params = $this->omit($params, array( 'clientOrderId', 'client_order_id' ));
         if ($clientOrderId === null) {
-            $clientOrderId = $this->milliseconds();
+            $clientOrderId = $this->nonce();
         }
         $market = $this->market($symbol);
         $amountString = $this->amount_to_precision($symbol, $amount);
@@ -1288,7 +1288,7 @@ class gemini extends Exchange {
     }
 
     public function nonce() {
-        return $this->seconds();
+        return $this->milliseconds();
     }
 
     public function fetch_transactions($code = null, $since = null, $limit = null, $params = array ()) {

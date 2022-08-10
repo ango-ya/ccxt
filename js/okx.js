@@ -149,7 +149,7 @@ module.exports = class okx extends Exchange {
                         'market/ticker': 1,
                         'market/index-tickers': 1,
                         'market/books': 1,
-                        'market/candles': 0.5,
+                        'market/candles': 1,
                         'market/history-candles': 1,
                         'market/index-candles': 1,
                         'market/mark-price-candles': 1,
@@ -4116,7 +4116,6 @@ module.exports = class okx extends Exchange {
                 result.push (this.parsePosition (positions[i]));
             }
         }
-        symbols = this.marketSymbols (symbols);
         return this.filterByArray (result, 'symbol', symbols, false);
     }
 

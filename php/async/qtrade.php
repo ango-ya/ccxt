@@ -1663,7 +1663,7 @@ class qtrade extends Exchange {
         $tag = null;
         if ($address !== null) {
             $parts = explode(':', $address);
-            $numParts = count($parts);
+            $numParts = is_array($parts) ? count($parts) : 0;
             if ($numParts > 1) {
                 $address = $this->safe_string($parts, 0);
                 $tag = $this->safe_string($parts, 1);
@@ -1813,7 +1813,7 @@ class qtrade extends Exchange {
             return;
         }
         $errors = $this->safe_value($response, 'errors', array());
-        $numErrors = count($errors);
+        $numErrors = is_array($errors) ? count($errors) : 0;
         if ($numErrors < 1) {
             return;
         }

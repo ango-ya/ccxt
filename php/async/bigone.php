@@ -1168,7 +1168,7 @@ class bigone extends Exchange {
         //     }
         //
         $data = $this->safe_value($response, 'data', array());
-        $dataLength = count($data);
+        $dataLength = is_array($data) ? count($data) : 0;
         if ($dataLength < 1) {
             throw new ExchangeError($this->id . ' fetchDepositAddress() returned empty $address response');
         }

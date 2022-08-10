@@ -487,7 +487,7 @@ class mexc extends Exchange {
                 );
             }
             $networkKeys = is_array($networks) ? array_keys($networks) : array();
-            $networkKeysLength = count($networkKeys);
+            $networkKeysLength = is_array($networkKeys) ? count($networkKeys) : 0;
             if (($networkKeysLength === 1) || (is_array($networks) && array_key_exists('NONE', $networks))) {
                 $defaultNetwork = $this->safe_value_2($networks, 'NONE', $networkKeysLength - 1);
                 if ($defaultNetwork !== null) {

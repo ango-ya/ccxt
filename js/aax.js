@@ -1288,15 +1288,11 @@ module.exports = class aax extends Exchange {
         if (clientOrderId !== undefined) {
             request['clOrdID'] = clientOrderId;
         }
-        const postOnly = this.isPostOnly (orderType === 'MARKET', undefined, params);
-        const timeInForce = this.safeString (params, 'timeInForce');
-        if (postOnly) {
+        const postOnly = this.safeValue (params, 'postOnly', false);
+        if (postOnly !== undefined) {
             request['execInst'] = 'Post-Only';
         }
-        if (timeInForce !== undefined && timeInForce !== 'PO') {
-            request['timeInForce'] = timeInForce;
-        }
-        params = this.omit (params, [ 'clOrdID', 'clientOrderId', 'postOnly', 'timeInForce' ]);
+        params = this.omit (params, [ 'clOrdID', 'clientOrderId', 'postOnly' ]);
         const stopPrice = this.safeNumber (params, 'stopPrice');
         if (stopPrice === undefined) {
             if ((orderType === 'STOP-LIMIT') || (orderType === 'STOP')) {

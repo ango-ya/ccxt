@@ -681,7 +681,7 @@ class crex24 extends Exchange {
         //                   bid =>  3.1e-7,
         //             timestamp => "2018-10-31T09:21:25Z" }   )
         //
-        $numTickers = count($response);
+        $numTickers = is_array($response) ? count($response) : 0;
         if ($numTickers < 1) {
             throw new ExchangeError($this->id . ' fetchTicker() could not load quotes for $symbol ' . $symbol);
         }
@@ -1162,7 +1162,7 @@ class crex24 extends Exchange {
         //         }
         //     )
         //
-        $numOrders = count($response);
+        $numOrders = is_array($response) ? count($response) : 0;
         if ($numOrders < 1) {
             throw new OrderNotFound($this->id . ' fetchOrder() could not fetch order $id ' . $id);
         }

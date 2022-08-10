@@ -1135,7 +1135,7 @@ class timex extends Exchange {
         $tradeDecimals = $this->safe_integer($currency, 'tradeDecimals');
         $fee = null;
         if (($feeString !== null) && ($tradeDecimals !== null)) {
-            $feeStringLen = count($feeString);
+            $feeStringLen = is_array($feeString) ? count($feeString) : 0;
             $dotIndex = $feeStringLen - $tradeDecimals;
             if ($dotIndex > 0) {
                 $whole = mb_substr($feeString, 0, $dotIndex - 0);

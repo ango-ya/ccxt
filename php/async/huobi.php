@@ -887,7 +887,6 @@ class huobi extends Exchange {
                     ),
                 ),
                 'defaultType' => 'spot', // spot, future, swap
-                'defaultMarginMode' => 'cross',
                 'defaultSubType' => 'inverse', // inverse, linear
                 'defaultNetwork' => 'ERC20',
                 'networks' => array(
@@ -1506,7 +1505,7 @@ class huobi extends Exchange {
         //     }
         //
         $markets = $this->safe_value($response, 'data', array());
-        $numMarkets = count($markets);
+        $numMarkets = is_array($markets) ? count($markets) : 0;
         if ($numMarkets < 1) {
             throw new NetworkError($this->id . ' fetchMarkets() returned an empty $response => ' . $this->json($markets));
         }
@@ -2200,18 +2199,14 @@ class huobi extends Exchange {
         /**
          * fetch all the trades made from a single order
          * @param {string} $id order $id
-         * @param {string|null} $symbol unified $market $symbol
+         * @param {string|null} $symbol unified market $symbol
          * @param {int|null} $since the earliest time in ms to fetch trades for
          * @param {int|null} $limit the maximum number of trades to retrieve
          * @param {array} $params extra parameters specific to the huobi api endpoint
          * @return {[array]} a list of {@link https://docs.ccxt.com/en/latest/manual.html#trade-structure trade structures}
          */
-        $market = null;
-        if ($symbol !== null) {
-            $market = $this->market($symbol);
-        }
         $marketType = null;
-        list($marketType, $params) = $this->handle_market_type_and_params('fetchOrderTrades', $market, $params);
+        list($marketType, $params) = $this->handle_market_type_and_params('fetchOrderTrades', null, $params);
         $method = $this->get_supported_mapping($marketType, array(
             'spot' => 'fetchSpotOrderTrades',
             // 'swap' => 'fetchContractOrderTrades',
@@ -2239,12 +2234,8 @@ class huobi extends Exchange {
          * @return {[array]} a list of {@link https://docs.ccxt.com/en/latest/manual.html#trade-structure trade structures}
          */
         yield $this->load_markets();
-        $market = null;
-        if ($symbol !== null) {
-            $market = $this->market($symbol);
-        }
         $marketType = null;
-        list($marketType, $params) = $this->handle_market_type_and_params('fetchMyTrades', $market, $params);
+        list($marketType, $params) = $this->handle_market_type_and_params('fetchMyTrades', null, $params);
         $request = array(
             // spot -----------------------------------------------------------
             // 'symbol' => $market['id'],
@@ -2265,6 +2256,7 @@ class huobi extends Exchange {
             // 'size' => $limit, // default 20, max 50
         );
         $method = null;
+        $market = null;
         if ($marketType === 'spot') {
             if ($symbol !== null) {
                 $market = $this->market($symbol);
@@ -2282,11 +2274,12 @@ class huobi extends Exchange {
             if ($symbol === null) {
                 throw new ArgumentsRequired($this->id . ' fetchMyTrades() requires a $symbol for ' . $marketType . ' orders');
             }
+            $market = $this->market($symbol);
             $request['contract_code'] = $market['id'];
             $request['trade_type'] = 0; // 0 all, 1 open long, 2 open short, 3 close short, 4 close long, 5 liquidate long positions, 6 liquidate short positions
             if ($market['linear']) {
-                $marginMode = null;
-                list($marginMode, $params) = $this->handle_margin_mode_and_params('fetchMyTrades', $params);
+                $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+                $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
                 if ($marginMode === 'isolated') {
                     $method = 'contractPrivatePostLinearSwapApiV1SwapMatchresultsExact';
                 } elseif ($marginMode === 'cross') {
@@ -2752,7 +2745,7 @@ class huobi extends Exchange {
                 );
             }
             $networksKeys = is_array($networks) ? array_keys($networks) : array();
-            $networkLength = count($networksKeys);
+            $networkLength = is_array($networksKeys) ? count($networksKeys) : 0;
             $result[$code] = array(
                 'info' => $entry,
                 'code' => $code,
@@ -2800,9 +2793,10 @@ class huobi extends Exchange {
         $subType = $this->safe_string_2($params, 'defaultSubType', 'subType', $subType);
         $inverse = ($subType === 'inverse');
         $linear = ($subType === 'linear');
-        $marginMode = null;
-        list($marginMode, $params) = $this->handle_margin_mode_and_params('fetchBalance', $params);
-        $params = $this->omit($params, array( 'defaultSubType', 'subType' ));
+        $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', 'isolated');
+        $marginMode = $this->safe_string_2($options, 'defaultMarginMode', 'marginMode', $marginMode);
+        $marginMode = $this->safe_string_2($params, 'defaultMarginMode', 'marginMode', $marginMode);
+        $params = $this->omit($params, array( 'defaultSubType', 'subType', 'defaultMarginMode', 'marginMode' ));
         $isolated = ($marginMode === 'isolated');
         $cross = ($marginMode === 'cross');
         if ($spot) {
@@ -3063,12 +3057,8 @@ class huobi extends Exchange {
          * @return {array} An {@link https://docs.ccxt.com/en/latest/manual.html#$order-structure $order structure}
          */
         yield $this->load_markets();
-        $market = null;
-        if ($symbol !== null) {
-            $market = $this->market($symbol);
-        }
         $marketType = null;
-        list($marketType, $params) = $this->handle_market_type_and_params('fetchOrder', $market, $params);
+        list($marketType, $params) = $this->handle_market_type_and_params('fetchOrder', null, $params);
         $request = array(
             // spot -----------------------------------------------------------
             // 'order-id' => 'id',
@@ -3083,6 +3073,7 @@ class huobi extends Exchange {
             // 'contract_type' => 'this_week', // swap, this_week, next_week, quarter, next_ quarter
         );
         $method = null;
+        $market = null;
         if ($marketType === 'spot') {
             $clientOrderId = $this->safe_string($params, 'clientOrderId');
             $method = 'spotPrivateGetV1OrderOrdersOrderId';
@@ -3098,10 +3089,11 @@ class huobi extends Exchange {
             if ($symbol === null) {
                 throw new ArgumentsRequired($this->id . ' fetchOrder() requires a $symbol for ' . $marketType . ' orders');
             }
+            $market = $this->market($symbol);
             $request['contract_code'] = $market['id'];
             if ($market['linear']) {
-                $marginMode = null;
-                list($marginMode, $params) = $this->handle_margin_mode_and_params('fetchOrder', $params);
+                $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+                $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
                 if ($marginMode === 'isolated') {
                     $method = 'contractPrivatePostLinearSwapApiV1SwapOrderInfo';
                 } elseif ($marginMode === 'cross') {
@@ -3361,8 +3353,8 @@ class huobi extends Exchange {
         $method = null;
         $request['contract_code'] = $market['id'];
         if ($market['linear']) {
-            $marginMode = null;
-            list($marginMode, $params) = $this->handle_margin_mode_and_params('fetchContractOrders', $params);
+            $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+            $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
             $method = $this->get_supported_mapping($marginMode, array(
                 'isolated' => 'contractPrivatePostLinearSwapApiV1SwapHisorders',
                 'cross' => 'contractPrivatePostLinearSwapApiV1SwapCrossHisorders',
@@ -3444,19 +3436,15 @@ class huobi extends Exchange {
     public function fetch_orders($symbol = null, $since = null, $limit = null, $params = array ()) {
         /**
          * fetches information on multiple orders made by the user
-         * @param {string|null} $symbol unified $market $symbol of the $market orders were made in
+         * @param {string|null} $symbol unified market $symbol of the market orders were made in
          * @param {int|null} $since the earliest time in ms to fetch orders for
          * @param {int|null} $limit the maximum number of  orde structures to retrieve
          * @param {array} $params extra parameters specific to the huobi api endpoint
          * @return {[array]} a list of {@link https://docs.ccxt.com/en/latest/manual.html#order-structure order structures}
          */
         yield $this->load_markets();
-        $market = null;
-        if ($symbol !== null) {
-            $market = $this->market($symbol);
-        }
         $marketType = null;
-        list($marketType, $params) = $this->handle_market_type_and_params('fetchOrders', $market, $params);
+        list($marketType, $params) = $this->handle_market_type_and_params('fetchOrders', null, $params);
         $method = $this->get_supported_mapping($marketType, array(
             'spot' => 'fetchSpotOrders',
             'swap' => 'fetchContractOrders',
@@ -3475,19 +3463,15 @@ class huobi extends Exchange {
     public function fetch_closed_orders($symbol = null, $since = null, $limit = null, $params = array ()) {
         /**
          * fetches information on multiple closed orders made by the user
-         * @param {string|null} $symbol unified $market $symbol of the $market orders were made in
+         * @param {string|null} $symbol unified market $symbol of the market orders were made in
          * @param {int|null} $since the earliest time in ms to fetch orders for
          * @param {int|null} $limit the maximum number of  orde structures to retrieve
          * @param {array} $params extra parameters specific to the huobi api endpoint
          * @return {[array]} a list of {@link https://docs.ccxt.com/en/latest/manual.html#order-structure order structures}
          */
         yield $this->load_markets();
-        $market = null;
-        if ($symbol !== null) {
-            $market = $this->market($symbol);
-        }
         $marketType = null;
-        list($marketType, $params) = $this->handle_market_type_and_params('fetchClosedOrders', $market, $params);
+        list($marketType, $params) = $this->handle_market_type_and_params('fetchClosedOrders', null, $params);
         $method = $this->get_supported_mapping($marketType, array(
             'spot' => 'fetchClosedSpotOrders',
             'swap' => 'fetchClosedContractOrders',
@@ -3509,12 +3493,8 @@ class huobi extends Exchange {
          * @return {[array]} a list of {@link https://docs.ccxt.com/en/latest/manual.html#order-structure order structures}
          */
         yield $this->load_markets();
-        $market = null;
-        if ($symbol !== null) {
-            $market = $this->market($symbol);
-        }
         $marketType = null;
-        list($marketType, $params) = $this->handle_market_type_and_params('fetchOpenOrders', $market, $params);
+        list($marketType, $params) = $this->handle_market_type_and_params('fetchOpenOrders', null, $params);
         $request = array(
             // spot -----------------------------------------------------------
             // 'account-id' => $account['id'],
@@ -3531,6 +3511,7 @@ class huobi extends Exchange {
             // 'trade_type' => 0, // 0 all, 1 buy long, 2 sell short, 3 buy short, 4 sell long
         );
         $method = null;
+        $market = null;
         if ($marketType === 'spot') {
             $method = 'spotPrivateGetV1OrderOpenOrders';
             if ($symbol !== null) {
@@ -3564,8 +3545,8 @@ class huobi extends Exchange {
             $market = $this->market($symbol);
             $request['contract_code'] = $market['id'];
             if ($market['linear']) {
-                $marginMode = null;
-                list($marginMode, $params) = $this->handle_margin_mode_and_params('fetchOpenOrders', $params);
+                $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+                $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
                 if ($marginMode === 'isolated') {
                     $method = 'contractPrivatePostLinearSwapApiV1SwapOpenorders';
                 } elseif ($marginMode === 'cross') {
@@ -3873,11 +3854,7 @@ class huobi extends Exchange {
         $amount = null;
         if (($type !== null) && (mb_strpos($type, 'market') !== false)) {
             // for $market orders $amount is in quote currency, meaning it is the $cost
-            if ($side === 'sell') {
-                $cost = $this->safe_string($order, 'field-cash-amount');
-            } else {
-                $cost = $this->safe_string($order, 'amount');
-            }
+            $cost = $this->safe_string($order, 'amount');
         } else {
             $amount = $this->safe_string_2($order, 'volume', 'amount');
             $cost = $this->safe_string_n($order, array( 'filled-cash-amount', 'field-cash-amount', 'trade_turnover' )); // same typo
@@ -4164,8 +4141,8 @@ class huobi extends Exchange {
         }
         $method = null;
         if ($market['linear']) {
-            $marginMode = null;
-            list($marginMode, $params) = $this->handle_margin_mode_and_params('createOrder', $params);
+            $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+            $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
             if ($marginMode === 'isolated') {
                 $method = 'contractPrivatePostLinearSwapApiV1SwapOrder';
             } elseif ($marginMode === 'cross') {
@@ -4204,12 +4181,8 @@ class huobi extends Exchange {
          * @return {array} An {@link https://docs.ccxt.com/en/latest/manual.html#order-structure order structure}
          */
         yield $this->load_markets();
-        $market = null;
-        if ($symbol !== null) {
-            $market = $this->market($symbol);
-        }
         $marketType = null;
-        list($marketType, $params) = $this->handle_market_type_and_params('cancelOrder', $market, $params);
+        list($marketType, $params) = $this->handle_market_type_and_params('cancelOrder', null, $params);
         $request = array(
             // spot -----------------------------------------------------------
             // 'order-id' => 'id',
@@ -4223,6 +4196,7 @@ class huobi extends Exchange {
             // 'contract_type' => 'this_week', // swap, this_week, next_week, quarter, next_ quarter
         );
         $method = null;
+        $market = null;
         if ($marketType === 'spot') {
             $clientOrderId = $this->safe_string_2($params, 'client-order-id', 'clientOrderId');
             $method = 'spotPrivatePostV1OrderOrdersOrderIdSubmitcancel';
@@ -4237,10 +4211,11 @@ class huobi extends Exchange {
             if ($symbol === null) {
                 throw new ArgumentsRequired($this->id . ' cancelOrder() requires a $symbol for ' . $marketType . ' orders');
             }
+            $market = $this->market($symbol);
             $request['contract_code'] = $market['id'];
             if ($market['linear']) {
-                $marginMode = null;
-                list($marginMode, $params) = $this->handle_margin_mode_and_params('cancelOrder', $params);
+                $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+                $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
                 if ($marginMode === 'isolated') {
                     $method = 'contractPrivatePostLinearSwapApiV1SwapCancel';
                 } elseif ($marginMode === 'cross') {
@@ -4299,12 +4274,8 @@ class huobi extends Exchange {
          * @return {array} an list of {@link https://docs.ccxt.com/en/latest/manual.html#order-structure order structures}
          */
         yield $this->load_markets();
-        $market = null;
-        if ($symbol !== null) {
-            $market = $this->market($symbol);
-        }
         $marketType = null;
-        list($marketType, $params) = $this->handle_market_type_and_params('cancelOrders', $market, $params);
+        list($marketType, $params) = $this->handle_market_type_and_params('cancelOrders', null, $params);
         $request = array(
             // spot -----------------------------------------------------------
             // 'order-ids' => $ids->jsoin (','), // max 50
@@ -4341,8 +4312,8 @@ class huobi extends Exchange {
             $market = $this->market($symbol);
             $request['contract_code'] = $market['id'];
             if ($market['linear']) {
-                $marginMode = null;
-                list($marginMode, $params) = $this->handle_margin_mode_and_params('cancelOrders', $params);
+                $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+                $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
                 if ($marginMode === 'isolated') {
                     $method = 'contractPrivatePostLinearSwapApiV1SwapCancel';
                 } elseif ($marginMode === 'cross') {
@@ -4430,12 +4401,8 @@ class huobi extends Exchange {
          * @return {[array]} a list of {@link https://docs.ccxt.com/en/latest/manual.html#order-structure order structures}
          */
         yield $this->load_markets();
-        $market = null;
-        if ($symbol !== null) {
-            $market = $this->market($symbol);
-        }
         $marketType = null;
-        list($marketType, $params) = $this->handle_market_type_and_params('cancelAllOrders', $market, $params);
+        list($marketType, $params) = $this->handle_market_type_and_params('cancelAllOrders', null, $params);
         $request = array(
             // spot -----------------------------------------------------------
             // 'account-id' => account['id'],
@@ -4450,6 +4417,7 @@ class huobi extends Exchange {
             // 'direction' => 'buy' => // buy, sell
             // 'offset' => 'open', // open, close
         );
+        $market = null;
         $method = null;
         if ($marketType === 'spot') {
             if ($symbol !== null) {
@@ -4464,8 +4432,8 @@ class huobi extends Exchange {
             $market = $this->market($symbol);
             $request['contract_code'] = $market['id'];
             if ($market['linear']) {
-                $marginMode = null;
-                list($marginMode, $params) = $this->handle_margin_mode_and_params('cancelAllOrders', $params);
+                $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+                $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
                 if ($marginMode === 'isolated') {
                     $method = 'contractPrivatePostLinearSwapApiV1SwapCancelallall';
                 } elseif ($marginMode === 'cross') {
@@ -5276,8 +5244,8 @@ class huobi extends Exchange {
          * @return {[array]} a list of {@link https://docs.ccxt.com/en/latest/manual.html#borrow-$interest-structure borrow $interest structures}
          */
         yield $this->load_markets();
-        $marginMode = null;
-        list($marginMode, $params) = $this->handle_margin_mode_and_params('fetchBorrowInterest', $params);
+        $defaultMargin = $this->safe_string($params, 'marginMode', 'cross'); // cross or isolated
+        $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
         $request = array();
         if ($since !== null) {
             $request['start-date'] = $this->yyyymmdd($since);
@@ -5500,6 +5468,10 @@ class huobi extends Exchange {
         return array( 'url' => $url, 'method' => $method, 'body' => $body, 'headers' => $headers );
     }
 
+    public function calculate_rate_limiter_cost($api, $method, $path, $params, $config = array (), $context = array ()) {
+        return $this->safe_integer($config, 'cost', 1);
+    }
+
     public function handle_errors($httpCode, $reason, $url, $method, $headers, $body, $response, $requestHeaders, $requestBody) {
         if ($response === null) {
             return; // fallback to default error handler
@@ -5560,8 +5532,8 @@ class huobi extends Exchange {
             //   ),
             //   ts => '1641189898425'
             // }
-            $marginMode = null;
-            list($marginMode, $params) = $this->handle_margin_mode_and_params('fetchFundingHistory', $params);
+            $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+            $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
             if ($marginMode === 'isolated') {
                 $request['margin_account'] = $market['id'];
             } else {
@@ -5618,8 +5590,8 @@ class huobi extends Exchange {
         list($marketType, $query) = $this->handle_market_type_and_params('setLeverage', $market, $params);
         $method = null;
         if ($market['linear']) {
-            $marginMode = null;
-            list($marginMode, $params) = $this->handle_margin_mode_and_params('setLeverage', $params);
+            $defaultMargin = $market['future'] ? 'cross' : 'isolated';
+            $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', $defaultMargin);
             $method = $this->get_supported_mapping($marginMode, array(
                 'isolated' => 'contractPrivatePostLinearSwapApiV1SwapSwitchLeverRate',
                 'cross' => 'contractPrivatePostLinearSwapApiV1SwapCrossSwitchLeverRate',
@@ -5803,8 +5775,7 @@ class huobi extends Exchange {
          * @return {[array]} a list of {@link https://docs.ccxt.com/en/latest/manual.html#$position-structure $position structure}
          */
         yield $this->load_markets();
-        $marginMode = null;
-        list($marginMode, $params) = $this->handle_margin_mode_and_params('fetchPositions', $params);
+        $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', 'isolated');
         $defaultSubType = $this->safe_string($this->options, 'defaultSubType', 'inverse');
         $marketType = null;
         list($marketType, $params) = $this->handle_market_type_and_params('fetchPositions', null, $params);
@@ -5925,8 +5896,9 @@ class huobi extends Exchange {
          */
         yield $this->load_markets();
         $market = $this->market($symbol);
-        $marginMode = null;
-        list($marginMode, $params) = $this->handle_margin_mode_and_params('fetchPosition', $params);
+        $marginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', 'isolated');
+        $marginMode = $this->safe_string_2($params, 'marginMode', 'defaultMarginMode', $marginMode);
+        $params = $this->omit($params, array( 'defaultMarginMode', 'marginMode' ));
         list($marketType, $query) = $this->handle_market_type_and_params('fetchPosition', $market, $params);
         $method = null;
         if ($market['linear']) {
@@ -6575,8 +6547,8 @@ class huobi extends Exchange {
             'currency' => $currency['id'],
             'amount' => $this->currency_to_precision($code, $amount),
         );
-        $marginMode = null;
-        list($marginMode, $params) = $this->handle_margin_mode_and_params('borrowMargin', $params);
+        $defaultMarginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', 'cross');
+        $marginMode = $this->safe_string($params, 'marginMode', $defaultMarginMode); // cross or isolated
         $method = null;
         if ($marginMode === 'isolated') {
             if ($symbol === null) {
@@ -6588,6 +6560,7 @@ class huobi extends Exchange {
         } elseif ($marginMode === 'cross') {
             $method = 'privatePostCrossMarginOrders';
         }
+        $params = $this->omit($params, 'marginMode');
         $response = yield $this->$method (array_merge($request, $params));
         //
         // Cross
@@ -6622,8 +6595,9 @@ class huobi extends Exchange {
          */
         yield $this->load_markets();
         $currency = $this->currency($code);
-        $marginMode = null;
-        list($marginMode, $params) = $this->handle_margin_mode_and_params('repayMargin', $params);
+        $defaultMarginMode = $this->safe_string_2($this->options, 'defaultMarginMode', 'marginMode', 'cross');
+        $marginMode = $this->safe_string($params, 'marginMode', $defaultMarginMode); // cross or isolated
+        $params = $this->omit($params, 'marginMode');
         $marginAccounts = $this->safe_value($this->options, 'marginAccounts', array());
         $accountType = $this->get_supported_mapping($marginMode, $marginAccounts);
         $accountId = yield $this->fetch_account_id_by_type($accountType, $params);

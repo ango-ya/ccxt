@@ -425,7 +425,7 @@ class latoken extends Exchange {
             $fee = $this->safe_number($currency, 'fee');
             $currencyType = $this->safe_string($currency, 'type');
             $parts = explode('_', $currencyType);
-            $numParts = count($parts);
+            $numParts = is_array($parts) ? count($parts) : 0;
             $lastPart = $this->safe_value($parts, $numParts - 1);
             $type = strtolower($lastPart);
             $status = $this->safe_string($currency, 'status');
@@ -972,7 +972,7 @@ class latoken extends Exchange {
         $side = null;
         if ($orderSide !== null) {
             $parts = explode('_', $orderSide);
-            $partsLength = count($parts);
+            $partsLength = is_array($parts) ? count($parts) : 0;
             $side = $this->safe_string_lower($parts, $partsLength - 1);
         }
         $type = $this->parse_order_type($this->safe_string($order, 'type'));

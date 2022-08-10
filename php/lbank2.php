@@ -1204,7 +1204,7 @@ class lbank2 extends Exchange {
         //      }
         //
         $result = $this->safe_value($response, 'data', array());
-        $numOrders = count($result);
+        $numOrders = is_array($result) ? count($result) : 0;
         if ($numOrders === 1) {
             return $this->parse_order($result[0]);
         } else {

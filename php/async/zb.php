@@ -1478,7 +1478,7 @@ class zb extends Exchange {
 
     public function parse_ohlcv($ohlcv, $market = null) {
         if ($market['swap']) {
-            $ohlcvLength = count($ohlcv);
+            $ohlcvLength = is_array($ohlcv) ? count($ohlcv) : 0;
             if ($ohlcvLength > 5) {
                 return array(
                     $this->safe_timestamp($ohlcv, 5),

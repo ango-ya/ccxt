@@ -262,7 +262,6 @@ class bibox extends Exchange {
                             'userdata/ledger',
                             'userdata/order',
                             'userdata/orders',
-                            'userdata/fills',
                         ),
                         'post' => array(
                             'userdata/order',
@@ -1687,7 +1686,7 @@ class bibox extends Exchange {
             }
         } else {
             $this->check_required_credentials();
-            if ($version === 'v3' || $version === 'v3.1') {
+            if ($version === 'v3' || $version === 'v3.1' || $version === 'v4') {
                 $timestamp = $this->number_to_string($this->milliseconds());
                 $strToSign = $timestamp;
                 if ($json_params !== '{}') {
@@ -1704,20 +1703,6 @@ class bibox extends Exchange {
                         $body = $params;
                     }
                 }
-            } elseif ($v4) {
-                $strToSign = '';
-                if ($method === 'GET') {
-                    $url .= '?' . $this->urlencode($params);
-                    $strToSign = $this->urlencode($params);
-                } else {
-                    if ($json_params !== '{}') {
-                        $body = $params;
-                    }
-                    $strToSign = $this->json($body, array( 'convertArraysToObjects' => true ));
-                }
-                $sign = $this->hmac($this->encode($strToSign), $this->encode($this->secret), 'sha256');
-                $headers['Bibox-Api-Key'] = $this->apiKey;
-                $headers['Bibox-Api-Sign'] = $sign;
             } else {
                 $sign = $this->hmac($this->encode($json_params), $this->encode($this->secret), 'md5');
                 $body = array(
@@ -1748,19 +1733,13 @@ class bibox extends Exchange {
             throw new ExchangeError($this->id . ' ' . $body);
         }
         if (is_array($response) && array_key_exists('error', $response)) {
-            if (gettype($response['error']) === 'array') {
-                if (is_array($response['error']) && array_key_exists('code', $response['error'])) {
-                    $code = $this->safe_string($response['error'], 'code');
-                    $feedback = $this->id . ' ' . $body;
-                    $this->throw_exactly_matched_exception($this->exceptions, $code, $feedback);
-                    throw new ExchangeError($feedback);
-                }
-                throw new ExchangeError($this->id . ' ' . $body);
-            } else {
+            if (is_array($response['error']) && array_key_exists('code', $response['error'])) {
+                $code = $this->safe_string($response['error'], 'code');
                 $feedback = $this->id . ' ' . $body;
                 $this->throw_exactly_matched_exception($this->exceptions, $code, $feedback);
                 throw new ExchangeError($feedback);
             }
+            throw new ExchangeError($this->id . ' ' . $body);
         }
     }
 }

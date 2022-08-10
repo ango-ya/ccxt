@@ -1235,13 +1235,10 @@ class aax(Exchange):
         clientOrderId = self.safe_string_2(params, 'clOrdID', 'clientOrderId')
         if clientOrderId is not None:
             request['clOrdID'] = clientOrderId
-        postOnly = self.is_post_only(orderType == 'MARKET', None, params)
-        timeInForce = self.safe_string(params, 'timeInForce')
-        if postOnly:
+        postOnly = self.safe_value(params, 'postOnly', False)
+        if postOnly is not None:
             request['execInst'] = 'Post-Only'
-        if timeInForce is not None and timeInForce != 'PO':
-            request['timeInForce'] = timeInForce
-        params = self.omit(params, ['clOrdID', 'clientOrderId', 'postOnly', 'timeInForce'])
+        params = self.omit(params, ['clOrdID', 'clientOrderId', 'postOnly'])
         stopPrice = self.safe_number(params, 'stopPrice')
         if stopPrice is None:
             if (orderType == 'STOP-LIMIT') or (orderType == 'STOP'):

@@ -258,7 +258,6 @@ module.exports = class bibox extends Exchange {
                             'userdata/ledger',
                             'userdata/order',
                             'userdata/orders',
-                            'userdata/fills',
                         ],
                         'post': [
                             'userdata/order',
@@ -1721,7 +1720,7 @@ module.exports = class bibox extends Exchange {
             }
         } else {
             this.checkRequiredCredentials ();
-            if (version === 'v3' || version === 'v3.1') {
+            if (version === 'v3' || version === 'v3.1' || version === 'v4') {
                 const timestamp = this.numberToString (this.milliseconds ());
                 let strToSign = timestamp;
                 if (json_params !== '{}') {
@@ -1738,20 +1737,6 @@ module.exports = class bibox extends Exchange {
                         body = params;
                     }
                 }
-            } else if (v4) {
-                let strToSign = '';
-                if (method === 'GET') {
-                    url += '?' + this.urlencode (params);
-                    strToSign = this.urlencode (params);
-                } else {
-                    if (json_params !== '{}') {
-                        body = params;
-                    }
-                    strToSign = this.json (body, { 'convertArraysToObjects': true });
-                }
-                const sign = this.hmac (this.encode (strToSign), this.encode (this.secret), 'sha256');
-                headers['Bibox-Api-Key'] = this.apiKey;
-                headers['Bibox-Api-Sign'] = sign;
             } else {
                 const sign = this.hmac (this.encode (json_params), this.encode (this.secret), 'md5');
                 body = {
@@ -1782,19 +1767,13 @@ module.exports = class bibox extends Exchange {
             throw new ExchangeError (this.id + ' ' + body);
         }
         if ('error' in response) {
-            if (typeof response['error'] === 'object') {
-                if ('code' in response['error']) {
-                    const code = this.safeString (response['error'], 'code');
-                    const feedback = this.id + ' ' + body;
-                    this.throwExactlyMatchedException (this.exceptions, code, feedback);
-                    throw new ExchangeError (feedback);
-                }
-                throw new ExchangeError (this.id + ' ' + body);
-            } else {
+            if ('code' in response['error']) {
+                const code = this.safeString (response['error'], 'code');
                 const feedback = this.id + ' ' + body;
                 this.throwExactlyMatchedException (this.exceptions, code, feedback);
                 throw new ExchangeError (feedback);
             }
+            throw new ExchangeError (this.id + ' ' + body);
         }
     }
 };

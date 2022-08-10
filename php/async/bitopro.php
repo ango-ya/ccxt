@@ -767,7 +767,7 @@ class bitopro extends Exchange {
     public function insert_missing_candles($candles, $distance, $since, $limit) {
         // the exchange doesn't send zero volume $candles so we emulate them instead
         // otherwise sending a $limit arg leads to unexpected results
-        $length = count($candles);
+        $length = is_array($candles) ? count($candles) : 0;
         if ($length === 0) {
             return $candles;
         }
@@ -780,7 +780,7 @@ class bitopro extends Exchange {
             $timestamp = $since;
         }
         $i = 0;
-        $candleLength = count($candles);
+        $candleLength = is_array($candles) ? count($candles) : 0;
         $resultLength = 0;
         while (($resultLength < $limit) && ($i < $candleLength)) {
             $candle = $candles[$i];
@@ -798,7 +798,7 @@ class bitopro extends Exchange {
                 $result[] = $copy;
             }
             $timestamp = $this->sum($timestamp, $distance * 1000);
-            $resultLength = count($result);
+            $resultLength = is_array($result) ? count($result) : 0;
             $copyFrom = $result[$resultLength - 1];
         }
         return $result;
