@@ -123,6 +123,7 @@ module.exports = class poloniex extends Exchange {
                         'toggleAutoRenew': 1,
                         'transferBalance': 1,
                         'withdraw': 1,
+                        'orders': 0.2,
                     },
                 },
             },
@@ -1154,18 +1155,33 @@ module.exports = class poloniex extends Exchange {
          * @param {object} params extra parameters specific to the poloniex api endpoint
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/en/latest/manual.html#order-structure}
          */
-        if (type === 'market') {
-            throw new ExchangeError (this.id + ' createOrder() does not accept market orders');
-        }
+
         await this.loadMarkets ();
-        const method = 'privatePost' + this.capitalize (side);
+        let method = 'privatePost' + this.capitalize (side);
         const market = this.market (symbol);
         amount = this.amountToPrecision (symbol, amount);
-        const request = {
-            'currencyPair': market['id'],
-            'rate': this.priceToPrecision (symbol, price),
-            'amount': amount,
-        };
+        let request = {};
+        let upperCaseType = type.toUpperCase ();
+        const isMarket = upperCaseType === 'MARKET';
+        if (isMarket) {
+          method = 'privatePostOrders';
+          request = {
+              'symbol': market['base'] + '_' + market['quote'] ,
+              'side': side,
+              'type': upperCaseType,
+          };
+          if (side === 'buy') {
+            request['amount'] = this.currencyToPrecision (market['quote'], amount);
+          } else {
+            request['quantity'] = this.amountToPrecision (symbol, amount);
+          };
+        } else {
+          request = {
+              'currencyPair': market['id'],
+              'rate': this.priceToPrecision (symbol, price),
+              'amount': amount,
+          };
+      };
         const clientOrderId = this.safeString (params, 'clientOrderId');
         if (clientOrderId !== undefined) {
             request['clientOrderId'] = clientOrderId;
@@ -1881,10 +1897,42 @@ module.exports = class poloniex extends Exchange {
 
     sign (path, api = 'public', method = 'GET', params = {}, headers = undefined, body = undefined) {
         let url = this.urls['api'][api];
-        const query = this.extend ({ 'command': path }, params);
-        if (api === 'public') {
-            url += '?' + this.urlencode (query);
+        if (path === 'orders') {
+          url = 'https://api.poloniex.com';
+          const query = this.omit(params, this.extractParams(path));
+          const implodedPath = this.implodeParams(path, params);
+          this.checkRequiredCredentials ();
+          const timestamp = this.nonce ().toString ();
+          let auth = method + '\n';
+          url += '/' + implodedPath;
+          auth += '/' + implodedPath;
+          if ((method === 'POST') || (method === 'PUT') || (method === 'DELETE')) {
+              auth += '\n';
+              if (Object.keys (query).length) {
+                  body = this.json (query);
+                  auth += 'requestBody=' + body + '&';
+              }
+              auth += 'signTimestamp=' + timestamp;
+          } else {
+              let sortedQuery = this.extend ({ 'signTimestamp': timestamp }, query);
+              sortedQuery = this.keysort (sortedQuery);
+              auth += '\n' + this.urlencode (sortedQuery);
+              if (Object.keys (query).length) {
+                  url += '?' + this.urlencode (query);
+              }
+          }
+          const signature = this.hmac (this.encode (auth), this.encode (this.secret), 'sha256', 'base64');
+          headers = {
+            'Content-Type': 'application/json',
+            'key': this.apiKey,
+            'signTimestamp': timestamp,
+            'signature': signature,
+          }
         } else {
+          const query = this.extend({ 'command': path }, params);
+          if (api === 'public') {
+              url += '?' + this.urlencode (query);
+          } else {
             this.checkRequiredCredentials ();
             query['nonce'] = this.nonce ();
             body = this.urlencode (query);
@@ -1893,6 +1941,7 @@ module.exports = class poloniex extends Exchange {
                 'Key': this.apiKey,
                 'Sign': this.hmac (this.encode (body), this.encode (this.secret), 'sha512'),
             };
+          }
         }
         return { 'url': url, 'method': method, 'body': body, 'headers': headers };
     }
