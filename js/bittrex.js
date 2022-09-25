@@ -204,7 +204,7 @@ module.exports = class bittrex extends Exchange {
                     'APIKEY_INVALID': AuthenticationError,
                     'INVALID_SIGNATURE': AuthenticationError,
                     'INVALID_CURRENCY': ExchangeError,
-                    'INVALID_PERMISSION': AuthenticationError,
+                    'INVALID_PERMISSION': PermissionDenied,
                     'INSUFFICIENT_FUNDS': InsufficientFunds,
                     'INVALID_CEILING_MARKET_BUY': InvalidOrder,
                     'INVALID_FIAT_ACCOUNT': InvalidOrder,

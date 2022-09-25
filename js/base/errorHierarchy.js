@@ -28,6 +28,8 @@ const errorHierarchy = {
                 'OrderImmediatelyFillable': {},
                 'OrderNotFillable': {},
                 'DuplicateOrderId': {},
+                'InvalidUsdOrder': {},
+                'InvalidRangeOrder': {},
             },
             'NotSupported': {},
         },
