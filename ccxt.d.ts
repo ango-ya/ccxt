@@ -28,14 +28,14 @@ declare module '@ango-ya/ccxt' {
     export class InvalidAddress extends ExchangeError {}
     export class AddressPending extends InvalidAddress {}
     export class InvalidOrder extends ExchangeError {}
-    export class InvalidRangeOrder extends ExchangeError {}
-    export class InvalidUsdOrder extends ExchangeError {}
     export class OrderNotFound extends InvalidOrder {}
     export class OrderNotCached extends InvalidOrder {}
     export class CancelPending extends InvalidOrder {}
     export class OrderImmediatelyFillable extends InvalidOrder {}
     export class OrderNotFillable extends InvalidOrder {}
     export class DuplicateOrderId extends InvalidOrder {}
+    export class InvalidUsdOrder extends InvalidOrder {}
+    export class InvalidRangeOrder extends InvalidOrder {}
     export class NotSupported extends ExchangeError {}
     export class NetworkError extends BaseError {}
     export class DDoSProtection extends NetworkError {}
