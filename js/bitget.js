@@ -667,10 +667,11 @@ module.exports = class bitget extends Exchange {
                     '40712': InsufficientFunds, // Insufficient margin
                     '40713': ExchangeError, // Cannot exceed the maximum transferable margin amount
                     '40714': ExchangeError, // No direct margin call is allowed
-                    '43006': InvalidOrder,
+                    '40808': InvalidOrder, //  Amount 0
+                    '43006': InvalidOrder, // in limit and market sell Order
                     '43008': InvalidRangeOrder, // in sell Order
                     '43009': InvalidRangeOrder, // in buy Order
-                    '43012': InvalidOrder,
+                    '43012': InvalidOrder, // in market buy Order
                     '45110': InvalidUsdOrder,
                     // spot
                     'invalid sign': AuthenticationError,
