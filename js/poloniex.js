@@ -246,6 +246,7 @@ module.exports = class poloniex extends Exchange {
                     'Failed to place a new order: Amount scale error': InvalidOrder,
                     'Account is disabled for trading. Please contact support.': PermissionDenied,
                     'Total must be at least': InvalidOrder, // {"error":"Total must be at least 0.0001."}
+                    'Quantity must greater than zero': InvalidOrder,
                     'This account is frozen': AccountSuspended, // {"error":"This account is frozen for trading."} || {"error":"This account is frozen."}
                     'This account is locked.': AccountSuspended, // {"error":"This account is locked."}
                     'Not enough': InsufficientFunds,
