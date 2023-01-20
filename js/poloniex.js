@@ -1159,7 +1159,8 @@ module.exports = class poloniex extends Exchange {
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/en/latest/manual.html#order-structure}
          */
         await this.loadMarkets ();
-        let method = 'privatePost' + this.capitalize (side);
+        let method = 'privatePost' + this.capitalize(side);
+        // Symbols on poloniex UI are STR, but market functions need to use XLM
         const checkSwitchPair = (pairSymbol) => {
             const includeSTR = /^STR\//;
             if (includeSTR.test(pairSymbol)) {
@@ -1174,6 +1175,7 @@ module.exports = class poloniex extends Exchange {
         const upperCaseType = type.toUpperCase ();
         const isMarket = upperCaseType === 'MARKET';
         if (isMarket) {
+            // XLM cannot be used in a market order, so XLM once converted from STR is converted back to STR and used again.
             const checkSwitchCurrency = (currencySymbol) => {
                 if (currencySymbol === 'XLM') {
                     return 'STR';
@@ -1190,11 +1192,13 @@ module.exports = class poloniex extends Exchange {
             if (side === 'buy') {
                 request['amount'] = this.currencyToPrecision (market['quote'], amount);
             } else {
+                // STR is not available in amountToPrecision, so use XLM as it is.
                 request['quantity'] = this.amountToPrecision (pairSymbol, amount);
             }
         } else {
             request = {
                 'currencyPair': market['id'],
+                // STR is not available in amountToPrecision, so use XLM as it is.
                 'rate': this.priceToPrecision (pairSymbol, price),
                 'amount': amount,
             };
