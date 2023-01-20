@@ -1159,35 +1159,47 @@ module.exports = class poloniex extends Exchange {
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/en/latest/manual.html#order-structure}
          */
         await this.loadMarkets ();
-        let method = 'privatePost' + this.capitalize (side);
-        const market = this.market (symbol);
-        amount = this.amountToPrecision (symbol, amount);
+        let method = 'privatePost' + this.capitalize(side);
+        // Symbols on poloniex UI are STR, but market functions need to use XLM
+        const checkSwitchPair = (pairSymbol) => {
+            const includeSTR = /^STR\//;
+            if (includeSTR.test(pairSymbol)) {
+                return pairSymbol.replace('STR', 'XLM');
+            };
+            return pairSymbol;
+        };
+        const pairSymbol = checkSwitchPair (symbol);
+        const market = this.market (pairSymbol);
+        amount = this.amountToPrecision (pairSymbol, amount);
         let request = {};
         const upperCaseType = type.toUpperCase ();
         const isMarket = upperCaseType === 'MARKET';
         if (isMarket) {
-            const checkSwitchPair = (currencySymbol) => {
+            // XLM cannot be used in a market order, so XLM once converted from STR is converted back to STR and used again.
+            const checkSwitchCurrency = (currencySymbol) => {
                 if (currencySymbol === 'XLM') {
                     return 'STR';
                 }
                 return currencySymbol;
             };
-            const pairSymbol = checkSwitchPair (market['base']) + '_' + market['quote'];
+            const marketPairSymbol = checkSwitchCurrency (market['base']) + '_' + market['quote'];
             method = 'privatePostOrders';
             request = {
-                'symbol': pairSymbol,
+                'symbol': marketPairSymbol,
                 'side': side,
                 'type': upperCaseType,
             };
             if (side === 'buy') {
                 request['amount'] = this.currencyToPrecision (market['quote'], amount);
             } else {
-                request['quantity'] = this.amountToPrecision (symbol, amount);
+                // STR is not available in amountToPrecision, so use XLM as it is.
+                request['quantity'] = this.amountToPrecision (pairSymbol, amount);
             }
         } else {
             request = {
                 'currencyPair': market['id'],
-                'rate': this.priceToPrecision (symbol, price),
+                // STR is not available in amountToPrecision, so use XLM as it is.
+                'rate': this.priceToPrecision (pairSymbol, price),
                 'amount': amount,
             };
         }
