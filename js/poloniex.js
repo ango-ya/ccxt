@@ -1167,12 +1167,12 @@ module.exports = class poloniex extends Exchange {
         const isMarket = upperCaseType === 'MARKET';
         if (isMarket) {
             const checkSwitchPair = (currencySymbol) => {
-              if(currencySymbol === "XLM"){
-                return "STR"
-              }
-              return currencySymbol
-            }
-            const pairSymbol = checkSwitchPair(market['base']) + '_' + market['quote'];
+                if (currencySymbol === 'XLM') {
+                    return 'STR';
+                }
+                return currencySymbol;
+            };
+            const pairSymbol = checkSwitchPair (market['base']) + '_' + market['quote'];
             method = 'privatePostOrders';
             request = {
                 'symbol': pairSymbol,
