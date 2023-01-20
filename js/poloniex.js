@@ -1160,7 +1160,15 @@ module.exports = class poloniex extends Exchange {
          */
         await this.loadMarkets ();
         let method = 'privatePost' + this.capitalize (side);
-        const market = this.market (symbol);
+        const checkSwitchPair = (pairSymbol) => {
+            const includeSTR = /^STR\//;
+            if (includeSTR.test(pairSymbol)) {
+                return pairSymbol.replace('STR', 'XLM');
+            };
+            return pairSymbol;
+        };
+        const pairSymbol = checkSwitchPair (symbol);
+        const market = this.market (pairSymbol);
         amount = this.amountToPrecision (symbol, amount);
         let request = {};
         const upperCaseType = type.toUpperCase ();
@@ -1172,22 +1180,22 @@ module.exports = class poloniex extends Exchange {
                 }
                 return currencySymbol;
             };
-            const pairSymbol = checkSwitchPair (market['base']) + '_' + market['quote'];
+            const marketPairSymbol = checkSwitchPair (market['base']) + '_' + market['quote'];
             method = 'privatePostOrders';
             request = {
-                'symbol': pairSymbol,
+                'symbol': marketPairSymbol,
                 'side': side,
                 'type': upperCaseType,
             };
             if (side === 'buy') {
                 request['amount'] = this.currencyToPrecision (market['quote'], amount);
             } else {
-                request['quantity'] = this.amountToPrecision (symbol, amount);
+                request['quantity'] = this.amountToPrecision (pairSymbol, amount);
             }
         } else {
             request = {
                 'currencyPair': market['id'],
-                'rate': this.priceToPrecision (symbol, price),
+                'rate': this.priceToPrecision (pairSymbol, price),
                 'amount': amount,
             };
         }
