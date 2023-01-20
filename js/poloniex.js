@@ -1159,13 +1159,13 @@ module.exports = class poloniex extends Exchange {
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/en/latest/manual.html#order-structure}
          */
         await this.loadMarkets ();
-        let method = 'privatePost' + this.capitalize(side);
+        let method = 'privatePost' + this.capitalize (side);
         // Symbols on poloniex UI are STR, but market functions need to use XLM
         const checkSwitchPair = (pairSymbol) => {
             const includeSTR = /^STR\//;
-            if (includeSTR.test(pairSymbol)) {
-                return pairSymbol.replace('STR', 'XLM');
-            };
+            if (includeSTR.test (pairSymbol)) {
+                return pairSymbol.replace ('STR', 'XLM');
+            }
             return pairSymbol;
         };
         const pairSymbol = checkSwitchPair (symbol);
