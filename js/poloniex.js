@@ -1169,7 +1169,7 @@ module.exports = class poloniex extends Exchange {
         };
         const pairSymbol = checkSwitchPair (symbol);
         const market = this.market (pairSymbol);
-        amount = this.amountToPrecision (symbol, amount);
+        amount = this.amountToPrecision (pairSymbol, amount);
         let request = {};
         const upperCaseType = type.toUpperCase ();
         const isMarket = upperCaseType === 'MARKET';
