@@ -613,9 +613,7 @@ module.exports = class poloniex extends Exchange {
             const ticker = response[id];
             result[symbol] = this.parseTicker (ticker, market);
         }
-        const pairSymbols = symbols.map (symbol => {
-            return this.checkSwitchPair (symbol);
-        })
+        const pairSymbols = symbols.map ((symbol) => this.checkSwitchPair (symbol));
         return this.filterByArray (result, 'symbol', pairSymbols);
     }
 
@@ -1910,8 +1908,14 @@ module.exports = class poloniex extends Exchange {
         return response;
     }
 
-    // Symbols on poloniex UI are STR, but market functions need to use XLM
     checkSwitchPair (pairSymbol) {
+        /**
+         * @method
+         * @name checkSwitchPair
+         * @description symbols on poloniex UI are STR, but market functions need to use XLM
+         * @param {string} pairSymbol unified market symbol of the market
+         * @returns {string} pairSymbol unified market symbol of the market
+         */
         const includeSTR = /^STR\//;
         if (includeSTR.test (pairSymbol)) {
             return pairSymbol.replace ('STR', 'XLM');
