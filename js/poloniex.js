@@ -613,7 +613,10 @@ module.exports = class poloniex extends Exchange {
             const ticker = response[id];
             result[symbol] = this.parseTicker (ticker, market);
         }
-        return this.filterByArray (result, 'symbol', symbols);
+        const pairSymbols = symbols.map (symbol => {
+            return this.checkSwitchPair (symbol);
+        })
+        return this.filterByArray (result, 'symbol', pairSymbols);
     }
 
     async fetchCurrencies (params = {}) {
@@ -691,7 +694,8 @@ module.exports = class poloniex extends Exchange {
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/en/latest/manual.html#ticker-structure}
          */
         await this.loadMarkets ();
-        const market = this.market (symbol);
+        const pairSymbol = this.checkSwitchPair (symbol);
+        const market = this.market (pairSymbol);
         const response = await this.publicGetReturnTicker (params);
         // {
         //     "BTC_BTS":{
@@ -1122,7 +1126,8 @@ module.exports = class poloniex extends Exchange {
         await this.loadMarkets ();
         let market = undefined;
         if (symbol !== undefined) {
-            market = this.market (symbol);
+            const pairSymbol = this.checkSwitchPair (symbol);
+            market = this.market (pairSymbol);
         }
         const pair = market ? market['id'] : 'all';
         const request = {
@@ -1161,14 +1166,7 @@ module.exports = class poloniex extends Exchange {
         await this.loadMarkets ();
         let method = 'privatePost' + this.capitalize (side);
         // Symbols on poloniex UI are STR, but market functions need to use XLM
-        const checkSwitchPair = (pairSymbol) => {
-            const includeSTR = /^STR\//;
-            if (includeSTR.test (pairSymbol)) {
-                return pairSymbol.replace ('STR', 'XLM');
-            }
-            return pairSymbol;
-        };
-        const pairSymbol = checkSwitchPair (symbol);
+        const pairSymbol = this.checkSwitchPair (symbol);
         const market = this.market (pairSymbol);
         amount = this.amountToPrecision (pairSymbol, amount);
         let request = {};
@@ -1910,6 +1908,15 @@ module.exports = class poloniex extends Exchange {
         //
         // todo unify parsePosition/parsePositions
         return response;
+    }
+
+    // Symbols on poloniex UI are STR, but market functions need to use XLM
+    checkSwitchPair (pairSymbol) {
+        const includeSTR = /^STR\//;
+        if (includeSTR.test (pairSymbol)) {
+            return pairSymbol.replace ('STR', 'XLM');
+        }
+        return pairSymbol;
     }
 
     nonce () {
