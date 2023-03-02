@@ -555,9 +555,7 @@ module.exports = class poloniex extends Exchange {
         //         }
         //     ]
         //
-        const pairSymbols = symbols.map (symbol => {
-            return this.checkSwitchPair (symbol);
-        })
+        const pairSymbols = symbols.map ((symbol) => this.checkSwitchPair (symbol));
         return this.parseTickers (response, pairSymbols);
     }
 
@@ -2036,8 +2034,8 @@ module.exports = class poloniex extends Exchange {
         };
     }
 
-    // Symbols on poloniex UI are STR, but market functions need to use XLM
     checkSwitchPair (pairSymbol) {
+        // Symbols on poloniex UI are STR, but market functions need to use XLM
         const includeSTR = /^STR\//;
         if (includeSTR.test (pairSymbol)) {
             return pairSymbol.replace ('STR', 'XLM');
