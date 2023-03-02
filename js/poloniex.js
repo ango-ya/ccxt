@@ -555,7 +555,10 @@ module.exports = class poloniex extends Exchange {
         //         }
         //     ]
         //
-        return this.parseTickers (response, symbols);
+        const pairSymbols = symbols.map (symbol => {
+            return this.checkSwitchPair (symbol);
+        })
+        return this.parseTickers (response, pairSymbols);
     }
 
     async fetchCurrencies (params = {}) {
@@ -640,7 +643,8 @@ module.exports = class poloniex extends Exchange {
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/en/latest/manual.html#ticker-structure}
          */
         await this.loadMarkets ();
-        const market = this.market (symbol);
+        const pairSymbol = this.checkSwitchPair (symbol);
+        const market = this.market (pairSymbol);
         const request = {
             'symbol': market['id'],
         };
@@ -1013,7 +1017,8 @@ module.exports = class poloniex extends Exchange {
         let market = undefined;
         const request = {};
         if (symbol !== undefined) {
-            market = this.market (symbol);
+            const pairSymbol = this.checkSwitchPair (symbol);
+            market = this.market (pairSymbol);
             request['symbol'] = market['id'];
         }
         if (limit !== undefined) {
@@ -1064,7 +1069,9 @@ module.exports = class poloniex extends Exchange {
         //     throw new ExchangeError (this.id + ' createOrder() does not accept market orders');
         // }
         await this.loadMarkets ();
-        const market = this.market (symbol);
+        // Symbols on poloniex UI are STR, but market functions need to use XLM
+        const pairSymbol = this.checkSwitchPair (symbol);
+        const market = this.market (pairSymbol);
         if (!market['spot']) {
             throw new NotSupported (this.id + ' createOrder() does not support ' + market['type'] + ' orders, only spot orders are accepted');
         }
@@ -1075,7 +1082,7 @@ module.exports = class poloniex extends Exchange {
             // 'accountType': 'SPOT',
             // 'amount': amount,
         };
-        const orderRequest = this.orderRequest (symbol, type, side, amount, request, price, params);
+        const orderRequest = this.orderRequest (pairSymbol, type, side, amount, request, price, params);
         let response = await this.privatePostOrders (this.extend (orderRequest[0], orderRequest[1]));
         //
         //     {
@@ -2027,6 +2034,15 @@ module.exports = class poloniex extends Exchange {
                 'cost': this.parseNumber (feeCostString),
             },
         };
+    }
+
+    // Symbols on poloniex UI are STR, but market functions need to use XLM
+    checkSwitchPair (pairSymbol) {
+        const includeSTR = /^STR\//;
+        if (includeSTR.test (pairSymbol)) {
+            return pairSymbol.replace ('STR', 'XLM');
+        }
+        return pairSymbol;
     }
 
     nonce () {
