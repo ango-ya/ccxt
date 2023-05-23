@@ -78,6 +78,8 @@ module.exports = class bitget extends Exchange {
                 'setPositionMode': false,
                 'transfer': false,
                 'withdraw': true,
+                'callCoinList': true,
+                'getCoinList': true,
             },
             'timeframes': {
                 'spot': {
@@ -1111,6 +1113,26 @@ module.exports = class bitget extends Exchange {
         return result;
     }
 
+    async callCoinList (data = undefined) {
+        /**
+         * @method
+         * @name bitget#callCoinList
+         * @description call coinList api
+         * @param {object} data extra parameters specific to the bitget api endpoint
+         */
+        await this.loadMarkets (data);
+    }
+
+    async getCoinList () {
+        /**
+         * @method
+         * @name bitget#getCoinList
+         * @description get coinList
+         * @returns {object} coinList data
+         */
+        return await this.loadMarkets ();
+    }
+
     async fetchOrderBook (symbol, limit = undefined, params = {}) {
         /**
          * @method
@@ -1121,7 +1143,6 @@ module.exports = class bitget extends Exchange {
          * @param {object} params extra parameters specific to the bitget api endpoint
          * @returns {object} A dictionary of [order book structures]{@link https://docs.ccxt.com/en/latest/manual.html#order-book-structure} indexed by market symbols
          */
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const [ marketType, query ] = this.handleMarketTypeAndParams ('fetchOrderBook', market, params);
         const method = this.getSupportedMapping (marketType, {
@@ -1233,7 +1254,6 @@ module.exports = class bitget extends Exchange {
          * @param {object} params extra parameters specific to the bitget api endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/en/latest/manual.html#ticker-structure}
          */
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const request = {
             'symbol': market['id'],
@@ -1676,7 +1696,6 @@ module.exports = class bitget extends Exchange {
          * @param {object} params extra parameters specific to the bitget api endpoint
          * @returns {object} a [balance structure]{@link https://docs.ccxt.com/en/latest/manual.html?#balance-structure}
          */
-        await this.loadMarkets ();
         const [ marketType, query ] = this.handleMarketTypeAndParams ('fetchBalance', undefined, params);
         const method = this.getSupportedMapping (marketType, {
             'spot': 'privateSpotGetAccountAssets',
@@ -1871,7 +1890,6 @@ module.exports = class bitget extends Exchange {
          * @param {object} params extra parameters specific to the bitget api endpoint
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/en/latest/manual.html#order-structure}
          */
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const [ marketType, query ] = this.handleMarketTypeAndParams ('createOrder', market, params);
         const request = {
@@ -1984,7 +2002,6 @@ module.exports = class bitget extends Exchange {
         if (symbol === undefined) {
             throw new ArgumentsRequired (this.id + ' cancelOrder() requires a symbol argument for spot orders');
         }
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const [ marketType, query ] = this.handleMarketTypeAndParams ('cancelOrder', market, params);
         let method = this.getSupportedMapping (marketType, {
@@ -2098,7 +2115,6 @@ module.exports = class bitget extends Exchange {
         if (symbol === undefined) {
             throw new ArgumentsRequired (this.id + ' fetchOrder() requires a symbol argument');
         }
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const [ marketType, query ] = this.handleMarketTypeAndParams ('fetchOrder', market, params);
         const method = this.getSupportedMapping (marketType, {
@@ -2536,7 +2552,6 @@ module.exports = class bitget extends Exchange {
         if (symbol === undefined) {
             throw new ArgumentsRequired (this.id + ' fetchOrderTrades() requires a symbol argument');
         }
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const [ marketType, query ] = this.handleMarketTypeAndParams ('fetchOrderTrades', market, params);
         const method = this.getSupportedMapping (marketType, {
@@ -2961,7 +2976,6 @@ module.exports = class bitget extends Exchange {
          * @param {object} params extra parameters specific to the bitget api endpoint
          * @returns {object} a [margin structure]{@link https://docs.ccxt.com/en/latest/manual.html#withdrawal}
          */
-        await this.loadMarkets ();
         this.checkAddress (address);
         const chain = params.chain;
         delete params.chain;
