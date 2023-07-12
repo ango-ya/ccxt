@@ -646,6 +646,29 @@ module.exports = class Exchange {
         return this.marketsLoading
     }
 
+    networkIdToCode(networkId, currencyCode = undefined) {
+        /**
+         * @ignore
+         * @method
+         * @name exchange#networkIdToCode
+         * @description tries to convert the provided exchange-specific networkId to an unified network Code. In order to achieve this, derived class needs to have 'options->networksById' defined.
+         * @param {string} networkId unified network code
+         * @param {string} currencyCode unified currency code, but this argument is not required by default, unless there is an exchange (like huobi) that needs an override of the method to be able to pass currencyCode argument additionally
+         * @returns {string|undefined} unified network code
+         */
+        const networkCodesByIds = this.safeValue(this.options, 'networksById', {});
+        let networkCode = this.safeString(networkCodesByIds, networkId, networkId);
+        // replace mainnet network-codes (i.e. ERC20->ETH)
+        if (currencyCode !== undefined) {
+            const defaultNetworkCodeReplacements = this.safeValue(this.options, 'defaultNetworkCodeReplacements', {});
+            if (currencyCode in defaultNetworkCodeReplacements) {
+                const replacementObject = this.safeValue(defaultNetworkCodeReplacements, currencyCode, {});
+                networkCode = this.safeString(replacementObject, networkCode, networkCode);
+            }
+        }
+        return networkCode;
+    }
+
     fetchCurrencies (params = {}) {
         // markets are returned as a list
         // currencies are returned as a dict
@@ -2657,5 +2680,100 @@ module.exports = class Exchange {
             return exchangeValue;
         }
         return undefined;
+    }
+
+    handlePostOnly(isMarketOrder, exchangeSpecificPostOnlyOption, params = {}) {
+        /**
+         * @ignore
+         * @method
+         * @param {string} type Order type
+         * @param {boolean} exchangeSpecificBoolean exchange specific postOnly
+         * @param {object} [params] exchange specific params
+         * @returns {Array}
+         */
+        const timeInForce = this.safeStringUpper(params, 'timeInForce');
+        let postOnly = this.safeValue(params, 'postOnly', false);
+        const ioc = timeInForce === 'IOC';
+        const fok = timeInForce === 'FOK';
+        const po = timeInForce === 'PO';
+        postOnly = postOnly || po || exchangeSpecificPostOnlyOption;
+        if (postOnly) {
+            if (ioc || fok) {
+                throw new InvalidOrder(this.id + ' postOnly orders cannot have timeInForce equal to ' + timeInForce);
+            }
+            else if (isMarketOrder) {
+                throw new InvalidOrder(this.id + ' market orders cannot be postOnly');
+            }
+            else {
+                if (po) {
+                    params = this.omit(params, 'timeInForce');
+                }
+                params = this.omit(params, 'postOnly');
+                return [true, params];
+            }
+        }
+        return [false, params];
+    }
+
+    checkRequiredSymbol(methodName, symbol) {
+        /**
+         * @ignore
+         * @method
+         * @param {string} symbol unified symbol of the market
+         * @param {string} methodName name of the method that requires a symbol
+         */
+        this.checkRequiredArgument(methodName, symbol, 'symbol');
+    }
+
+    checkRequiredArgument(methodName, argument, argumentName, options = []) {
+        /**
+         * @ignore
+         * @method
+         * @param {string} argument the argument to check
+         * @param {string} argumentName the name of the argument to check
+         * @param {string} methodName the name of the method that the argument is being checked for
+         * @param {string[]} options a list of options that the argument can be
+         * @returns {undefined}
+         */
+        const optionsLength = options.length;
+        if ((argument === undefined) || ((optionsLength > 0) && (!(this.inArray(argument, options))))) {
+            const messageOptions = options.join(', ');
+            let message = this.id + ' ' + methodName + '() requires a ' + argumentName + ' argument';
+            if (messageOptions !== '') {
+                message += ', one of ' + '(' + messageOptions + ')';
+            }
+            throw new ArgumentsRequired(message);
+        }
+    }
+
+    checkRequiredSymbol(methodName, symbol) {
+        /**
+         * @ignore
+         * @method
+         * @param {string} symbol unified symbol of the market
+         * @param {string} methodName name of the method that requires a symbol
+         */
+        this.checkRequiredArgument(methodName, symbol, 'symbol');
+    }
+
+    checkRequiredArgument(methodName, argument, argumentName, options = []) {
+        /**
+         * @ignore
+         * @method
+         * @param {string} argument the argument to check
+         * @param {string} argumentName the name of the argument to check
+         * @param {string} methodName the name of the method that the argument is being checked for
+         * @param {string[]} options a list of options that the argument can be
+         * @returns {undefined}
+         */
+        const optionsLength = options.length;
+        if ((argument === undefined) || ((optionsLength > 0) && (!(this.inArray(argument, options))))) {
+            const messageOptions = options.join(', ');
+            let message = this.id + ' ' + methodName + '() requires a ' + argumentName + ' argument';
+            if (messageOptions !== '') {
+                message += ', one of ' + '(' + messageOptions + ')';
+            }
+            throw new ArgumentsRequired(message);
+        }
     }
 };
