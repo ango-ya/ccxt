@@ -750,7 +750,7 @@ module.exports = class gate extends Exchange {
                     'ORDER_CLOSED': InvalidOrder,
                     'ORDER_CANCELLED': InvalidOrder,
                     'QUANTITY_NOT_ENOUGH': InvalidOrder,
-                    'BALANCE_NOT_ENOUGH': InsufficientFunds,
+                    'BALANCE_NOT_ENOUGH': InvalidOrder,
                     'MARGIN_NOT_SUPPORTED': InvalidOrder,
                     'MARGIN_BALANCE_NOT_ENOUGH': InsufficientFunds,
                     'AMOUNT_TOO_LITTLE': InvalidOrder,
@@ -5474,14 +5474,14 @@ module.exports = class gate extends Exchange {
                 body = this.json(query);
             }
             const bodyPayload = (body === undefined) ? '' : body;
-            const bodySignature = this.hash(this.encode(bodyPayload), sha512);
+            const bodySignature = this.hash(this.encode(bodyPayload), 'sha512');
             const timestamp = this.seconds();
             const timestampString = timestamp.toString();
             const signaturePath = '/api/' + this.version + entirePath;
             const payloadArray = [method.toUpperCase(), signaturePath, queryString, bodySignature, timestampString];
             // eslint-disable-next-line quotes
             const payload = payloadArray.join("\n");
-            const signature = this.hmac(this.encode(payload), this.encode(this.secret), sha512);
+            const signature = this.hmac(this.encode(payload), this.encode(this.secret), 'sha512');
             headers = {
                 'KEY': this.apiKey,
                 'Timestamp': timestampString,
