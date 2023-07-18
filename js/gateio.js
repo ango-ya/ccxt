@@ -5,7 +5,7 @@
 // EDIT THE CORRESPONDENT .ts FILE INSTEAD
 
 // ---------------------------------------------------------------------------
-import gate from './gate.js';
+const gate = require('./gate.js');
 // ---------------------------------------------------------------------------
 module.exports = class gateio extends gate {
     describe() {

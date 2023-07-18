@@ -5,11 +5,10 @@
 // EDIT THE CORRESPONDENT .ts FILE INSTEAD
 
 //  ---------------------------------------------------------------------------
-import Exchange from './abstract/gate.js';
-import { Precise } from './base/Precise.js';
-import { TICK_SIZE } from './base/functions/number.js';
-import { ExchangeError, BadRequest, ArgumentsRequired, AuthenticationError, PermissionDenied, AccountSuspended, InsufficientFunds, RateLimitExceeded, ExchangeNotAvailable, BadSymbol, InvalidOrder, OrderNotFound, NotSupported, AccountNotEnabled, OrderImmediatelyFillable, BadResponse } from './base/errors.js';
-import { sha512 } from './static_dependencies/noble-hashes/sha512.js';
+const Exchange = require( './base/Exchange');
+const Precise = require ('./base/Precise');
+const { TICK_SIZE } = require('./base/functions/number');
+const { ExchangeError, BadRequest, ArgumentsRequired, AuthenticationError, PermissionDenied, AccountSuspended, InsufficientFunds, RateLimitExceeded, ExchangeNotAvailable, BadSymbol, InvalidOrder, OrderNotFound, NotSupported, AccountNotEnabled, OrderImmediatelyFillable, BadResponse } = require('./base/errors.js');
 /**
  * @class gate
  * @extends Exchange
