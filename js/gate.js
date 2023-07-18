@@ -14,7 +14,7 @@ import { sha512 } from './static_dependencies/noble-hashes/sha512.js';
  * @class gate
  * @extends Exchange
  */
-export default class gate extends Exchange {
+module.exports = class gate extends Exchange {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'gate',
