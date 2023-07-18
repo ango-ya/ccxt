@@ -5,13 +5,14 @@
 // EDIT THE CORRESPONDENT .ts FILE INSTEAD
 
 // ---------------------------------------------------------------------------
-const gate = require('./gate.js');
+const gate = require ('./gate.js');
 // ---------------------------------------------------------------------------
+
 module.exports = class gateio extends gate {
-    describe() {
-        return this.deepExtend(super.describe(), {
+    describe () {
+        return this.deepExtend (super.describe (), {
             'id': 'gateio',
             'alias': true,
         });
     }
-}
+};
