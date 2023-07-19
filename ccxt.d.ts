@@ -505,7 +505,8 @@ declare module '@ango-ya/ccxt' {
     export class flowbtc extends Exchange {}
     export class foxbit extends Exchange {}
     export class ftx extends Exchange {}
-    export class gateio extends Exchange {}
+    export class gate extends Exchange {}
+    export class gateio extends gate {}
     export class gemini extends Exchange {}
     export class gopax extends Exchange {}
     export class hbtc extends Exchange {}
