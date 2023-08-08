@@ -2172,7 +2172,6 @@ module.exports = class gate extends Exchange {
          * @param {object} [params] extra parameters specific to the gate api endpoint
          * @returns {object} A dictionary of [order book structures]{@link https://docs.ccxt.com/#/?id=order-book-structure} indexed by market symbols
          */
-        await this.loadMarkets ();
         const market = this.market (symbol);
         //
         //     const request = {
@@ -2284,7 +2283,6 @@ module.exports = class gate extends Exchange {
          * @param {object} [params] extra parameters specific to the gate api endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/#/?id=ticker-structure}
          */
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const [request, query] = this.prepareRequest (market, undefined, params);
         const method = this.getSupportedMapping (market['type'], {
@@ -2486,7 +2484,6 @@ module.exports = class gate extends Exchange {
          * @param {string} [params.marginMode] 'cross' or 'isolated' - marginMode for margin trading if not provided this.options['defaultMarginMode'] is used
          * @param {string} [params.symbol] margin only - unified ccxt symbol
          */
-        await this.loadMarkets ();
         const symbol = this.safeString (params, 'symbol');
         params = this.omit (params, 'symbol');
         const [type, query] = this.handleMarketTypeAndParams ('fetchBalance', undefined, params);
@@ -2973,7 +2970,6 @@ module.exports = class gate extends Exchange {
          * @param {object} [params] extra parameters specific to the binance api endpoint
          * @returns {object[]} a list of [trade structures]{@link https://docs.ccxt.com/#/?id=trade-structure}
          */
-        await this.loadMarkets ();
         this.checkRequiredSymbol ('fetchOrderTrades', symbol);
         //
         //      [
@@ -3348,7 +3344,6 @@ module.exports = class gate extends Exchange {
          */
         [tag, params] = this.handleWithdrawTagAndParams (tag, params);
         this.checkAddress (address);
-        await this.loadMarkets ();
         const currency = this.currency (code);
         const request = {
             'currency': currency['id'],
@@ -3499,7 +3494,6 @@ module.exports = class gate extends Exchange {
          * @param {int} [params.price_type] *contract only* 0 latest deal price, 1 mark price, 2 index price
          * @returns {object|undefined} [An order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const contract = market['contract'];
         const trigger = this.safeValue (params, 'trigger');
@@ -4158,7 +4152,6 @@ module.exports = class gate extends Exchange {
          * @param {string} [params.settle] 'btc' or 'usdt' - settle currency for perpetual swap and future - market settle currency is used if symbol !== undefined, default="usdt" for swap and "btc" for future
          * @returns An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets ();
         const stop = this.safeValue2 (params, 'is_stop_order', 'stop', false);
         params = this.omit (params, ['is_stop_order', 'stop']);
         let clientOrderId = this.safeString2 (params, 'text', 'clientOrderId');
@@ -4425,7 +4418,6 @@ module.exports = class gate extends Exchange {
          * @param {bool} [params.stop] True if the order to be cancelled is a trigger order
          * @returns An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets ();
         const market = (symbol === undefined) ? undefined : this.market (symbol);
         const stop = this.safeValue2 (params, 'is_stop_order', 'stop', false);
         params = this.omit (params, ['is_stop_order', 'stop']);
