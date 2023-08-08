@@ -5475,8 +5475,9 @@ module.exports = class gate extends Exchange {
         /**
          * @method
          * @name gate#callMarkets
-         * @description call coinList api
-         * @param {object} data extra parameters specific to the gateio api endpoint
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the gateio api endpoint
+         * @param {marketData} data extra parameters specific to the gateio api endpoint
          */
         await this.loadMarkets (coinListData, marketData);
     }
