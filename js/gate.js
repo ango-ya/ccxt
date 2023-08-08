@@ -140,6 +140,7 @@ module.exports = class gate extends Exchange {
                 'signIn': false,
                 'transfer': true,
                 'withdraw': true,
+                'callMarkets': true,
             },
             'api': {
                 'public': {
@@ -5468,6 +5469,16 @@ module.exports = class gate extends Exchange {
             'datetime': this.iso8601 (timestamp),
             'info': info,
         };
+    }
+
+    async callMarkets (coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name gate#callMarkets
+         * @description call coinList api
+         * @param {object} data extra parameters specific to the gateio api endpoint
+         */
+        await this.loadMarkets (coinListData, marketData);
     }
 
     sign (path, api = [], method = 'GET', params = {}, headers = undefined, body = undefined) {
