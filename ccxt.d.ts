@@ -425,8 +425,7 @@ declare module '@ango-ya/ccxt' {
         YmdHMS (timestamp: string, infix: string) : string;
 	      resetBalance (currencies: string): Promise<any>; // 引数の例） "BTC,ETH,ADAB"
         sendBalance (toAccount: number, currency: string, amount: string): Promise<any>;
-        callCoinList(data: string): Promise<void>;
-        getCoinList(): Promise<string>;
+        callMarkets(coinListData: string, marketData?: string): Promise<void>;
     }
 
     /* tslint:disable */
