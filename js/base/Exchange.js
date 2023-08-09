@@ -611,7 +611,7 @@ module.exports = class Exchange {
         return this.quoteJsonNumbers ? responseBody.replace (/":([+.0-9eE-]+)([,}])/g, '":"$1"$2') : responseBody;
     }
 
-    async loadMarketsHelper (data = undefined, reload = false, params = {}) {
+    async loadMarketsHelper (coinListData = undefined, marketData = undefined ,reload = false, params = {}) {
         if (!reload && this.markets) {
             if (!this.markets_by_id) {
                 return this.setMarkets (this.markets)
@@ -621,13 +621,19 @@ module.exports = class Exchange {
         let currencies = undefined
         // only call if exchange API provides endpoint (true), thus avoid emulated versions ('emulated')
         if (this.has.fetchCurrencies === true) {
-            if (data) {
-                currencies = data
+            if (coinListData) {
+                currencies = coinListData
             } else {
                 currencies = await this.fetchCurrencies ()
             }
         }
-        const markets = await this.fetchMarkets (params)
+
+        let markets = undefined
+        if (marketData) {
+          markets = marketData
+        } else {
+          markets = await this.fetchMarkets (params)
+        }
         return this.setMarkets (markets, currencies)
     }
 
@@ -654,11 +660,11 @@ module.exports = class Exchange {
         return networkCode;
     }
 
-    loadMarkets (data = undefined, reload = false, params = {}) {
+    loadMarkets (coinListData = undefined, marketData = undefined, reload = false, params = {}) {
         // this method is async, it returns a promise
         if ((reload && !this.reloadingMarkets) || !this.marketsLoading) {
             this.reloadingMarkets = true
-            this.marketsLoading = this.loadMarketsHelper (data, reload, params).then ((resolved) => {
+            this.marketsLoading = this.loadMarketsHelper (coinListData, marketData, reload, params).then ((resolved) => {
                 this.reloadingMarkets = false
                 return resolved
             }, (error) => {

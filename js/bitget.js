@@ -78,8 +78,7 @@ module.exports = class bitget extends Exchange {
                 'setPositionMode': false,
                 'transfer': false,
                 'withdraw': true,
-                'callCoinList': true,
-                'getCoinList': true,
+                'callLoadMarkets': true,
             },
             'timeframes': {
                 'spot': {
@@ -1113,24 +1112,14 @@ module.exports = class bitget extends Exchange {
         return result;
     }
 
-    async callCoinList (data = undefined) {
+    async callLoadMarkets (coinListData = undefined) {
         /**
          * @method
-         * @name bitget#callCoinList
-         * @description call coinList api
+         * @name bitget#callLoadMarkets
+         * @description call fetch currencies and fetch markets
          * @param {object} data extra parameters specific to the bitget api endpoint
          */
-        await this.loadMarkets (data);
-    }
-
-    async getCoinList () {
-        /**
-         * @method
-         * @name bitget#getCoinList
-         * @description get coinList
-         * @returns {object} coinList data
-         */
-        return await this.loadMarkets ();
+        await this.loadMarkets (coinListData);
     }
 
     async fetchOrderBook (symbol, limit = undefined, params = {}) {
