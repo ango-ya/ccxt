@@ -78,7 +78,7 @@ module.exports = class bitget extends Exchange {
                 'setPositionMode': false,
                 'transfer': false,
                 'withdraw': true,
-                'callMarkets': true,
+                'callLoadMarkets': true,
             },
             'timeframes': {
                 'spot': {
@@ -1112,11 +1112,11 @@ module.exports = class bitget extends Exchange {
         return result;
     }
 
-    async callMarkets (coinListData = undefined) {
+    async callLoadMarkets (coinListData = undefined) {
         /**
          * @method
-         * @name bitget#callMarkets
-         * @description call coinList api
+         * @name bitget#callLoadMarkets
+         * @description call fetch currencies and fetch markets
          * @param {object} data extra parameters specific to the bitget api endpoint
          */
         await this.loadMarkets (coinListData);

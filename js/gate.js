@@ -140,7 +140,7 @@ module.exports = class gate extends Exchange {
                 'signIn': false,
                 'transfer': true,
                 'withdraw': true,
-                'callMarkets': true,
+                'callLoadMarkets': true,
             },
             'api': {
                 'public': {
@@ -5463,10 +5463,10 @@ module.exports = class gate extends Exchange {
         };
     }
 
-    async callMarkets (coinListData = undefined, marketData = undefined) {
+    async callLoadMarkets (coinListData = undefined, marketData = undefined) {
         /**
          * @method
-         * @name gate#callMarkets
+         * @name gate#callLoadMarkets
          * @description call fetchCurrencies and fetchMarkets api
          * @param {coinListData} data extra parameters specific to the gateio api endpoint
          * @param {marketData} data extra parameters specific to the gateio api endpoint
