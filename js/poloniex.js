@@ -362,8 +362,8 @@ module.exports = class poloniex extends Exchange {
         return this.parseOHLCVs (response, market, timeframe, since, limit);
     }
 
-    async loadMarkets (reload = false, params = {}) {
-        const markets = await super.loadMarkets (reload, params);
+    async loadMarkets (coinListData = undefined, marketData = undefined, reload = false, params = {}) {
+        const markets = await super.loadMarkets (coinListData, marketData, reload, params);
         const currenciesByNumericId = this.safeValue (this.options, 'currenciesByNumericId');
         if ((currenciesByNumericId === undefined) || reload) {
             this.options['currenciesByNumericId'] = this.indexBy (this.currencies, 'numericId');
