@@ -1112,14 +1112,14 @@ module.exports = class bitget extends Exchange {
         return result;
     }
 
-    async callLoadMarkets (coinListData = undefined) {
+    async callLoadMarkets (coinListData = undefined, marketData = undefined) {
         /**
          * @method
          * @name bitget#callLoadMarkets
          * @description call fetch currencies and fetch markets
          * @param {object} data extra parameters specific to the bitget api endpoint
          */
-        await this.loadMarkets (coinListData);
+        await this.loadMarkets (coinListData, marketData);
     }
 
     async fetchOrderBook (symbol, limit = undefined, params = {}) {
