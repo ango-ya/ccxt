@@ -813,7 +813,7 @@ module.exports = class gate extends Exchange {
         this.options['sandboxMode'] = enable;
     }
 
-    async fetchMarkets (params = {}) {
+    async fetchMarkets (params = {}, currencyPairs) {
         /**
          * @method
          * @name gate#fetchMarkets
@@ -826,8 +826,6 @@ module.exports = class gate extends Exchange {
          * @param {object} [params] extra parameters specific to the exchange api endpoint
          * @returns {object[]} an array of objects representing market data
          */
-        const currencyPairs = params.currencyPairs;
-        delete params.currencyPairs;
         const sandboxMode = this.safeValue (this.options, 'sandboxMode', false);
         let rawPromises = [this.fetchContractMarkets (params), this.fetchOptionMarkets (params),
         ];

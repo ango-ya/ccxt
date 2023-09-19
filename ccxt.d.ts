@@ -384,7 +384,7 @@ declare module '@ango-ya/ccxt' {
         fetchFundingFees (...args: any): Promise<any>; // TODO: add function signatures
         fetchL2OrderBook (...args: any): Promise<any>; // TODO: add function signatures
         fetchLedger (...args: any): Promise<any>; // TODO: add function signatures
-        fetchMarkets ({}): Promise<Market[]>;
+        fetchMarkets ({}, currencyPairs?): Promise<Market[]>;
         fetchMyTrades (symbol?: string, since?: any, limit?: any, params?: Params): Promise<Trade[]>;
         fetchOHLCV (symbol: string, timeframe?: string, since?: number, limit?: number, params?: Params): Promise<OHLCV[]>;
         fetchOpenOrders (symbol?: string, since?: number, limit?: number, params?: Params): Promise<Order[]>;
