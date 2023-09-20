@@ -813,7 +813,7 @@ module.exports = class gate extends Exchange {
         this.options['sandboxMode'] = enable;
     }
 
-    async fetchMarkets (params = {}) {
+    async fetchMarkets (params = {}, currencyPairs) {
         /**
          * @method
          * @name gate#fetchMarkets
@@ -831,7 +831,7 @@ module.exports = class gate extends Exchange {
         ];
         if (!sandboxMode) {
             // gate does not have a sandbox for spot markets
-            const mainnetOnly = [this.fetchSpotMarkets (params)];
+            const mainnetOnly = [this.fetchSpotMarkets (params, currencyPairs)];
             rawPromises = this.arrayConcat (rawPromises, mainnetOnly);
         }
         const promises = await Promise.all (rawPromises);
@@ -842,9 +842,16 @@ module.exports = class gate extends Exchange {
         return this.arrayConcat (markets, optionMarkets);
     }
 
-    async fetchSpotMarkets (params = {}) {
+    async fetchSpotCurrencyPairs (params = {}) {
+        return await this.publicSpotGetCurrencyPairs (params);
+    }
+
+    async fetchSpotMarkets (params = {}, currencyPairs) {
         const marginResponse = await this.publicMarginGetCurrencyPairs (params);
-        const spotMarketsResponse = await this.publicSpotGetCurrencyPairs (params);
+        let spotMarketsResponse = currencyPairs;
+        if (!spotMarketsResponse) {
+            spotMarketsResponse = await this.publicSpotGetCurrencyPairs (params);
+        }
         const marginMarkets = this.indexBy (marginResponse, 'id');
         //
         //  Spot
