@@ -63,6 +63,7 @@ module.exports = class poloniex extends Exchange {
                 'fetchWithdrawals': true,
                 'transfer': true,
                 'withdraw': true,
+                'callLoadMarkets': true,
             },
             'timeframes': {
                 '1m': 'MINUTE_1',
@@ -640,7 +641,6 @@ module.exports = class poloniex extends Exchange {
          * @param {object} params extra parameters specific to the poloniex api endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/en/latest/manual.html#ticker-structure}
          */
-        await this.loadMarkets ();
         const pairSymbol = this.checkSwitchPair (symbol);
         const market = this.market (pairSymbol);
         const request = {
@@ -1066,7 +1066,6 @@ module.exports = class poloniex extends Exchange {
         // if (type === 'market') {
         //     throw new ExchangeError (this.id + ' createOrder() does not accept market orders');
         // }
-        await this.loadMarkets ();
         // Symbols on poloniex UI are STR, but market functions need to use XLM
         const pairSymbol = this.checkSwitchPair (symbol);
         const market = this.market (pairSymbol);
@@ -1171,7 +1170,6 @@ module.exports = class poloniex extends Exchange {
          * @param {object} params extra parameters specific to the poloniex api endpoint
          * @returns {object} An [order structure]{@link https://docs.ccxt.com/en/latest/manual.html#order-structure}
          */
-        await this.loadMarkets ();
         const request = {};
         const clientOrderId = this.safeValue (params, 'clientOrderId');
         if (clientOrderId !== undefined) {
@@ -1233,7 +1231,6 @@ module.exports = class poloniex extends Exchange {
          * @param {object} params extra parameters specific to the poloniex api endpoint
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/en/latest/manual.html#order-structure}
          */
-        await this.loadMarkets ();
         id = id.toString ();
         const request = {
             'id': id,
@@ -1283,7 +1280,6 @@ module.exports = class poloniex extends Exchange {
          * @param {object} params extra parameters specific to the poloniex api endpoint
          * @returns {[object]} a list of [trade structures]{@link https://docs.ccxt.com/en/latest/manual.html#trade-structure}
          */
-        await this.loadMarkets ();
         const request = {
             'id': id,
         };
@@ -1342,7 +1338,6 @@ module.exports = class poloniex extends Exchange {
          * @param {object} params extra parameters specific to the poloniex api endpoint
          * @returns {object} a [balance structure]{@link https://docs.ccxt.com/en/latest/manual.html?#balance-structure}
          */
-        await this.loadMarkets ();
         const request = {
             'accountType': 'SPOT',
         };
@@ -1409,7 +1404,6 @@ module.exports = class poloniex extends Exchange {
          * @param {object} params extra parameters specific to the poloniex api endpoint
          * @returns {object} A dictionary of [order book structures]{@link https://docs.ccxt.com/en/latest/manual.html#order-book-structure} indexed by market symbols
          */
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const request = {
             'symbol': market['id'],
@@ -1638,7 +1632,6 @@ module.exports = class poloniex extends Exchange {
          */
         [ tag, params ] = this.handleWithdrawTagAndParams (tag, params);
         this.checkAddress (address);
-        await this.loadMarkets ();
         const currency = this.currency (code);
         const request = {
             'currency': currency['id'],
@@ -2045,6 +2038,16 @@ module.exports = class poloniex extends Exchange {
 
     nonce () {
         return this.milliseconds ();
+    }
+
+    async callLoadMarkets (coinListData = undefined) {
+        /**
+         * @method
+         * @name poloniex#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the poloniex api endpoint
+         */
+        await this.loadMarkets (coinListData);
     }
 
     sign (path, api = 'public', method = 'GET', params = {}, headers = undefined, body = undefined) {
