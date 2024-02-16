@@ -1,5 +1,14 @@
-"use strict";
+import asTable from 'as-table';
+import ololog from 'ololog';
+import path from 'path';
+import fs from 'fs';
+import ansicolor from 'ansicolor';
+import ccxt from '../../js/ccxt.js';
 
+const { noLocate } = ololog;
+const log = noLocate;
+
+ansicolor.nice
 /*  ------------------------------------------------------------------------ */
 
 const [processPath, , argument = null] = process.argv.filter (x => !x.startsWith ('--'))
@@ -9,16 +18,6 @@ const [processPath, , argument = null] = process.argv.filter (x => !x.startsWith
     , debug = process.argv.includes ('--debug')
     , marketsOnly = process.argv.includes ('--markets')
     , currenciesOnly = process.argv.includes ('--currencies')
-
-
-/*  ------------------------------------------------------------------------ */
-
-const asTable   = require ('as-table')
-    , log       = require ('ololog').noLocate
-    , path      = require ('path')
-    , fs        = require ('fs')
-    , ansi      = require ('ansicolor').nice
-    , ccxt      = require ('../../ccxt.js')
 
 /*  ------------------------------------------------------------------------ */
 
@@ -52,32 +51,26 @@ const keysLocal = path.resolve ('keys.local.json')
 let globalKeysFile = fs.existsSync (keysGlobal) ? keysGlobal : false
 let localKeysFile = fs.existsSync (keysLocal) ? keysLocal : globalKeysFile
 
-const keys = require (localKeysFile)
+const keys = JSON.parse (fs.readFileSync (localKeysFile))
 
 /*  ------------------------------------------------------------------------ */
 
 log ('Looking up for:', argument.bright, strict ? '(strict search)' : '(non-strict search)')
 
 const checkAgainst = strict ?
-    (a, b) => (a ||'').toUpperCase ().includes ((b || '').toUpperCase ()) :
+    (a, b) => (a || '').toUpperCase ().includes ((b || '').toUpperCase ()) :
     (a, b) => (a || '').toLowerCase ().includes ((b || '').toLowerCase ())
 
 ;(async function test () {
 
-    const { Agent } = require ('https')
-
     let exchanges = await Promise.all (ccxt.exchanges.map (async id => {
-
-        const agent = new Agent ({
-            ecdhCurve: 'auto',
-        })
 
         // instantiate the exchange
         let exchange = new ccxt[id] (ccxt.extend (localKeysFile ? (keys[id] || {}) : {}, {
-            agent, // set up keys and settings, if any
+            // agent, // set up keys and settings, if any
         }))
 
-        if (exchange.has.publicAPI) {
+        if (exchange.has.fetchMarkets) {
 
             try {
 
@@ -115,12 +108,16 @@ const checkAgainst = strict ?
                     return (
                         checkAgainst (market['base'],  argument) ||
                         checkAgainst (market['quote'], argument) ||
-                        (market['baseId']  ? checkAgainst (market['baseId'],  argument) : false) ||
-                        (market['quoteId'] ? checkAgainst (market['quoteId'], argument) : false) ||
+                        (market['baseId']  ? checkAgainst (market['baseId'].toString (),  argument) : false) ||
+                        (market['quoteId'] ? checkAgainst (market['quoteId'].toString (), argument) : false) ||
                         checkAgainst (market['symbol'], argument) ||
-                        checkAgainst (market['id'].toString (), argument)
+                        checkAgainst (market['id'].toString (), argument) ||
+                        checkAgainst (market['type'], argument)
                     )
                 } catch (e) {
+                    if (debug) {
+                        log.red (e.constructor.name, e.message)
+                    }
                     return false
                 }
             })
@@ -156,5 +153,7 @@ const checkAgainst = strict ?
 
         log (currencies.length.toString ().yellow, 'currencies')
     }
+
+    process.exit ()
 
 }) ()

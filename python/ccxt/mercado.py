@@ -4,14 +4,17 @@
 # https://github.com/ccxt/ccxt/blob/master/CONTRIBUTING.md#how-to-contribute-code
 
 from ccxt.base.exchange import Exchange
+from ccxt.abstract.mercado import ImplicitAPI
 import hashlib
-import math
+from ccxt.base.types import Balances, Currency, Int, Market, Order, OrderBook, OrderSide, OrderType, Str, Ticker, Trade, Transaction
+from typing import List
 from ccxt.base.errors import ExchangeError
 from ccxt.base.errors import ArgumentsRequired
 from ccxt.base.errors import InvalidOrder
+from ccxt.base.decimal_to_precision import TICK_SIZE
 
 
-class mercado(Exchange):
+class mercado(Exchange, ImplicitAPI):
 
     def describe(self):
         return self.deep_extend(super(mercado, self).describe(), {
@@ -21,35 +24,68 @@ class mercado(Exchange):
             'rateLimit': 1000,
             'version': 'v3',
             'has': {
-                'cancelOrder': True,
                 'CORS': True,
+                'spot': True,
+                'margin': False,
+                'swap': False,
+                'future': False,
+                'option': False,
+                'addMargin': False,
+                'cancelOrder': True,
+                'closeAllPositions': False,
+                'closePosition': False,
                 'createMarketOrder': True,
                 'createOrder': True,
+                'createReduceOnlyOrder': False,
+                'createStopLimitOrder': False,
+                'createStopMarketOrder': False,
+                'createStopOrder': False,
                 'fetchBalance': True,
+                'fetchBorrowRateHistory': False,
+                'fetchCrossBorrowRate': False,
+                'fetchCrossBorrowRates': False,
+                'fetchFundingHistory': False,
+                'fetchFundingRate': False,
+                'fetchFundingRateHistory': False,
+                'fetchFundingRates': False,
+                'fetchIndexOHLCV': False,
+                'fetchIsolatedBorrowRate': False,
+                'fetchIsolatedBorrowRates': False,
+                'fetchLeverage': False,
+                'fetchLeverageTiers': False,
+                'fetchMarginMode': False,
                 'fetchMarkets': True,
+                'fetchMarkOHLCV': False,
                 'fetchMyTrades': 'emulated',
                 'fetchOHLCV': True,
+                'fetchOpenInterestHistory': False,
                 'fetchOpenOrders': True,
                 'fetchOrder': True,
                 'fetchOrderBook': True,
                 'fetchOrders': True,
+                'fetchPosition': False,
+                'fetchPositionMode': False,
+                'fetchPositions': False,
+                'fetchPositionsRisk': False,
+                'fetchPremiumIndexOHLCV': False,
                 'fetchTicker': True,
                 'fetchTickers': False,
                 'fetchTrades': True,
+                'fetchTradingFee': False,
+                'fetchTradingFees': False,
+                'reduceMargin': False,
+                'setLeverage': False,
+                'setMarginMode': False,
+                'setPositionMode': False,
                 'withdraw': True,
             },
             'timeframes': {
-                '1m': '1m',
-                '5m': '5m',
                 '15m': '15m',
-                '30m': '30m',
                 '1h': '1h',
-                '6h': '6h',
-                '12h': '12h',
+                '3h': '3h',
                 '1d': '1d',
-                '3d': '3d',
                 '1w': '1w',
-                '2w': '2w',
+                '1M': '1M',
             },
             'urls': {
                 'logo': 'https://user-images.githubusercontent.com/1294454/27837060-e7c58714-60ea-11e7-9192-f05e86adb83f.jpg',
@@ -57,6 +93,7 @@ class mercado(Exchange):
                     'public': 'https://www.mercadobitcoin.net/api',
                     'private': 'https://www.mercadobitcoin.net/tapi',
                     'v4Public': 'https://www.mercadobitcoin.com.br/v4',
+                    'v4PublicNet': 'https://api.mercadobitcoin.net/api/v4',
                 },
                 'www': 'https://www.mercadobitcoin.com.br',
                 'doc': [
@@ -97,6 +134,11 @@ class mercado(Exchange):
                         '{coin}/candle/',
                     ],
                 },
+                'v4PublicNet': {
+                    'get': [
+                        'candles',
+                    ],
+                },
             },
             'fees': {
                 'trading': {
@@ -113,9 +155,15 @@ class mercado(Exchange):
                     'XRP': 0.1,
                 },
             },
+            'precisionMode': TICK_SIZE,
         })
 
     def fetch_markets(self, params={}):
+        """
+        retrieves data on all markets for mercado
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns dict[]: an array of objects representing market data
+        """
         response = self.publicGetCoins(params)
         #
         #     [
@@ -146,29 +194,46 @@ class mercado(Exchange):
             quoteId = 'BRL'
             base = self.safe_currency_code(baseId)
             quote = self.safe_currency_code(quoteId)
-            symbol = base + '/' + quote
             id = quote + base
-            precision = {
-                'amount': 8,
-                'price': 5,
-            }
             result.append({
                 'id': id,
-                'symbol': symbol,
+                'symbol': base + '/' + quote,
                 'base': base,
                 'quote': quote,
+                'settle': None,
                 'baseId': baseId,
                 'quoteId': quoteId,
+                'settleId': None,
+                'type': 'spot',
+                'spot': True,
+                'margin': False,
+                'swap': False,
+                'future': False,
+                'option': False,
                 'active': None,
-                'info': coin,
-                'precision': precision,
+                'contract': False,
+                'linear': None,
+                'inverse': None,
+                'contractSize': None,
+                'expiry': None,
+                'expiryDatetime': None,
+                'strike': None,
+                'optionType': None,
+                'precision': {
+                    'amount': self.parse_number('1e-8'),
+                    'price': self.parse_number('1e-5'),
+                },
                 'limits': {
+                    'leverage': {
+                        'min': None,
+                        'max': None,
+                    },
                     'amount': {
-                        'min': self.safe_float(amountLimits, baseId),
+                        'min': self.safe_number(amountLimits, baseId),
                         'max': None,
                     },
                     'price': {
-                        'min': 1 / math.pow(10, precision['price']),
+                        'min': self.parse_number('1e-5'),
                         'max': None,
                     },
                     'cost': {
@@ -176,37 +241,52 @@ class mercado(Exchange):
                         'max': None,
                     },
                 },
+                'created': None,
+                'info': coin,
             })
         return result
 
-    def fetch_order_book(self, symbol, limit=None, params={}):
+    def fetch_order_book(self, symbol: str, limit: Int = None, params={}) -> OrderBook:
+        """
+        fetches information on open orders with bid(buy) and ask(sell) prices, volumes and other data
+        :param str symbol: unified symbol of the market to fetch the order book for
+        :param int [limit]: the maximum amount of order book entries to return
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns dict: A dictionary of `order book structures <https://docs.ccxt.com/#/?id=order-book-structure>` indexed by market symbols
+        """
         self.load_markets()
         market = self.market(symbol)
         request = {
             'coin': market['base'],
         }
         response = self.publicGetCoinOrderbook(self.extend(request, params))
-        return self.parse_order_book(response)
+        return self.parse_order_book(response, market['symbol'])
 
-    def fetch_ticker(self, symbol, params={}):
-        self.load_markets()
-        market = self.market(symbol)
-        request = {
-            'coin': market['base'],
-        }
-        response = self.publicGetCoinTicker(self.extend(request, params))
-        ticker = self.safe_value(response, 'ticker', {})
+    def parse_ticker(self, ticker, market: Market = None) -> Ticker:
+        #
+        #     {
+        #         "high":"103.96000000",
+        #         "low":"95.00000000",
+        #         "vol":"2227.67806598",
+        #         "last":"97.91591000",
+        #         "buy":"95.52760000",
+        #         "sell":"97.91475000",
+        #         "open":"99.79955000",
+        #         "date":1643382606
+        #     }
+        #
+        symbol = self.safe_symbol(None, market)
         timestamp = self.safe_timestamp(ticker, 'date')
-        last = self.safe_float(ticker, 'last')
-        return {
+        last = self.safe_string(ticker, 'last')
+        return self.safe_ticker({
             'symbol': symbol,
             'timestamp': timestamp,
             'datetime': self.iso8601(timestamp),
-            'high': self.safe_float(ticker, 'high'),
-            'low': self.safe_float(ticker, 'low'),
-            'bid': self.safe_float(ticker, 'buy'),
+            'high': self.safe_string(ticker, 'high'),
+            'low': self.safe_string(ticker, 'low'),
+            'bid': self.safe_string(ticker, 'buy'),
             'bidVolume': None,
-            'ask': self.safe_float(ticker, 'sell'),
+            'ask': self.safe_string(ticker, 'sell'),
             'askVolume': None,
             'vwap': None,
             'open': None,
@@ -216,49 +296,81 @@ class mercado(Exchange):
             'change': None,
             'percentage': None,
             'average': None,
-            'baseVolume': self.safe_float(ticker, 'vol'),
+            'baseVolume': self.safe_string(ticker, 'vol'),
             'quoteVolume': None,
             'info': ticker,
-        }
+        }, market)
 
-    def parse_trade(self, trade, market=None):
+    def fetch_ticker(self, symbol: str, params={}) -> Ticker:
+        """
+        fetches a price ticker, a statistical calculation with the information calculated over the past 24 hours for a specific market
+        :param str symbol: unified symbol of the market to fetch the ticker for
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns dict: a `ticker structure <https://docs.ccxt.com/#/?id=ticker-structure>`
+        """
+        self.load_markets()
+        market = self.market(symbol)
+        request = {
+            'coin': market['base'],
+        }
+        response = self.publicGetCoinTicker(self.extend(request, params))
+        ticker = self.safe_value(response, 'ticker', {})
+        #
+        #     {
+        #         "ticker": {
+        #             "high":"1549.82293000",
+        #             "low":"1503.00011000",
+        #             "vol":"81.82827101",
+        #             "last":"1533.15000000",
+        #             "buy":"1533.21018000",
+        #             "sell":"1540.09000000",
+        #             "open":"1524.71089000",
+        #             "date":1643691671
+        #         }
+        #     }
+        #
+        return self.parse_ticker(ticker, market)
+
+    def parse_trade(self, trade, market: Market = None) -> Trade:
         timestamp = self.safe_timestamp_2(trade, 'date', 'executed_timestamp')
-        symbol = None
-        if market is not None:
-            symbol = market['symbol']
+        market = self.safe_market(None, market)
         id = self.safe_string_2(trade, 'tid', 'operation_id')
         type = None
         side = self.safe_string(trade, 'type')
-        price = self.safe_float(trade, 'price')
-        amount = self.safe_float_2(trade, 'amount', 'quantity')
-        cost = None
-        if price is not None:
-            if amount is not None:
-                cost = price * amount
-        feeCost = self.safe_float(trade, 'fee_rate')
+        price = self.safe_string(trade, 'price')
+        amount = self.safe_string_2(trade, 'amount', 'quantity')
+        feeCost = self.safe_string(trade, 'fee_rate')
         fee = None
         if feeCost is not None:
             fee = {
                 'cost': feeCost,
                 'currency': None,
             }
-        return {
+        return self.safe_trade({
             'id': id,
             'info': trade,
             'timestamp': timestamp,
             'datetime': self.iso8601(timestamp),
-            'symbol': symbol,
+            'symbol': market['symbol'],
             'order': None,
             'type': type,
             'side': side,
             'takerOrMaker': None,
             'price': price,
             'amount': amount,
-            'cost': cost,
+            'cost': None,
             'fee': fee,
-        }
+        }, market)
 
-    def fetch_trades(self, symbol, since=None, limit=None, params={}):
+    def fetch_trades(self, symbol: str, since: Int = None, limit: Int = None, params={}) -> List[Trade]:
+        """
+        get the list of most recent trades for a particular symbol
+        :param str symbol: unified symbol of the market to fetch trades for
+        :param int [since]: timestamp in ms of the earliest trade to fetch
+        :param int [limit]: the maximum amount of trades to fetch
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns Trade[]: a list of `trade structures <https://docs.ccxt.com/#/?id=public-trades>`
+        """
         self.load_markets()
         market = self.market(symbol)
         method = 'publicGetCoinTrades'
@@ -267,16 +379,14 @@ class mercado(Exchange):
         }
         if since is not None:
             method += 'From'
-            request['from'] = int(since / 1000)
+            request['from'] = self.parse_to_int(since / 1000)
         to = self.safe_integer(params, 'to')
         if to is not None:
             method += 'To'
         response = getattr(self, method)(self.extend(request, params))
         return self.parse_trades(response, market, since, limit)
 
-    def fetch_balance(self, params={}):
-        self.load_markets()
-        response = self.privatePostGetAccountInfo(params)
+    def parse_balance(self, response) -> Balances:
         data = self.safe_value(response, 'response_data', {})
         balances = self.safe_value(data, 'balance', {})
         result = {'info': response}
@@ -287,37 +397,65 @@ class mercado(Exchange):
             if currencyId in balances:
                 balance = self.safe_value(balances, currencyId, {})
                 account = self.account()
-                account['free'] = self.safe_float(balance, 'available')
-                account['total'] = self.safe_float(balance, 'total')
+                account['free'] = self.safe_string(balance, 'available')
+                account['total'] = self.safe_string(balance, 'total')
                 result[code] = account
-        return self.parse_balance(result)
+        return self.safe_balance(result)
 
-    def create_order(self, symbol, type, side, amount, price=None, params={}):
+    def fetch_balance(self, params={}) -> Balances:
+        """
+        query for balance and get the amount of funds available for trading or funds locked in orders
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns dict: a `balance structure <https://docs.ccxt.com/#/?id=balance-structure>`
+        """
         self.load_markets()
+        response = self.privatePostGetAccountInfo(params)
+        return self.parse_balance(response)
+
+    def create_order(self, symbol: str, type: OrderType, side: OrderSide, amount: float, price: float = None, params={}):
+        """
+        create a trade order
+        :param str symbol: unified symbol of the market to create an order in
+        :param str type: 'market' or 'limit'
+        :param str side: 'buy' or 'sell'
+        :param float amount: how much of currency you want to trade in units of base currency
+        :param float [price]: the price at which the order is to be fullfilled, in units of the quote currency, ignored in market orders
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns dict: an `order structure <https://docs.ccxt.com/#/?id=order-structure>`
+        """
+        self.load_markets()
+        market = self.market(symbol)
         request = {
-            'coin_pair': self.market_id(symbol),
+            'coin_pair': market['id'],
         }
         method = self.capitalize(side) + 'Order'
         if type == 'limit':
             method = 'privatePostPlace' + method
-            request['limit_price'] = self.price_to_precision(symbol, price)
-            request['quantity'] = self.amount_to_precision(symbol, amount)
+            request['limit_price'] = self.price_to_precision(market['symbol'], price)
+            request['quantity'] = self.amount_to_precision(market['symbol'], amount)
         else:
             method = 'privatePostPlaceMarket' + method
             if side == 'buy':
                 if price is None:
                     raise InvalidOrder(self.id + ' createOrder() requires the price argument with market buy orders to calculate total order cost(amount to spend), where cost = amount * price. Supply a price argument to createOrder() call if you want the cost to be calculated for you from price and amount')
-                request['cost'] = self.price_to_precision(symbol, amount * price)
+                request['cost'] = self.price_to_precision(market['symbol'], amount * price)
             else:
-                request['quantity'] = self.amount_to_precision(symbol, amount)
+                request['quantity'] = self.amount_to_precision(market['symbol'], amount)
         response = getattr(self, method)(self.extend(request, params))
         # TODO: replace self with a call to parseOrder for unification
-        return {
+        return self.safe_order({
             'info': response,
             'id': str(response['response_data']['order']['order_id']),
-        }
+        }, market)
 
-    def cancel_order(self, id, symbol=None, params={}):
+    def cancel_order(self, id: str, symbol: Str = None, params={}):
+        """
+        cancels an open order
+        :param str id: order id
+        :param str symbol: unified symbol of the market the order was made in
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns dict: An `order structure <https://docs.ccxt.com/#/?id=order-structure>`
+        """
         if symbol is None:
             raise ArgumentsRequired(self.id + ' cancelOrder() requires a symbol argument')
         self.load_markets()
@@ -329,25 +467,25 @@ class mercado(Exchange):
         response = self.privatePostCancelOrder(self.extend(request, params))
         #
         #     {
-        #         response_data: {
-        #             order: {
-        #                 order_id: 2176769,
-        #                 coin_pair: 'BRLBCH',
-        #                 order_type: 2,
-        #                 status: 3,
-        #                 has_fills: False,
-        #                 quantity: '0.10000000',
-        #                 limit_price: '1996.15999',
-        #                 executed_quantity: '0.00000000',
-        #                 executed_price_avg: '0.00000',
-        #                 fee: '0.00000000',
-        #                 created_timestamp: '1536956488',
-        #                 updated_timestamp: '1536956499',
-        #                 operations: []
+        #         "response_data": {
+        #             "order": {
+        #                 "order_id": 2176769,
+        #                 "coin_pair": "BRLBCH",
+        #                 "order_type": 2,
+        #                 "status": 3,
+        #                 "has_fills": False,
+        #                 "quantity": "0.10000000",
+        #                 "limit_price": "1996.15999",
+        #                 "executed_quantity": "0.00000000",
+        #                 "executed_price_avg": "0.00000",
+        #                 "fee": "0.00000000",
+        #                 "created_timestamp": "1536956488",
+        #                 "updated_timestamp": "1536956499",
+        #                 "operations": []
         #             }
         #         },
-        #         status_code: 100,
-        #         server_unix_timestamp: '1536956499'
+        #         "status_code": 100,
+        #         "server_unix_timestamp": "1536956499"
         #     }
         #
         responseData = self.safe_value(response, 'response_data', {})
@@ -362,7 +500,7 @@ class mercado(Exchange):
         }
         return self.safe_string(statuses, status, status)
 
-    def parse_order(self, order, market=None):
+    def parse_order(self, order, market: Market = None) -> Order:
         #
         #     {
         #         "order_id": 4,
@@ -389,31 +527,26 @@ class mercado(Exchange):
         #     }
         #
         id = self.safe_string(order, 'order_id')
+        order_type = self.safe_string(order, 'order_type')
         side = None
         if 'order_type' in order:
-            side = 'buy' if (order['order_type'] == 1) else 'sell'
+            side = 'buy' if (order_type == '1') else 'sell'
         status = self.parse_order_status(self.safe_string(order, 'status'))
         marketId = self.safe_string(order, 'coin_pair')
         market = self.safe_market(marketId, market)
         timestamp = self.safe_timestamp(order, 'created_timestamp')
         fee = {
-            'cost': self.safe_float(order, 'fee'),
+            'cost': self.safe_string(order, 'fee'),
             'currency': market['quote'],
         }
-        price = self.safe_float(order, 'limit_price')
-        # price = self.safe_float(order, 'executed_price_avg', price)
-        average = self.safe_float(order, 'executed_price_avg')
-        amount = self.safe_float(order, 'quantity')
-        filled = self.safe_float(order, 'executed_quantity')
-        remaining = amount - filled
-        cost = filled * average
+        price = self.safe_string(order, 'limit_price')
+        # price = self.safe_number(order, 'executed_price_avg', price)
+        average = self.safe_string(order, 'executed_price_avg')
+        amount = self.safe_string(order, 'quantity')
+        filled = self.safe_string(order, 'executed_quantity')
         lastTradeTimestamp = self.safe_timestamp(order, 'updated_timestamp')
         rawTrades = self.safe_value(order, 'operations', [])
-        trades = self.parse_trades(rawTrades, market, None, None, {
-            'side': side,
-            'order': id,
-        })
-        return {
+        return self.safe_order({
             'info': order,
             'id': id,
             'clientOrderId': None,
@@ -427,17 +560,24 @@ class mercado(Exchange):
             'side': side,
             'price': price,
             'stopPrice': None,
-            'cost': cost,
+            'triggerPrice': None,
+            'cost': None,
             'average': average,
             'amount': amount,
             'filled': filled,
-            'remaining': remaining,
+            'remaining': None,
             'status': status,
             'fee': fee,
-            'trades': trades,
-        }
+            'trades': rawTrades,
+        }, market)
 
-    def fetch_order(self, id, symbol=None, params={}):
+    def fetch_order(self, id: str, symbol: Str = None, params={}):
+        """
+        fetches information on an order made by the user
+        :param str symbol: unified symbol of the market the order was made in
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns dict: An `order structure <https://docs.ccxt.com/#/?id=order-structure>`
+        """
         if symbol is None:
             raise ArgumentsRequired(self.id + ' fetchOrder() requires a symbol argument')
         self.load_markets()
@@ -451,13 +591,23 @@ class mercado(Exchange):
         order = self.safe_value(responseData, 'order')
         return self.parse_order(order, market)
 
-    def withdraw(self, code, amount, address, tag=None, params={}):
+    def withdraw(self, code: str, amount: float, address, tag=None, params={}):
+        """
+        make a withdrawal
+        :param str code: unified currency code
+        :param float amount: the amount to withdraw
+        :param str address: the address to withdraw to
+        :param str tag:
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns dict: a `transaction structure <https://docs.ccxt.com/#/?id=transaction-structure>`
+        """
+        tag, params = self.handle_withdraw_tag_and_params(tag, params)
         self.check_address(address)
         self.load_markets()
         currency = self.currency(code)
         request = {
             'coin': currency['id'],
-            'quantity': '{:.10f}'.format(amount),
+            'quantity': format(amount, '.10f'),
             'address': address,
         }
         if code == 'BRL':
@@ -475,42 +625,114 @@ class mercado(Exchange):
                 else:
                     request['destination_tag'] = tag
         response = self.privatePostWithdrawCoin(self.extend(request, params))
+        #
+        #     {
+        #         "response_data": {
+        #             "withdrawal": {
+        #                 "id": 1,
+        #                 "coin": "BRL",
+        #                 "quantity": "300.56",
+        #                 "net_quantity": "291.68",
+        #                 "fee": "8.88",
+        #                 "account": "bco: 341, ag: 1111, cta: 23456-X",
+        #                 "status": 1,
+        #                 "created_timestamp": "1453912088",
+        #                 "updated_timestamp": "1453912088"
+        #             }
+        #         },
+        #         "status_code": 100,
+        #         "server_unix_timestamp": "1453912088"
+        #     }
+        #
+        responseData = self.safe_value(response, 'response_data', {})
+        withdrawal = self.safe_value(responseData, 'withdrawal')
+        return self.parse_transaction(withdrawal, currency)
+
+    def parse_transaction(self, transaction, currency: Currency = None) -> Transaction:
+        #
+        #     {
+        #         "id": 1,
+        #         "coin": "BRL",
+        #         "quantity": "300.56",
+        #         "net_quantity": "291.68",
+        #         "fee": "8.88",
+        #         "account": "bco: 341, ag: 1111, cta: 23456-X",
+        #         "status": 1,
+        #         "created_timestamp": "1453912088",
+        #         "updated_timestamp": "1453912088"
+        #     }
+        #
+        currency = self.safe_currency(None, currency)
         return {
-            'info': response,
-            'id': response['response_data']['withdrawal']['id'],
+            'id': self.safe_string(transaction, 'id'),
+            'txid': None,
+            'timestamp': None,
+            'datetime': None,
+            'network': None,
+            'addressFrom': None,
+            'address': None,
+            'addressTo': None,
+            'amount': None,
+            'type': None,
+            'currency': currency['code'],
+            'status': None,
+            'updated': None,
+            'tagFrom': None,
+            'tag': None,
+            'tagTo': None,
+            'comment': None,
+            'internal': None,
+            'fee': None,
+            'info': transaction,
         }
 
-    def parse_ohlcv(self, ohlcv, market=None):
+    def parse_ohlcv(self, ohlcv, market: Market = None) -> list:
         return [
-            self.safe_timestamp(ohlcv, 'timestamp'),
-            self.safe_float(ohlcv, 'open'),
-            self.safe_float(ohlcv, 'high'),
-            self.safe_float(ohlcv, 'low'),
-            self.safe_float(ohlcv, 'close'),
-            self.safe_float(ohlcv, 'volume'),
+            self.safe_integer(ohlcv, 0),
+            self.safe_number(ohlcv, 1),
+            self.safe_number(ohlcv, 2),
+            self.safe_number(ohlcv, 3),
+            self.safe_number(ohlcv, 4),
+            self.safe_number(ohlcv, 5),
         ]
 
-    def fetch_ohlcv(self, symbol, timeframe='5m', since=None, limit=None, params={}):
+    def fetch_ohlcv(self, symbol: str, timeframe='15m', since: Int = None, limit: Int = None, params={}) -> List[list]:
+        """
+        fetches historical candlestick data containing the open, high, low, and close price, and the volume of a market
+        :param str symbol: unified symbol of the market to fetch OHLCV data for
+        :param str timeframe: the length of time each candle represents
+        :param int [since]: timestamp in ms of the earliest candle to fetch
+        :param int [limit]: the maximum amount of candles to fetch
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns int[][]: A list of candles ordered, open, high, low, close, volume
+        """
         self.load_markets()
         market = self.market(symbol)
         request = {
-            'precision': self.timeframes[timeframe],
-            'coin': market['id'].lower(),
+            'resolution': self.safe_string(self.timeframes, timeframe, timeframe),
+            'symbol': market['base'] + '-' + market['quote'],  # exceptional endpoint, that needs custom symbol syntax
         }
-        if limit is not None and since is not None:
-            request['from'] = int(since / 1000)
+        if limit is None:
+            limit = 100  # set some default limit,'s required if user doesn't provide it
+        if since is not None:
+            request['from'] = self.parse_to_int(since / 1000)
             request['to'] = self.sum(request['from'], limit * self.parse_timeframe(timeframe))
-        elif since is not None:
-            request['from'] = int(since / 1000)
-            request['to'] = self.sum(self.seconds(), 1)
-        elif limit is not None:
+        else:
             request['to'] = self.seconds()
             request['from'] = request['to'] - (limit * self.parse_timeframe(timeframe))
-        response = self.v4PublicGetCoinCandle(self.extend(request, params))
-        candles = self.safe_value(response, 'candles', [])
+        response = self.v4PublicNetGetCandles(self.extend(request, params))
+        candles = self.convert_trading_view_to_ohlcv(response, 't', 'o', 'h', 'l', 'c', 'v')
         return self.parse_ohlcvs(candles, market, timeframe, since, limit)
 
-    def fetch_orders(self, symbol=None, since=None, limit=None, params={}):
+    def fetch_orders(self, symbol: Str = None, since: Int = None, limit: Int = None, params={}) -> List[Order]:
+        """
+        fetches information on multiple orders made by the user
+        :param str symbol: unified market symbol of the market orders were made in
+        :param int [since]: the earliest time in ms to fetch orders for
+        :param int [limit]: the maximum number of order structures to retrieve
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns Order[]: a list of `order structures <https://docs.ccxt.com/#/?id=order-structure>`
+        """
         if symbol is None:
             raise ArgumentsRequired(self.id + ' fetchOrders() requires a symbol argument')
         self.load_markets()
@@ -523,7 +745,15 @@ class mercado(Exchange):
         orders = self.safe_value(responseData, 'orders', [])
         return self.parse_orders(orders, market, since, limit)
 
-    def fetch_open_orders(self, symbol=None, since=None, limit=None, params={}):
+    def fetch_open_orders(self, symbol: Str = None, since: Int = None, limit: Int = None, params={}) -> List[Order]:
+        """
+        fetch all unfilled currently open orders
+        :param str symbol: unified market symbol
+        :param int [since]: the earliest time in ms to fetch open orders for
+        :param int [limit]: the maximum number of open order structures to retrieve
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns Order[]: a list of `order structures <https://docs.ccxt.com/#/?id=order-structure>`
+        """
         if symbol is None:
             raise ArgumentsRequired(self.id + ' fetchOpenOrders() requires a symbol argument')
         self.load_markets()
@@ -537,7 +767,15 @@ class mercado(Exchange):
         orders = self.safe_value(responseData, 'orders', [])
         return self.parse_orders(orders, market, since, limit)
 
-    def fetch_my_trades(self, symbol=None, since=None, limit=None, params={}):
+    def fetch_my_trades(self, symbol: Str = None, since: Int = None, limit: Int = None, params={}):
+        """
+        fetch all trades made by the user
+        :param str symbol: unified market symbol
+        :param int [since]: the earliest time in ms to fetch trades for
+        :param int [limit]: the maximum number of trades structures to retrieve
+        :param dict [params]: extra parameters specific to the exchange API endpoint
+        :returns Trade[]: a list of `trade structures <https://docs.ccxt.com/#/?id=trade-structure>`
+        """
         if symbol is None:
             raise ArgumentsRequired(self.id + ' fetchMyTrades() requires a symbol argument')
         self.load_markets()
@@ -551,7 +789,7 @@ class mercado(Exchange):
         ordersRaw = self.safe_value(responseData, 'orders', [])
         orders = self.parse_orders(ordersRaw, market, since, limit)
         trades = self.orders_to_trades(orders)
-        return self.filter_by_symbol_since_limit(trades, symbol, since, limit)
+        return self.filter_by_symbol_since_limit(trades, market['symbol'], since, limit)
 
     def orders_to_trades(self, orders):
         result = []
@@ -564,7 +802,7 @@ class mercado(Exchange):
     def sign(self, path, api='public', method='GET', params={}, headers=None, body=None):
         url = self.urls['api'][api] + '/'
         query = self.omit(params, self.extract_params(path))
-        if api == 'public' or (api == 'v4Public'):
+        if (api == 'public') or (api == 'v4Public') or (api == 'v4PublicNet'):
             url += self.implode_params(path, params)
             if query:
                 url += '?' + self.urlencode(query)
@@ -584,8 +822,15 @@ class mercado(Exchange):
             }
         return {'url': url, 'method': method, 'body': body, 'headers': headers}
 
-    def request(self, path, api='public', method='GET', params={}, headers=None, body=None):
-        response = self.fetch2(path, api, method, params, headers, body)
-        if 'error_message' in response:
+    def handle_errors(self, httpCode, reason, url, method, headers, body, response, requestHeaders, requestBody):
+        if response is None:
+            return None
+        #
+        # todo add a unified standard handleErrors with self.exceptions in describe()
+        #
+        #     {"status":503,"message":"Maintenancing, try again later","result":null}
+        #
+        errorMessage = self.safe_value(response, 'error_message')
+        if errorMessage is not None:
             raise ExchangeError(self.id + ' ' + self.json(response))
-        return response
+        return None

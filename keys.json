@@ -1,32 +1,10 @@
 {
-    "bcex":          { "skip": true },
-    "bibox":         { "has": { "fetchCurrencies": false }},
-    "bitforex"  :    { "skip": true },
-    "btcmarkets":    { "skip": true },
-    "btctradeua":    { "skip": true },
-    "btcturk":       { "skip": true },
-    "buda":          { "skip": true },
-    "coinegg":       { "skip": true },
-    "coinfalcon":    { "skip": true },
-    "coingi":        { "skip": true },
-    "coinmarketcap": { "skip": true },
-    "coinmate":      { "skip": true },
-    "coss":          { "skip": true },
-    "digifinex":     { "skip": true },
-    "dsx":           { "skip": true },
-    "eterbase":      { "skip": true },
-    "ethfinex":      { "skip": true },
-    "exx":           { "skip": true },
-    "fcoin":         { "skip": true },
-    "fcoinjp":       { "skip": true },
-    "flowbtc":       { "skip": true },
-    "gemini":        { "skip": true },
-    "luno":          { "skip": true },
-    "mixcoins":      { "skip": true },
-    "mercado":       { "skip": true },
-    "rightbtc":      { "skip": true },
-    "stronghold":    { "skip": true },
-    "tidebit":       { "skip": true },
-    "vaultoro":      { "skip": true },
-    "xbtce":         { "skip": true }
+    "sampleExchange" : {
+        "httpProxy": "012.345.678.910",
+        "apiKey": "xxxxxxxx",
+        "secret": "xxxxxxxx",
+        "options": {
+            "defaultType": "spot"
+        }
+    }
 }

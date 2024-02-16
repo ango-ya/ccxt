@@ -24,7 +24,6 @@ When asking a question:
 
 - **DO NOT POST YOUR `apiKey` AND `secret`!** Keep them safe (remove them before posting)!
 
-
 ## I am calling a method and I get an error, what am I doing wrong?
 
 You're not reporting the issue properly ) Please, help the community to help you ) Read this and follow the steps: https://github.com/ccxt/ccxt/blob/master/CONTRIBUTING.md#how-to-submit-an-issue. Once again, your code to reproduce the issue and your verbose request and response **ARE REQUIRED**. *Just the error traceback, or just the response, or just the request, or just the code – is not enough!*
@@ -49,6 +48,12 @@ We don't give promises or estimates on the open-source work. The reasoning behin
 
 Again, we can't promise on the dates for adding this or that exchange, due to reasons outlined above. The answer will always remain the same: _as soon as we can_.
 
+## How long should I wait for a feature to be added? I need to decide whether to implement it myself or to wait for the CCXT Dev Team to implement it for me.
+
+Please, go for implemeting it yourself, do not wait for us. We will add it as soon as we can. Also, your contributions are very welcome:
+
+- https://github.com/ccxt/ccxt/blob/master/CONTRIBUTING.md#how-to-contribute-code
+
 ## What's your progress on adding the feature `foo` that was requested earlier? How do you do implementing exchange `bar`?
 
 This type of questions is usually a waste of time, because answering it usually requires too much time for context-switching, and it often takes more time to answer this question, than to actually satisfy the request with code for a new feature or a new exchange. The progress of this open-source project is also open, so, whenever you're wondering how it is doing, take a look into commit history.
@@ -61,11 +66,11 @@ If it is not merged, it means that the PR contains errors, that should be fixed 
 
 Unfortunately, we don't always have the time to quickly list out each and every single error in the code that prevents it from merging. It is often easier and faster to just go and fix the error rather than explain what one should do to fix it. Most of them are already outlined in the [CONTRIBUTING guidelines](https://github.com/ccxt/ccxt/blob/master/CONTRIBUTING.md#derived-exchange-classes). The main rule of thumb is to follow **all guidelines literally**.
 
-## Hey! The fix you've uploaded is in JS, would you fix Python / PHP as well, please?
+## Hey! The fix you've uploaded is in TypeScript, would you fix JavaScript / Python / PHP as well, please?
 
-Our build system generates exchange-specific Python and PHP code for us automatically, so it is transpiled from JS, and there's no need to fix all languages separately one by one.
+Our build system generates exchange-specific JavaScript, Python and PHP code for us automatically, so it is transpiled from TypeScript, and there's no need to fix all languages separately one by one.
 
-Thus, if it is fixed in JS, it is fixed in Python pip and PHP Composer as well. The automatic build usually takes 15-20 minutes. Just upgrade your version with `pip` or `composer` **after the new version arrives** and you'll be fine.
+Thus, if it is fixed in TypeScript, it is fixed in JavaScript NPM, Python pip and PHP Composer as well. The automatic build usually takes 15-20 minutes. Just upgrade your version with `npm`, `pip` or `composer` **after the new version arrives** and you'll be fine.
 
 More about it here:
 

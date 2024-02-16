@@ -1,13 +1,19 @@
-'use strict';
+import { PAD_WITH_ZERO } from '../../js/src/base/functions/number.js';
 
 //-----------------------------------------------------------------------------
 
-const ccxt         = require ('../../ccxt.js')
-    , fs           = require ('fs')
-    , path         = require ('path')
-    , ansi         = require ('ansicolor').nice
-    , asTable      = require ('as-table').configure ({
+import ccxt from '../../js/ccxt.js';
 
+import fs from 'fs';
+import path from 'path';
+import ansicolor from 'ansicolor';
+import asTable from 'as-table';
+import ololog from 'ololog';
+
+ansicolor.nice
+//-----------------------------------------------------------------------------
+
+const table = asTable.configure ({
         delimiter: '|'.lightGray.dim,
         right: true,
         title: x => String (x).lightGray,
@@ -18,9 +24,9 @@ const ccxt         = require ('../../ccxt.js')
             }
             return String (x)
         }
-    })
-    , { ROUND, DECIMAL_PLACES, decimalToPrecision, omit, unique, flatten, extend } = ccxt
-    , log = require ('ololog').handleNodeErrors ().noLocate.unlimited
+    }),
+    { ROUND, DECIMAL_PLACES, decimalToPrecision, omit, unique, flatten, extend } = ccxt,
+    log = ololog.handleNodeErrors ().noLocate.unlimited;
 
 //-----------------------------------------------------------------------------
 
@@ -52,16 +58,17 @@ if (!(keysGlobalExists || keysLocalExists)) {
 
 let globalKeysFile = keysGlobalExists ? keysGlobal : false
 let localKeysFile = keysLocalExists ? keysLocal : globalKeysFile
-let settings = localKeysFile ? (require (localKeysFile) || {}) : {}
+const dynamicLocalKeysFile = JSON.parse (fs.readFileSync (localKeysFile));
+let settings = localKeysFile ? (dynamicLocalKeysFile || {}) : {}
 
 //-----------------------------------------------------------------------------
 
 const timeout = 30000
-const enableRateLimit = true
 
 const coins = [
     'BTC',
     'ETH',
+    'BNB',
     'EUR',
     'LTC',
     'USD',
@@ -71,6 +78,10 @@ const coins = [
     'XRP',
     'DOGE',
     'YFI',
+    'LINK',
+    'XLM',
+    'ADA',
+    'SOL',
 ]
 
 function initializeAllExchanges () {
@@ -80,12 +91,12 @@ function initializeAllExchanges () {
         'bitsane',
         'chbtc',
         'coinbasepro',
-        'coinmarketcap',
         'jubi',
         'hitbtc',
         'bitstamp1',
         'bitfinex2',
         'upbit',
+        'huobipro',
     ]
     const result = []
     ccxt.exchanges.filter (exchangeId => (!ignore.includes (exchangeId))).forEach (exchangeId => {
@@ -94,7 +105,6 @@ function initializeAllExchanges () {
             const exchange = new ccxt[exchangeId] ({
                 timeout,
                 verbose,
-                enableRateLimit,
                 ... (settings[exchangeId] || {})
             })
             exchange.checkRequiredCredentials ()
@@ -110,12 +120,12 @@ function initializeAllExchanges () {
     return result
 }
 
-;(async () => {
+(async () => {
 
     const exchanges = initializeAllExchanges ()
     console.log (exchanges.map (exchange => exchange.id))
     let results = []
-    const priceOracle = new ccxt.bitfinex ({ enableRateLimit })
+    const priceOracle = new ccxt.gate ()
     const tickers = await priceOracle.fetchTickers ()
     await Promise.all (exchanges.map ((exchange) => (async function () {
 
@@ -194,14 +204,16 @@ function initializeAllExchanges () {
         })
         return extend ({
             'exchange': result.exchange,
-            '$': decimalToPrecision (value, ROUND, 8, DECIMAL_PLACES),
+            '$': decimalToPrecision (value, ROUND, 2, DECIMAL_PLACES, PAD_WITH_ZERO),
         }, result);
     })
 
-    const table = asTable (results)
+    const tableResults = table (results)
 
-    log (table)
+    log (tableResults)
 
     log.green ('Currencies:', currencies)
+
+    console.log (new Date ())
 
 }) ()

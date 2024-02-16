@@ -1,7 +1,6 @@
-"use strict"
 
-const { readFileSync } = require ('fs')
-    , { overwriteFile } = require ('./fs')
+import { readFileSync } from 'fs';
+import { overwriteFile } from './fsLocal.js';
 
 const manual = './wiki/Manual.md'
 let file = readFileSync (manual).toString ()
@@ -29,16 +28,18 @@ function replaceSubLinks () {
     const subLevelLinksRegex = /^## (.+)/mg
     for (let i = 0; i < topLevelLinks.length - 1; i++) {
         const start = '# ' + topLevelLinks[i]
-        const blockRegex = new RegExp ('# ' + topLevelLinks[i] + '([\\s\\S]+)# ' + topLevelLinks[i+1])
+        const blockRegex = new RegExp ('# ' + topLevelLinks[i] + '([\\s\\S]+?)# ' + topLevelLinks[i+1])
         const block = file.match (blockRegex)[1]
         const links = []
         let link
         while (link = subLevelLinksRegex.exec (block)) {
             links.push (link[1])
         }
-        const formatted = toLinks (links)
-        const [ before, after ] = file.split (new RegExp ('^' + start + '$', 'm'))
-        file = before + start + '\n\n' + formatted + '\n' + after
+        if (links.length) {
+            const formatted = toLinks (links)
+            const [ before, after ] = file.split (new RegExp ('^' + start + '$', 'm'))
+            file = before + start + '\n\n' + formatted + '\n' + after
+        }
     }
 }
 

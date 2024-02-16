@@ -1,17 +1,12 @@
 ccxt.egg-info/
-build/**/*
-!build/countries.js
-!build/export-exchanges.js
-!build/fs.js
-!build/transpile.js
-!build/vss.js
-!build/cleanup-old-tags.js
+build/
 examples/
 node_modules/
 python/
 php/
+cs/
+c#/
 tmp/
-doc/
 vendor/
 wiki/
 .tox/
@@ -21,6 +16,7 @@ wiki/
 .travis.yml
 appveyor.yml
 *.php
+*.cs
 *.py
 *.pyc
 ccxt.sublime-workspace
@@ -39,3 +35,11 @@ docker-compose.yml
 phpunit.xml.dist
 setup.cfg
 exchanges.cfg
+
+# TS sources and JS tests
+/ts/
+/js/src/test/
+/js/src/pro/test/
+
+# Ignore cjs bundle
+dist/ccxt.bundle.cjs
