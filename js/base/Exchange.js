@@ -756,6 +756,14 @@ module.exports = class Exchange {
         return signature['r'] + this.remove0xPrefix (signature['s']) + this.binaryToBase16 (this.numberToBE (signature['v']))
     }
 
+    parseToInt(number) {
+        // Solve Common parseInt misuse ex: parseInt ((since / 1000).toString ())
+        // using a number as parameter which is not valid in ts
+        const stringifiedNumber = number.toString();
+        const convertedNumber = parseFloat(stringifiedNumber);
+        return parseInt(convertedNumber);
+    }
+
     parseNumber (value, d = undefined) {
         if (value === undefined) {
             return d
