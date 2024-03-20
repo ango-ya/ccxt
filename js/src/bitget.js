@@ -6,7 +6,7 @@
 
 //  ---------------------------------------------------------------------------
 import Exchange from './abstract/bitget.js';
-import { ExchangeError, ExchangeNotAvailable, NotSupported, OnMaintenance, ArgumentsRequired, BadRequest, AccountSuspended, InvalidAddress, PermissionDenied, DDoSProtection, InsufficientFunds, InvalidNonce, CancelPending, InvalidOrder, OrderNotFound, AuthenticationError, RequestTimeout, BadSymbol, RateLimitExceeded } from './base/errors.js';
+import { ExchangeError, ExchangeNotAvailable, NotSupported, OnMaintenance, ArgumentsRequired, BadRequest, AccountSuspended, InvalidAddress, PermissionDenied, DDoSProtection, InsufficientFunds, InvalidNonce, CancelPending, InvalidOrder, OrderNotFound, AuthenticationError, RequestTimeout, BadSymbol, RateLimitExceeded, InvalidUsdOrder, InvalidRangeOrder } from './base/errors.js';
 import { Precise } from './base/Precise.js';
 import { TICK_SIZE } from './base/functions/number.js';
 import { sha256 } from './static_dependencies/noble-hashes/sha256.js';
@@ -1217,10 +1217,14 @@ export default class bitget extends Exchange {
                     '40714': ExchangeError,
                     '40768': OrderNotFound,
                     '41114': OnMaintenance,
+                    '43006': InvalidOrder,
+                    '43008': InvalidRangeOrder, // in sell Order
+                    '43009': InvalidRangeOrder, // in buy Order
                     '43011': InvalidOrder,
+                    '43012': InvalidOrder,
                     '43025': InvalidOrder,
+                    '45110': InvalidUsdOrder,
                     '43115': OnMaintenance,
-                    '45110': InvalidOrder,
                     // spot
                     'invalid sign': AuthenticationError,
                     'invalid currency': BadSymbol,
