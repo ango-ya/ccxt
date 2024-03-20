@@ -54,6 +54,7 @@ export default class coincheck extends Exchange {
                 'fetchOpenInterestHistory': false,
                 'fetchOpenOrders': true,
                 'fetchOrderBook': true,
+                'fetchOrderTrades': true,
                 'fetchPosition': false,
                 'fetchPositionMode': false,
                 'fetchPositions': false,
@@ -69,6 +70,7 @@ export default class coincheck extends Exchange {
                 'setMarginMode': false,
                 'setPositionMode': false,
                 'ws': true,
+                'withdraw': true,
             },
             'urls': {
                 'logo': 'https://user-images.githubusercontent.com/51840849/87182088-1d6d6380-c2ec-11ea-9c64-8ab9f9b289f5.jpg',
@@ -486,6 +488,16 @@ export default class coincheck extends Exchange {
         const transactions = this.safeValue(response, 'data', []);
         return this.parseTrades(transactions, market, since, limit);
     }
+    async fetchOrderTrades (id, symbol, since = undefined, limit = undefined, params = {}) {
+        await this.loadMarkets ();
+        const request = {};
+        request['limit'] = 100;
+        request['order'] = 'desc';
+        const response = await this.privateGetExchangeOrdersTransactionsPagination (this.extend (request, params));
+        const transactions = this.safeValue (response, 'transactions', []);
+        const trades = this.parseTrades (transactions);
+        return trades.filter ((trade) => trade.order === id);
+    }
     async fetchTrades(symbol, since = undefined, limit = undefined, params = {}) {
         /**
          * @method
@@ -708,6 +720,28 @@ export default class coincheck extends Exchange {
         // }
         const data = this.safeValue(response, 'data', []);
         return this.parseTransactions(data, currency, since, limit, { 'type': 'withdrawal' });
+    }
+    async withdraw(code = undefined, amount = undefined, address = undefined, tag = undefined, params = {}) {
+        await this.loadMarkets();
+        this.checkAddress(address);
+        const currency = this.currency(code);
+
+        if (currency.id !== 'btc') {
+            throw new BadSymbol (this.id + 'withdraw () currently supports BTC only');
+        }
+
+        const request = {
+            'amount': amount.toString(),
+            'address': address,
+        };
+        if (tag !== undefined) {
+            request['tag'] = tag;
+        }
+        const response = await this.privatePostSendMoney(this.extend(request, params));
+        return {
+            'id': response['id'],
+            'info': response,
+        };
     }
     parseTransactionStatus(status) {
         const statuses = {
