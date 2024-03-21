@@ -76,6 +76,12 @@ declare class OrderNotFillable extends InvalidOrder {
 declare class DuplicateOrderId extends InvalidOrder {
     constructor(message: any);
 }
+declare class InvalidUsdOrder extends InvalidOrder {
+    constructor(message: any);
+}
+declare class InvalidRangeOrder extends InvalidOrder {
+    constructor(message: any);
+}
 declare class NotSupported extends ExchangeError {
     constructor(message: any);
 }
@@ -128,6 +134,8 @@ declare const errors: {
     OrderImmediatelyFillable: typeof OrderImmediatelyFillable;
     OrderNotFillable: typeof OrderNotFillable;
     DuplicateOrderId: typeof DuplicateOrderId;
+    InvalidUsdOrder: typeof InvalidUsdOrder;
+    InvalidRangeOrder: typeof InvalidRangeOrder;
     NotSupported: typeof NotSupported;
     NetworkError: typeof NetworkError;
     DDoSProtection: typeof DDoSProtection;
@@ -144,5 +152,5 @@ declare const errors: {
     OperationFailed: typeof OperationFailed;
     ProxyError: typeof ProxyError;
 };
-export { BaseError, ExchangeClosedByUser, ExchangeError, PermissionDenied, AccountNotEnabled, AccountSuspended, ArgumentsRequired, BadRequest, BadSymbol, MarginModeAlreadySet, BadResponse, NullResponse, InsufficientFunds, InvalidAddress, InvalidOrder, OrderNotFound, OrderNotCached, CancelPending, OrderImmediatelyFillable, OrderNotFillable, DuplicateOrderId, NotSupported, NetworkError, DDoSProtection, RateLimitExceeded, ExchangeNotAvailable, OnMaintenance, InvalidNonce, RequestTimeout, AuthenticationError, AddressPending, ContractUnavailable, NoChange, OperationRejected, OperationFailed, ProxyError };
+export { BaseError, ExchangeClosedByUser, ExchangeError, PermissionDenied, AccountNotEnabled, AccountSuspended, ArgumentsRequired, BadRequest, BadSymbol, MarginModeAlreadySet, BadResponse, NullResponse, InsufficientFunds, InvalidAddress, InvalidOrder, OrderNotFound, OrderNotCached, CancelPending, OrderImmediatelyFillable, OrderNotFillable, DuplicateOrderId, InvalidUsdOrder, InvalidRangeOrder, NotSupported, NetworkError, DDoSProtection, RateLimitExceeded, ExchangeNotAvailable, OnMaintenance, InvalidNonce, RequestTimeout, AuthenticationError, AddressPending, ContractUnavailable, NoChange, OperationRejected, OperationFailed, ProxyError };
 export default errors;

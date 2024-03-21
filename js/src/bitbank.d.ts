@@ -8,6 +8,7 @@ export default class bitbank extends Exchange {
     describe(): any;
     fetchMarkets(params?: {}): Promise<import("./base/types.js").MarketInterface[]>;
     parseMarket(entry: any): Market;
+    callLoadMarkets(coinListData?: any, marketData?: any): Promise<void>;
     parseTicker(ticker: any, market?: Market): Ticker;
     fetchTicker(symbol: string, params?: {}): Promise<Ticker>;
     fetchOrderBook(symbol: string, limit?: Int, params?: {}): Promise<OrderBook>;
