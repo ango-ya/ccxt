@@ -800,7 +800,7 @@ export default class gate extends Exchange {
                     'ORDER_CLOSED': InvalidOrder,
                     'ORDER_CANCELLED': InvalidOrder,
                     'QUANTITY_NOT_ENOUGH': InvalidOrder,
-                    'BALANCE_NOT_ENOUGH': InsufficientFunds,
+                    'BALANCE_NOT_ENOUGH': InvalidOrder,
                     'MARGIN_NOT_SUPPORTED': InvalidOrder,
                     'MARGIN_BALANCE_NOT_ENOUGH': InsufficientFunds,
                     'AMOUNT_TOO_LITTLE': InvalidOrder,
