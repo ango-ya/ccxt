@@ -28,7 +28,7 @@ export default class bitbank extends Exchange {
                 'future': false,
                 'option': false,
                 'addMargin': false,
-                callLoadMarkets: true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': false,
                 'cancelOrder': true,
                 'closeAllPositions': false,

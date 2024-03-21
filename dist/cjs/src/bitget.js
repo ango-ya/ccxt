@@ -32,6 +32,7 @@ class bitget extends bitget$1 {
                 'addMargin': true,
                 'borrowCrossMargin': true,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,
@@ -127,7 +128,6 @@ class bitget extends bitget$1 {
                 'signIn': false,
                 'transfer': true,
                 'withdraw': true,
-                'callLoadMarkets': true,
             },
             'timeframes': {
                 '1m': '1m',

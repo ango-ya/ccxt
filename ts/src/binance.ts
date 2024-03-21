@@ -37,7 +37,7 @@ export default class binance extends Exchange {
                 'addMargin': true,
                 'borrowCrossMargin': true,
                 'borrowIsolatedMargin': true,
-                callLoadMarkets: true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,  // contract only

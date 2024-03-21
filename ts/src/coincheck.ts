@@ -28,7 +28,7 @@ export default class coincheck extends Exchange {
                 'future': false,
                 'option': false,
                 'addMargin': false,
-                callLoadMarkets: true,
+                'callLoadMarkets': true,
                 'cancelOrder': true,
                 'closeAllPositions': false,
                 'closePosition': false,

@@ -81,6 +81,7 @@ export default class gate extends Exchange {
                 'addMargin': true,
                 'borrowCrossMargin': true,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'createMarketBuyOrderWithCost': true,
@@ -159,7 +160,6 @@ export default class gate extends Exchange {
                 'signIn': false,
                 'transfer': true,
                 'withdraw': true,
-                'callLoadMarkets': true,
             },
             'api': {
                 'public': {

@@ -35,6 +35,7 @@ export default class bitget extends Exchange {
                 'addMargin': true,
                 'borrowCrossMargin': true,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,
@@ -130,7 +131,6 @@ export default class bitget extends Exchange {
                 'signIn': false,
                 'transfer': true,
                 'withdraw': true,
-                'callLoadMarkets': true,
             },
             'timeframes': {
                 '1m': '1m',

@@ -26,6 +26,7 @@ class coincheck extends coincheck$1 {
                 'future': false,
                 'option': false,
                 'addMargin': false,
+                'callLoadMarkets': true,
                 'cancelOrder': true,
                 'closeAllPositions': false,
                 'closePosition': false,
@@ -166,6 +167,16 @@ class coincheck extends coincheck$1 {
                 'broad': {},
             },
         });
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name gate#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the gateio api endpoint
+         * @param {marketData} data extra parameters specific to the gateio api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     parseBalance(response) {
         const result = { 'info': response };

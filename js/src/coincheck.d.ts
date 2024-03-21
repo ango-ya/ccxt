@@ -6,6 +6,7 @@ import type { Balances, Currency, Int, Market, Order, OrderBook, OrderSide, Orde
  */
 export default class coincheck extends Exchange {
     describe(): any;
+    callLoadMarkets(coinListData?: any, marketData?: any): Promise<void>;
     parseBalance(response: any): Balances;
     fetchBalance(params?: {}): Promise<Balances>;
     fetchOpenOrders(symbol?: Str, since?: Int, limit?: Int, params?: {}): Promise<Order[]>;

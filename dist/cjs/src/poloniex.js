@@ -29,6 +29,7 @@ class poloniex extends poloniex$1 {
                 'swap': false,
                 'future': false,
                 'option': false,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'createDepositAddress': true,
@@ -71,7 +72,6 @@ class poloniex extends poloniex$1 {
                 'fetchWithdrawals': true,
                 'transfer': true,
                 'withdraw': true,
-                'callLoadMarkets': true,
             },
             'timeframes': {
                 '1m': 'MINUTE_1',

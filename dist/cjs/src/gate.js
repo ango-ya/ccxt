@@ -78,6 +78,7 @@ class gate extends gate$1 {
                 'addMargin': true,
                 'borrowCrossMargin': true,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'createMarketBuyOrderWithCost': true,
@@ -156,7 +157,6 @@ class gate extends gate$1 {
                 'signIn': false,
                 'transfer': true,
                 'withdraw': true,
-                'callLoadMarkets': true,
             },
             'api': {
                 'public': {
