@@ -423,6 +423,8 @@ export {
     OrderImmediatelyFillable,
     OrderNotFillable,
     DuplicateOrderId,
+    InvalidUsdOrder,
+    InvalidRangeOrder,
     NotSupported,
     NetworkError,
     DDoSProtection,
