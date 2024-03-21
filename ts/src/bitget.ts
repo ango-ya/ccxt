@@ -129,6 +129,7 @@ export default class bitget extends Exchange {
                 'signIn': false,
                 'transfer': true,
                 'withdraw': true,
+                'callLoadMarkets': true,
             },
             'timeframes': {
                 '1m': '1m',
@@ -1387,6 +1388,16 @@ export default class bitget extends Exchange {
         });
     }
 
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name bitget#callLoadMarkets
+         * @description call fetch currencies and fetch markets
+         * @param {object} data extra parameters specific to the bitget api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
+    }
+
     setSandboxMode (enabled) {
         this.options['sandboxMode'] = enabled;
     }
@@ -2186,7 +2197,6 @@ export default class bitget extends Exchange {
         if (chain === undefined) {
             throw new ArgumentsRequired (this.id + ' withdraw() requires a chain parameter or a network parameter');
         }
-        await this.loadMarkets ();
         const currency = this.currency (code);
         const networkId = this.networkCodeToId (chain);
         const request = {
@@ -2647,7 +2657,6 @@ export default class bitget extends Exchange {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/#/?id=ticker-structure}
          */
-        await this.loadMarkets ();
         const sandboxMode = this.safeValue (this.options, 'sandboxMode', false);
         let market = undefined;
         if (sandboxMode) {
@@ -3364,7 +3373,6 @@ export default class bitget extends Exchange {
          * @param {string} [params.productType] *contract only* 'USDT-FUTURES', 'USDC-FUTURES', 'COIN-FUTURES', 'SUSDT-FUTURES', 'SUSDC-FUTURES' or 'SCOIN-FUTURES'
          * @returns {object} a [balance structure]{@link https://docs.ccxt.com/#/?id=balance-structure}
          */
-        await this.loadMarkets ();
         const request = {};
         let marketType = undefined;
         let marginMode = undefined;
@@ -4037,7 +4045,6 @@ export default class bitget extends Exchange {
          * @param {boolean} [params.oneWayMode] *swap and future only* required to set this to true in one_way_mode and you can leave this as undefined in hedge_mode, can adjust the mode using the setPositionMode() method
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets ();
         const market = this.market (symbol);
         const marginParams = this.handleMarginModeAndParams ('createOrder', params);
         const marginMode = marginParams[0];
@@ -4591,7 +4598,6 @@ export default class bitget extends Exchange {
         if (symbol === undefined) {
             throw new ArgumentsRequired (this.id + ' cancelOrder() requires a symbol argument');
         }
-        await this.loadMarkets ();
         const sandboxMode = this.safeValue (this.options, 'sandboxMode', false);
         let market = undefined;
         if (sandboxMode) {
@@ -4912,7 +4918,6 @@ export default class bitget extends Exchange {
         if (symbol === undefined) {
             throw new ArgumentsRequired (this.id + ' fetchOrder() requires a symbol argument');
         }
-        await this.loadMarkets ();
         const sandboxMode = this.safeValue (this.options, 'sandboxMode', false);
         let market = undefined;
         if (sandboxMode) {
