@@ -31,6 +31,7 @@ export default class poloniex extends Exchange {
                 'swap': false,
                 'future': false,
                 'option': false,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'createDepositAddress': true,
@@ -73,7 +74,6 @@ export default class poloniex extends Exchange {
                 'fetchWithdrawals': true,
                 'transfer': true,
                 'withdraw': true,
-                'callLoadMarkets': true,
             },
             'timeframes': {
                 '1m': 'MINUTE_1',

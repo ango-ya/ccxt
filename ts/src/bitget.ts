@@ -34,6 +34,7 @@ export default class bitget extends Exchange {
                 'addMargin': true,
                 'borrowCrossMargin': true,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,
@@ -129,7 +130,6 @@ export default class bitget extends Exchange {
                 'signIn': false,
                 'transfer': true,
                 'withdraw': true,
-                'callLoadMarkets': true,
             },
             'timeframes': {
                 '1m': '1m',
@@ -1392,14 +1392,14 @@ export default class bitget extends Exchange {
         });
     }
 
-    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+    async callLoadMarkets (coinListData = undefined, marketData = undefined) {
         /**
          * @method
          * @name bitget#callLoadMarkets
          * @description call fetch currencies and fetch markets
          * @param {object} data extra parameters specific to the bitget api endpoint
          */
-        await this.loadMarkets(coinListData, marketData);
+        await this.loadMarkets (coinListData, marketData);
     }
 
     setSandboxMode (enabled) {

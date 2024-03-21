@@ -71,6 +71,7 @@ class poloniex extends poloniex$1 {
                 'fetchWithdrawals': true,
                 'transfer': true,
                 'withdraw': true,
+                'callLoadMarkets': true,
             },
             'timeframes': {
                 '1m': 'MINUTE_1',
@@ -375,6 +376,15 @@ class poloniex extends poloniex$1 {
             },
         });
     }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name poloniex#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the poloniex api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
+    }
     parseOHLCV(ohlcv, market = undefined) {
         //
         //     [
@@ -462,8 +472,8 @@ class poloniex extends poloniex$1 {
         //
         return this.parseOHLCVs(response, market, timeframe, since, limit);
     }
-    async loadMarkets(reload = false, params = {}) {
-        const markets = await super.loadMarkets(reload, params);
+    async loadMarkets(coinListData = undefined, marketData = undefined, reload = false, params = {}) {
+        const markets = await super.loadMarkets(coinListData, marketData, reload, params);
         const currenciesByNumericId = this.safeValue(this.options, 'currenciesByNumericId');
         if ((currenciesByNumericId === undefined) || reload) {
             this.options['currenciesByNumericId'] = this.indexBy(this.currencies, 'numericId');
@@ -815,7 +825,6 @@ class poloniex extends poloniex$1 {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/#/?id=ticker-structure}
          */
-        await this.loadMarkets();
         const market = this.market(symbol);
         const request = {
             'symbol': market['id'],
@@ -1259,7 +1268,6 @@ class poloniex extends poloniex$1 {
          * @param {float} [params.cost] *spot market buy only* the quote quantity that can be used as an alternative for the amount
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets();
         const market = this.market(symbol);
         if (!market['spot']) {
             throw new errors.NotSupported(this.id + ' createOrder() does not support ' + market['type'] + ' orders, only spot orders are accepted');
@@ -1406,7 +1414,6 @@ class poloniex extends poloniex$1 {
         // @param {boolean} [params.trigger] true if canceling a trigger order
         // @returns {object} An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
         //
-        await this.loadMarkets();
         const request = {};
         const clientOrderId = this.safeValue(params, 'clientOrderId');
         if (clientOrderId !== undefined) {
@@ -1498,7 +1505,6 @@ class poloniex extends poloniex$1 {
          * @param {boolean} [params.trigger] true if fetching a trigger order
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets();
         id = id.toString();
         const request = {
             'id': id,
@@ -1557,7 +1563,6 @@ class poloniex extends poloniex$1 {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object[]} a list of [trade structures]{@link https://docs.ccxt.com/#/?id=trade-structure}
          */
-        await this.loadMarkets();
         const request = {
             'id': id,
         };
@@ -1615,7 +1620,6 @@ class poloniex extends poloniex$1 {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} a [balance structure]{@link https://docs.ccxt.com/#/?id=balance-structure}
          */
-        await this.loadMarkets();
         const request = {
             'accountType': 'SPOT',
         };
@@ -1896,7 +1900,6 @@ class poloniex extends poloniex$1 {
          */
         [tag, params] = this.handleWithdrawTagAndParams(tag, params);
         this.checkAddress(address);
-        await this.loadMarkets();
         const currency = this.currency(code);
         const request = {
             'currency': currency['id'],

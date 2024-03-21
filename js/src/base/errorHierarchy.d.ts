@@ -31,6 +31,8 @@ declare const errorHierarchy: {
                 OrderNotFillable: {};
                 DuplicateOrderId: {};
                 ContractUnavailable: {};
+                InvalidUsdOrder: {};
+                InvalidRangeOrder: {};
             };
             NotSupported: {};
             ProxyError: {};
