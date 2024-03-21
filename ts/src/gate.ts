@@ -6012,6 +6012,7 @@ export default class gate extends Exchange {
                 'Timestamp': timestampString,
                 'SIGN': signature,
                 'Content-Type': 'application/json',
+                'X-Gate-Channel-Id': url === 'https://api.gateio.ws/api/v4/spot/orders' ? 'xgain' : undefined,
             };
         }
         return { 'url': url, 'method': method, 'body': body, 'headers': headers };
