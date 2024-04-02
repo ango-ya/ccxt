@@ -1206,7 +1206,7 @@ class xt extends xt$1 {
             'baseId': baseId,
             'quoteId': quoteId,
             'settleId': settleId,
-            'type': type,
+            'type': type || 'future' || 'swap',
             'spot': spot,
             'margin': undefined,
             'swap': swap,
@@ -1226,8 +1226,8 @@ class xt extends xt$1 {
             'precision': {
                 'price': this.parseNumber(this.parsePrecision(this.safeString(market, 'pricePrecision'))),
                 'amount': this.parseNumber(this.parsePrecision(this.safeString(market, 'quantityPrecision'))),
-                'base': this.parseNumber(this.parsePrecision(this.safeString(market, 'baseCoinPrecision'))),
-                'quote': this.parseNumber(this.parsePrecision(this.safeString(market, 'quoteCoinPrecision'))),
+                // 'base': this.parseNumber (this.parsePrecision (this.safeString (market, 'baseCoinPrecision'))),
+                // 'quote': this.parseNumber (this.parsePrecision (this.safeString (market, 'quoteCoinPrecision'))),
             },
             'limits': {
                 'leverage': {
@@ -1248,126 +1248,125 @@ class xt extends xt$1 {
                 },
             },
             'info': market,
+            'created': undefined,
         };
     }
-    async fetchOHLCV(symbol, timeframe = '1m', since = undefined, limit = undefined, params = {}) {
-        /**
-         * @method
-         * @name xt#fetchOHLCV
-         * @description fetches historical candlestick data containing the open, high, low, and close price, and the volume of a market
-         * @see https://doc.xt.com/#market4kline
-         * @see https://doc.xt.com/#futures_quotesgetKLine
-         * @param {string} symbol unified symbol of the market to fetch OHLCV data for
-         * @param {string} timeframe the length of time each candle represents
-         * @param {int|undefined} since timestamp in ms of the earliest candle to fetch
-         * @param {int|undefined} limit the maximum amount of candles to fetch
-         * @param {object} params extra parameters specific to the xt api endpoint
-         * @returns {[[int]]} A list of candles ordered as timestamp, open, high, low, close, volume
-         */
-        await this.loadMarkets();
-        const market = this.market(symbol);
-        const request = {
-            'symbol': market['id'],
-            'interval': this.safeString(this.timeframes, timeframe, timeframe),
-        };
-        if (since !== undefined) {
-            request['startTime'] = since;
-        }
-        if (limit !== undefined) {
-            request['limit'] = limit;
-        }
-        let response = undefined;
-        if (market['linear']) {
-            response = await this.publicLinearGetFutureMarketV1PublicQKline(this.extend(request, params));
-        }
-        else if (market['inverse']) {
-            response = await this.publicInverseGetFutureMarketV1PublicQKline(this.extend(request, params));
-        }
-        else {
-            response = await this.publicSpotGetKline(this.extend(request, params));
-        }
-        //
-        // spot
-        //
-        //     {
-        //         "rc": 0,
-        //         "mc": "SUCCESS",
-        //         "ma": [],
-        //         "result": [
-        //             {
-        //                 "t": 1678167720000,
-        //                 "o": "22467.85",
-        //                 "c": "22465.87",
-        //                 "h": "22468.86",
-        //                 "l": "22465.21",
-        //                 "q": "1.316656",
-        //                 "v": "29582.73018498"
-        //             },
-        //         ]
-        //     }
-        //
-        // swap and future
-        //
-        //     {
-        //         "returnCode": 0,
-        //         "msgInfo": "success",
-        //         "error": null,
-        //         "result": [
-        //             {
-        //                 "s": "btc_usdt",
-        //                 "p": "btc_usdt",
-        //                 "t": 1678168020000,
-        //                 "o": "22450.0",
-        //                 "c": "22441.5",
-        //                 "h": "22450.0",
-        //                 "l": "22441.5",
-        //                 "a": "312931",
-        //                 "v": "702461.58895"
-        //             },
-        //         ]
-        //     }
-        //
-        const ohlcvs = this.safeValue(response, 'result', []);
-        return this.parseOHLCVs(ohlcvs, market, timeframe, since, limit);
-    }
-    parseOHLCV(ohlcv, market = undefined) {
-        //
-        // spot
-        //
-        //     {
-        //         "t": 1678167720000,
-        //         "o": "22467.85",
-        //         "c": "22465.87",
-        //         "h": "22468.86",
-        //         "l": "22465.21",
-        //         "q": "1.316656",
-        //         "v": "29582.73018498"
-        //     }
-        //
-        // swap and future
-        //
-        //     {
-        //         "s": "btc_usdt",
-        //         "p": "btc_usdt",
-        //         "t": 1678168020000,
-        //         "o": "22450.0",
-        //         "c": "22441.5",
-        //         "h": "22450.0",
-        //         "l": "22441.5",
-        //         "a": "312931",
-        //         "v": "702461.58895"
-        //     }
-        //
-        const volumeIndex = (market['inverse']) ? 'v' : 'a';
-        return [
-            this.safeInteger(ohlcv, 't'),
-            this.safeNumber(ohlcv, 'o'),
-            this.safeNumber(ohlcv, 'h'),
-            this.safeNumber(ohlcv, 'l'),
-            this.safeNumber(ohlcv, 'c'),
-            this.safeNumber2(ohlcv, volumeIndex, 'v'),
-        ];
-    }
+    // async fetchOHLCV (symbol: string, timeframe = '1m', since: Int = undefined, limit: Int = undefined, params = {}) {
+    //     /**
+    //      * @method
+    //      * @name xt#fetchOHLCV
+    //      * @description fetches historical candlestick data containing the open, high, low, and close price, and the volume of a market
+    //      * @see https://doc.xt.com/#market4kline
+    //      * @see https://doc.xt.com/#futures_quotesgetKLine
+    //      * @param {string} symbol unified symbol of the market to fetch OHLCV data for
+    //      * @param {string} timeframe the length of time each candle represents
+    //      * @param {int|undefined} since timestamp in ms of the earliest candle to fetch
+    //      * @param {int|undefined} limit the maximum amount of candles to fetch
+    //      * @param {object} params extra parameters specific to the xt api endpoint
+    //      * @returns {[[int]]} A list of candles ordered as timestamp, open, high, low, close, volume
+    //      */
+    //     await this.loadMarkets ();
+    //     const market = this.market (symbol);
+    //     const request = {
+    //         'symbol': market['id'],
+    //         'interval': this.safeString (this.timeframes, timeframe, timeframe),
+    //     };
+    //     if (since !== undefined) {
+    //         request['startTime'] = since;
+    //     }
+    //     if (limit !== undefined) {
+    //         request['limit'] = limit;
+    //     }
+    //     let response = undefined;
+    //     if (market['linear']) {
+    //         response = await this.publicLinearGetFutureMarketV1PublicQKline (this.extend (request, params));
+    //     } else if (market['inverse']) {
+    //         response = await this.publicInverseGetFutureMarketV1PublicQKline (this.extend (request, params));
+    //     } else {
+    //         response = await this.publicSpotGetKline (this.extend (request, params));
+    //     }
+    //     //
+    //     // spot
+    //     //
+    //     //     {
+    //     //         "rc": 0,
+    //     //         "mc": "SUCCESS",
+    //     //         "ma": [],
+    //     //         "result": [
+    //     //             {
+    //     //                 "t": 1678167720000,
+    //     //                 "o": "22467.85",
+    //     //                 "c": "22465.87",
+    //     //                 "h": "22468.86",
+    //     //                 "l": "22465.21",
+    //     //                 "q": "1.316656",
+    //     //                 "v": "29582.73018498"
+    //     //             },
+    //     //         ]
+    //     //     }
+    //     //
+    //     // swap and future
+    //     //
+    //     //     {
+    //     //         "returnCode": 0,
+    //     //         "msgInfo": "success",
+    //     //         "error": null,
+    //     //         "result": [
+    //     //             {
+    //     //                 "s": "btc_usdt",
+    //     //                 "p": "btc_usdt",
+    //     //                 "t": 1678168020000,
+    //     //                 "o": "22450.0",
+    //     //                 "c": "22441.5",
+    //     //                 "h": "22450.0",
+    //     //                 "l": "22441.5",
+    //     //                 "a": "312931",
+    //     //                 "v": "702461.58895"
+    //     //             },
+    //     //         ]
+    //     //     }
+    //     //
+    //     const ohlcvs = this.safeValue (response, 'result', []);
+    //     return this.parseOHLCVs (ohlcvs, market, timeframe, since, limit);
+    // }
+    // parseOHLCV (ohlcv, market = undefined) {
+    //     //
+    //     // spot
+    //     //
+    //     //     {
+    //     //         "t": 1678167720000,
+    //     //         "o": "22467.85",
+    //     //         "c": "22465.87",
+    //     //         "h": "22468.86",
+    //     //         "l": "22465.21",
+    //     //         "q": "1.316656",
+    //     //         "v": "29582.73018498"
+    //     //     }
+    //     //
+    //     // swap and future
+    //     //
+    //     //     {
+    //     //         "s": "btc_usdt",
+    //     //         "p": "btc_usdt",
+    //     //         "t": 1678168020000,
+    //     //         "o": "22450.0",
+    //     //         "c": "22441.5",
+    //     //         "h": "22450.0",
+    //     //         "l": "22441.5",
+    //     //         "a": "312931",
+    //     //         "v": "702461.58895"
+    //     //     }
+    //     //
+    //     const volumeIndex = (market['inverse']) ? 'v' : 'a';
+    //     return [
+    //         this.safeInteger (ohlcv, 't'),
+    //         this.safeNumber (ohlcv, 'o'),
+    //         this.safeNumber (ohlcv, 'h'),
+    //         this.safeNumber (ohlcv, 'l'),
+    //         this.safeNumber (ohlcv, 'c'),
+    //         this.safeNumber2 (ohlcv, volumeIndex, 'v'),
+    //     ];
+    // }
     async fetchOrderBook(symbol, limit = undefined, params = {}) {
         /**
          * @method
@@ -3410,122 +3409,120 @@ class xt extends xt$1 {
         };
         return this.safeString(statuses, status, status);
     }
-    async fetchLedger(code = undefined, since = undefined, limit = undefined, params = {}) {
-        /**
-         * @method
-         * @name xt#fetchLedger
-         * @description fetch the history of changes, actions done by the user or operations that altered the balance of the user
-         * @see https://doc.xt.com/#futures_usergetBalanceBill
-         * @param {string|undefined} code unified currency code
-         * @param {int|undefined} since timestamp in ms of the earliest ledger entry
-         * @param {int|undefined} limit max number of ledger entries to return
-         * @param {object} params extra parameters specific to the xt api endpoint
-         * @returns {object} a [ledger structure]{@link https://docs.ccxt.com/en/latest/manual.html#ledger-structure}
-         */
-        await this.loadMarkets();
-        const request = {};
-        let currency = undefined;
-        if (code !== undefined) {
-            currency = this.currency(code);
-        }
-        if (since !== undefined) {
-            request['startTime'] = since;
-        }
-        if (limit !== undefined) {
-            request['limit'] = limit;
-        }
-        let type = undefined;
-        let subType = undefined;
-        let response = undefined;
-        [type, params] = this.handleMarketTypeAndParams('fetchLedger', undefined, params);
-        [subType, params] = this.handleSubTypeAndParams('fetchLedger', undefined, params);
-        if (subType === 'inverse') {
-            response = await this.privateInverseGetFutureUserV1BalanceBills(this.extend(request, params));
-        }
-        else if ((subType === 'linear') || (type === 'swap') || (type === 'future')) {
-            response = await this.privateLinearGetFutureUserV1BalanceBills(this.extend(request, params));
-        }
-        else {
-            throw new errors.NotSupported(this.id + ' fetchLedger() does not support spot transactions, only swap and future wallet transactions are supported');
-        }
-        //
-        //     {
-        //         "returnCode": 0,
-        //         "msgInfo": "success",
-        //         "error": null,
-        //         "result": {
-        //             "hasPrev": false,
-        //             "hasNext": false,
-        //             "items": [
-        //                 {
-        //                     "id": "207260567109387524",
-        //                     "coin": "usdt",
-        //                     "symbol": "btc_usdt",
-        //                     "type": "FEE",
-        //                     "amount": "-0.0213",
-        //                     "side": "SUB",
-        //                     "afterAmount": null,
-        //                     "createdTime": 1679116769914
-        //                 },
-        //             ]
-        //         }
-        //     }
-        //
-        const data = this.safeValue(response, 'result', {});
-        const ledger = this.safeValue(data, 'items', []);
-        return this.parseLedger(ledger, currency, since, limit);
-    }
-    parseLedgerEntry(item, currency = undefined) {
-        //
-        //     {
-        //         "id": "207260567109387524",
-        //         "coin": "usdt",
-        //         "symbol": "btc_usdt",
-        //         "type": "FEE",
-        //         "amount": "-0.0213",
-        //         "side": "SUB",
-        //         "afterAmount": null,
-        //         "createdTime": 1679116769914
-        //     }
-        //
-        const side = this.safeString(item, 'side');
-        const direction = (side === 'ADD') ? 'in' : 'out';
-        const currencyId = this.safeString(item, 'coin');
-        const timestamp = this.safeInteger(item, 'createdTime');
-        return {
-            'id': this.safeString(item, 'id'),
-            'direction': direction,
-            'account': undefined,
-            'referenceId': undefined,
-            'referenceAccount': undefined,
-            'type': this.parseLedgerEntryType(this.safeString(item, 'type')),
-            'currency': this.safeCurrencyCode(currencyId, currency),
-            'amount': this.safeNumber(item, 'amount'),
-            'timestamp': timestamp,
-            'datetime': this.iso8601(timestamp),
-            'before': undefined,
-            'after': this.safeNumber(item, 'afterAmount'),
-            'status': undefined,
-            'fee': {
-                'currency': undefined,
-                'cost': undefined,
-            },
-            'info': item,
-        };
-    }
-    parseLedgerEntryType(type) {
-        const ledgerType = {
-            'EXCHANGE': 'transfer',
-            'CLOSE_POSITION': 'trade',
-            'TAKE_OVER': 'trade',
-            'MERGE': 'trade',
-            'QIANG_PING_MANAGER': 'fee',
-            'FUND': 'fee',
-            'FEE': 'fee',
-            'ADL': 'auto-deleveraging',
-        };
-        return this.safeString(ledgerType, type, type);
-    }
+    // async fetchLedger (code: string = undefined, since: Int = undefined, limit: Int = undefined, params = {}) {
+    //     /**
+    //      * @method
+    //      * @name xt#fetchLedger
+    //      * @description fetch the history of changes, actions done by the user or operations that altered the balance of the user
+    //      * @see https://doc.xt.com/#futures_usergetBalanceBill
+    //      * @param {string|undefined} code unified currency code
+    //      * @param {int|undefined} since timestamp in ms of the earliest ledger entry
+    //      * @param {int|undefined} limit max number of ledger entries to return
+    //      * @param {object} params extra parameters specific to the xt api endpoint
+    //      * @returns {object} a [ledger structure]{@link https://docs.ccxt.com/en/latest/manual.html#ledger-structure}
+    //      */
+    //     await this.loadMarkets ();
+    //     const request = {};
+    //     let currency = undefined;
+    //     if (code !== undefined) {
+    //         currency = this.currency (code);
+    //     }
+    //     if (since !== undefined) {
+    //         request['startTime'] = since;
+    //     }
+    //     if (limit !== undefined) {
+    //         request['limit'] = limit;
+    //     }
+    //     let type = undefined;
+    //     let subType = undefined;
+    //     let response = undefined;
+    //     [ type, params ] = this.handleMarketTypeAndParams ('fetchLedger', undefined, params);
+    //     [ subType, params ] = this.handleSubTypeAndParams ('fetchLedger', undefined, params);
+    //     if (subType === 'inverse') {
+    //         response = await this.privateInverseGetFutureUserV1BalanceBills (this.extend (request, params));
+    //     } else if ((subType === 'linear') || (type === 'swap') || (type === 'future')) {
+    //         response = await this.privateLinearGetFutureUserV1BalanceBills (this.extend (request, params));
+    //     } else {
+    //         throw new NotSupported (this.id + ' fetchLedger() does not support spot transactions, only swap and future wallet transactions are supported');
+    //     }
+    //     //
+    //     //     {
+    //     //         "returnCode": 0,
+    //     //         "msgInfo": "success",
+    //     //         "error": null,
+    //     //         "result": {
+    //     //             "hasPrev": false,
+    //     //             "hasNext": false,
+    //     //             "items": [
+    //     //                 {
+    //     //                     "id": "207260567109387524",
+    //     //                     "coin": "usdt",
+    //     //                     "symbol": "btc_usdt",
+    //     //                     "type": "FEE",
+    //     //                     "amount": "-0.0213",
+    //     //                     "side": "SUB",
+    //     //                     "afterAmount": null,
+    //     //                     "createdTime": 1679116769914
+    //     //                 },
+    //     //             ]
+    //     //         }
+    //     //     }
+    //     //
+    //     const data = this.safeValue (response, 'result', {});
+    //     const ledger = this.safeValue (data, 'items', []);
+    //     return this.parseLedger (ledger, currency, since, limit);
+    // }
+    // parseLedgerEntry (item, currency = undefined) {
+    //     //
+    //     //     {
+    //     //         "id": "207260567109387524",
+    //     //         "coin": "usdt",
+    //     //         "symbol": "btc_usdt",
+    //     //         "type": "FEE",
+    //     //         "amount": "-0.0213",
+    //     //         "side": "SUB",
+    //     //         "afterAmount": null,
+    //     //         "createdTime": 1679116769914
+    //     //     }
+    //     //
+    //     const side = this.safeString (item, 'side');
+    //     const direction = (side === 'ADD') ? 'in' : 'out';
+    //     const currencyId = this.safeString (item, 'coin');
+    //     const timestamp = this.safeInteger (item, 'createdTime');
+    //     return {
+    //         'id': this.safeString (item, 'id'),
+    //         'direction': direction,
+    //         'account': undefined,
+    //         'referenceId': undefined,
+    //         'referenceAccount': undefined,
+    //         'type': this.parseLedgerEntryType (this.safeString (item, 'type')),
+    //         'currency': this.safeCurrencyCode (currencyId, currency),
+    //         'amount': this.safeNumber (item, 'amount'),
+    //         'timestamp': timestamp,
+    //         'datetime': this.iso8601 (timestamp),
+    //         'before': undefined,
+    //         'after': this.safeNumber (item, 'afterAmount'),
+    //         'status': undefined,
+    //         'fee': {
+    //             'currency': undefined,
+    //             'cost': undefined,
+    //         },
+    //         'info': item,
+    //     };
+    // }
+    // parseLedgerEntryType (type) {
+    //     const ledgerType = {
+    //         'EXCHANGE': 'transfer',
+    //         'CLOSE_POSITION': 'trade',
+    //         'TAKE_OVER': 'trade',
+    //         'MERGE': 'trade',
+    //         'QIANG_PING_MANAGER': 'fee',
+    //         'FUND': 'fee',
+    //         'FEE': 'fee',
+    //         'ADL': 'auto-deleveraging',
+    //     };
+    //     return this.safeString (ledgerType, type, type);
+    // }
     async fetchDepositAddress(code, params = {}) {
         /**
          * @method
@@ -3807,6 +3804,7 @@ class xt extends xt$1 {
                 'cost': fee,
                 'rate': undefined,
             },
+            'internal': undefined,
         };
     }
     parseTransactionStatus(status) {
@@ -3821,53 +3819,52 @@ class xt extends xt$1 {
         };
         return this.safeString(statuses, status, status);
     }
-    async setLeverage(leverage, symbol = undefined, params = {}) {
-        /**
-         * @method
-         * @name xt#setLeverage
-         * @description set the level of leverage for a market
-         * @see https://doc.xt.com/#futures_useradjustLeverage
-         * @param {float} leverage the rate of leverage
-         * @param {string} symbol unified market symbol
-         * @param {object} params extra parameters specific to the xt api endpoint
-         * @param {string} params.positionSide 'LONG' or 'SHORT'
-         * @returns {object} response from the exchange
-         */
-        this.checkRequiredSymbol('setLeverage', symbol);
-        const positionSide = this.safeString(params, 'positionSide');
-        this.checkRequiredArgument('setLeverage', positionSide, 'positionSide', ['LONG', 'SHORT']);
-        if ((leverage < 1) || (leverage > 125)) {
-            throw new errors.BadRequest(this.id + ' setLeverage() leverage should be between 1 and 125');
-        }
-        await this.loadMarkets();
-        const market = this.market(symbol);
-        if (!(market['contract'])) {
-            throw new errors.BadSymbol(this.id + ' setLeverage() supports contract markets only');
-        }
-        const request = {
-            'symbol': market['id'],
-            'positionSide': positionSide,
-            'leverage': leverage,
-        };
-        let subType = undefined;
-        [subType, params] = this.handleSubTypeAndParams('setLeverage', market, params);
-        let response = undefined;
-        if (subType === 'inverse') {
-            response = await this.privateInversePostFutureUserV1PositionAdjustLeverage(this.extend(request, params));
-        }
-        else {
-            response = await this.privateLinearPostFutureUserV1PositionAdjustLeverage(this.extend(request, params));
-        }
-        //
-        //     {
-        //         "returnCode": 0,
-        //         "msgInfo": "success",
-        //         "error": null,
-        //         "result": null
-        //     }
-        //
-        return response;
-    }
+    // async setLeverage (leverage, symbol: string = undefined, params = {}) {
+    //     /**
+    //      * @method
+    //      * @name xt#setLeverage
+    //      * @description set the level of leverage for a market
+    //      * @see https://doc.xt.com/#futures_useradjustLeverage
+    //      * @param {float} leverage the rate of leverage
+    //      * @param {string} symbol unified market symbol
+    //      * @param {object} params extra parameters specific to the xt api endpoint
+    //      * @param {string} params.positionSide 'LONG' or 'SHORT'
+    //      * @returns {object} response from the exchange
+    //      */
+    //     this.checkRequiredSymbol ('setLeverage', symbol);
+    //     const positionSide = this.safeString (params, 'positionSide');
+    //     this.checkRequiredArgument ('setLeverage', positionSide, 'positionSide', [ 'LONG', 'SHORT' ]);
+    //     if ((leverage < 1) || (leverage > 125)) {
+    //         throw new BadRequest (this.id + ' setLeverage() leverage should be between 1 and 125');
+    //     }
+    //     await this.loadMarkets ();
+    //     const market = this.market (symbol);
+    //     if (!(market['contract'])) {
+    //         throw new BadSymbol (this.id + ' setLeverage() supports contract markets only');
+    //     }
+    //     const request = {
+    //         'symbol': market['id'],
+    //         'positionSide': positionSide,
+    //         'leverage': leverage,
+    //     };
+    //     let subType = undefined;
+    //     [ subType, params ] = this.handleSubTypeAndParams ('setLeverage', market, params);
+    //     let response = undefined;
+    //     if (subType === 'inverse') {
+    //         response = await this.privateInversePostFutureUserV1PositionAdjustLeverage (this.extend (request, params));
+    //     } else {
+    //         response = await this.privateLinearPostFutureUserV1PositionAdjustLeverage (this.extend (request, params));
+    //     }
+    //     //
+    //     //     {
+    //     //         "returnCode": 0,
+    //     //         "msgInfo": "success",
+    //     //         "error": null,
+    //     //         "result": null
+    //     //     }
+    //     //
+    //     return response;
+    // }
     async addMargin(symbol, amount, params = {}) {
         /**
          * @method
@@ -3984,365 +3981,360 @@ class xt extends xt$1 {
         symbols = this.marketSymbols(symbols);
         return this.parseLeverageTiers(data, symbols, 'symbol');
     }
-    parseLeverageTiers(response, symbols = undefined, marketIdKey = undefined) {
-        //
-        //     {
-        //         "symbol": "rad_usdt",
-        //         "leverageBrackets": [
-        //             {
-        //                 "symbol": "rad_usdt",
-        //                 "bracket": 1,
-        //                 "maxNominalValue": "5000",
-        //                 "maintMarginRate": "0.025",
-        //                 "startMarginRate": "0.05",
-        //                 "maxStartMarginRate": null,
-        //                 "maxLeverage": "20",
-        //                 "minLeverage": "1"
-        //             },
-        //         ]
-        //     }
-        //
-        const result = {};
-        for (let i = 0; i < response.length; i++) {
-            const entry = response[i];
-            const marketId = this.safeString(entry, 'symbol');
-            const market = this.safeMarket(marketId, undefined, '_', 'contract');
-            const symbol = this.safeSymbol(marketId, market);
-            if (symbols !== undefined) {
-                if (this.inArray(symbol, symbols)) {
-                    result[symbol] = this.parseMarketLeverageTiers(entry, market);
-                }
-            }
-            else {
-                result[symbol] = this.parseMarketLeverageTiers(response[i], market);
-            }
-        }
-        return result;
-    }
-    async fetchMarketLeverageTiers(symbol, params = {}) {
-        /**
-         * @method
-         * @name xt#fetchMarketLeverageTiers
-         * @see https://doc.xt.com/#futures_quotesgetLeverageBracket
-         * @description retrieve information on the maximum leverage for different trade sizes of a single market
-         * @param {string} symbol unified market symbol
-         * @param {object} params extra parameters specific to the xt api endpoint
-         * @returns {object} a [leverage tiers structure]{@link https://docs.ccxt.com/#/?id=leverage-tiers-structure}
-         */
-        await this.loadMarkets();
-        const market = this.market(symbol);
-        const request = {
-            'symbol': market['id'],
-        };
-        let subType = undefined;
-        [subType, params] = this.handleSubTypeAndParams('fetchMarketLeverageTiers', market, params);
-        let response = undefined;
-        if (subType === 'inverse') {
-            response = await this.publicInverseGetFutureMarketV1PublicLeverageBracketDetail(this.extend(request, params));
-        }
-        else {
-            response = await this.publicLinearGetFutureMarketV1PublicLeverageBracketDetail(this.extend(request, params));
-        }
-        //
-        //     {
-        //         "returnCode": 0,
-        //         "msgInfo": "success",
-        //         "error": null,
-        //         "result": {
-        //             "symbol": "btc_usdt",
-        //             "leverageBrackets": [
-        //                 {
-        //                     "symbol": "btc_usdt",
-        //                     "bracket": 1,
-        //                     "maxNominalValue": "500000",
-        //                     "maintMarginRate": "0.004",
-        //                     "startMarginRate": "0.008",
-        //                     "maxStartMarginRate": null,
-        //                     "maxLeverage": "125",
-        //                     "minLeverage": "1"
-        //                 },
-        //             ]
-        //         }
-        //     }
-        //
-        const data = this.safeValue(response, 'result', {});
-        return this.parseMarketLeverageTiers(data, market);
-    }
-    parseMarketLeverageTiers(info, market = undefined) {
-        //
-        //     {
-        //         "symbol": "rad_usdt",
-        //         "leverageBrackets": [
-        //             {
-        //                 "symbol": "rad_usdt",
-        //                 "bracket": 1,
-        //                 "maxNominalValue": "5000",
-        //                 "maintMarginRate": "0.025",
-        //                 "startMarginRate": "0.05",
-        //                 "maxStartMarginRate": null,
-        //                 "maxLeverage": "20",
-        //                 "minLeverage": "1"
-        //             },
-        //         ]
-        //     }
-        //
-        const tiers = [];
-        const brackets = this.safeValue(info, 'leverageBrackets', []);
-        for (let i = 0; i < brackets.length; i++) {
-            const tier = brackets[i];
-            const marketId = this.safeString(info, 'symbol');
-            market = this.safeMarket(marketId, market, '_', 'contract');
-            tiers.push({
-                'tier': this.safeInteger(tier, 'bracket'),
-                'currency': market['settle'],
-                'minNotional': this.safeNumber(brackets[i - 1], 'maxNominalValue', 0),
-                'maxNotional': this.safeNumber(tier, 'maxNominalValue'),
-                'maintenanceMarginRate': this.safeNumber(tier, 'maintMarginRate'),
-                'maxLeverage': this.safeNumber(tier, 'maxLeverage'),
-                'info': tier,
-            });
-        }
-        return tiers;
-    }
-    async fetchFundingRateHistory(symbol = undefined, since = undefined, limit = undefined, params = {}) {
-        /**
-         * @method
-         * @name xt#fetchFundingRateHistory
-         * @description fetches historical funding rates
-         * @see https://doc.xt.com/#futures_quotesgetFundingRateRecord
-         * @param {string|undefined} symbol unified symbol of the market to fetch the funding rate history for
-         * @param {int|undefined} since timestamp in ms of the earliest funding rate to fetch
-         * @param {int|undefined} limit the maximum amount of [funding rate structures] to fetch
-         * @param {object} params extra parameters specific to the xt api endpoint
-         * @returns {[object]} a list of [funding rate structures]{@link https://docs.ccxt.com/en/latest/manual.html?#funding-rate-history-structure}
-         */
-        this.checkRequiredSymbol('fetchFundingRateHistory', symbol);
-        await this.loadMarkets();
-        const market = this.market(symbol);
-        if (!market['swap']) {
-            throw new errors.BadSymbol(this.id + ' fetchFundingRateHistory() supports swap contracts only');
-        }
-        const request = {
-            'symbol': market['id'],
-        };
-        if (limit !== undefined) {
-            request['limit'] = limit;
-        }
-        let subType = undefined;
-        [subType, params] = this.handleSubTypeAndParams('fetchFundingRateHistory', market, params);
-        let response = undefined;
-        if (subType === 'inverse') {
-            response = await this.publicInverseGetFutureMarketV1PublicQFundingRateRecord(this.extend(request, params));
-        }
-        else {
-            response = await this.publicLinearGetFutureMarketV1PublicQFundingRateRecord(this.extend(request, params));
-        }
-        //
-        //     {
-        //         "returnCode": 0,
-        //         "msgInfo": "success",
-        //         "error": null,
-        //         "result": {
-        //             "hasPrev": false,
-        //             "hasNext": true,
-        //             "items": [
-        //                 {
-        //                     "id": "210441653482221888",
-        //                     "symbol": "btc_usdt",
-        //                     "fundingRate": "0.000057",
-        //                     "createdTime": 1679875200000,
-        //                     "collectionInternal": 28800
-        //                 },
-        //             ]
-        //         }
-        //     }
-        //
-        const result = this.safeValue(response, 'result', {});
-        const items = this.safeValue(result, 'items', []);
-        const rates = [];
-        for (let i = 0; i < items.length; i++) {
-            const entry = items[i];
-            const marketId = this.safeString(entry, 'symbol');
-            const symbolInner = this.safeSymbol(marketId, market);
-            const timestamp = this.safeInteger(entry, 'createdTime');
-            rates.push({
-                'info': entry,
-                'symbol': symbolInner,
-                'fundingRate': this.safeNumber(entry, 'fundingRate'),
-                'timestamp': timestamp,
-                'datetime': this.iso8601(timestamp),
-            });
-        }
-        const sorted = this.sortBy(rates, 'timestamp');
-        return this.filterBySymbolSinceLimit(sorted, market['symbol'], since, limit);
-    }
-    async fetchFundingRate(symbol, params = {}) {
-        /**
-         * @method
-         * @name xt#fetchFundingRate
-         * @description fetch the current funding rate
-         * @see https://doc.xt.com/#futures_quotesgetFundingRate
-         * @param {string} symbol unified market symbol
-         * @param {object} params extra parameters specific to the xt api endpoint
-         * @returns {object} a [funding rate structure]{@link https://docs.ccxt.com/#/?id=funding-rate-structure}
-         */
-        await this.loadMarkets();
-        const market = this.market(symbol);
-        if (!market['swap']) {
-            throw new errors.BadSymbol(this.id + ' fetchFundingRate() supports swap contracts only');
-        }
-        const request = {
-            'symbol': market['id'],
-        };
-        let subType = undefined;
-        [subType, params] = this.handleSubTypeAndParams('fetchFundingRate', market, params);
-        let response = undefined;
-        if (subType === 'inverse') {
-            response = await this.publicInverseGetFutureMarketV1PublicQFundingRate(this.extend(request, params));
-        }
-        else {
-            response = await this.publicLinearGetFutureMarketV1PublicQFundingRate(this.extend(request, params));
-        }
-        //
-        //     {
-        //         "returnCode": 0,
-        //         "msgInfo": "success",
-        //         "error": null,
-        //         "result": {
-        //             "symbol": "btc_usdt",
-        //             "fundingRate": "0.000086",
-        //             "nextCollectionTime": 1680307200000,
-        //             "collectionInternal": 8
-        //         }
-        //     }
-        //
-        const result = this.safeValue(response, 'result', {});
-        return this.parseFundingRate(result, market);
-    }
-    parseFundingRate(contract, market = undefined) {
-        //
-        //     {
-        //         "symbol": "btc_usdt",
-        //         "fundingRate": "0.000086",
-        //         "nextCollectionTime": 1680307200000,
-        //         "collectionInternal": 8
-        //     }
-        //
-        const marketId = this.safeString(contract, 'symbol');
-        const symbol = this.safeSymbol(marketId, market, '_', 'swap');
-        const timestamp = this.safeInteger(contract, 'nextCollectionTime');
-        return {
-            'info': contract,
-            'symbol': symbol,
-            'markPrice': undefined,
-            'indexPrice': undefined,
-            'interestRate': undefined,
-            'estimatedSettlePrice': undefined,
-            'timestamp': undefined,
-            'datetime': undefined,
-            'fundingRate': this.safeNumber(contract, 'fundingRate'),
-            'fundingTimestamp': timestamp,
-            'fundingDatetime': this.iso8601(timestamp),
-            'nextFundingRate': undefined,
-            'nextFundingTimestamp': undefined,
-            'nextFundingDatetime': undefined,
-            'previousFundingRate': undefined,
-            'previousFundingTimestamp': undefined,
-            'previousFundingDatetime': undefined,
-        };
-    }
-    async fetchFundingHistory(symbol, since = undefined, limit = undefined, params = {}) {
-        /**
-         * @method
-         * @name xt#fetchFundingHistory
-         * @description fetch the funding history
-         * @see https://doc.xt.com/#futures_usergetFunding
-         * @param {string} symbol unified market symbol
-         * @param {int|undefined} since the starting timestamp in milliseconds
-         * @param {int|undefined} limit the number of entries to return
-         * @param {object} params extra parameters specific to the xt api endpoint
-         * @returns {[object]} a list of [funding history structures]{@link https://docs.ccxt.com/#/?id=funding-history-structure}
-         */
-        await this.loadMarkets();
-        const market = this.market(symbol);
-        if (!market['swap']) {
-            throw new errors.BadSymbol(this.id + ' fetchFundingHistory() supports swap contracts only');
-        }
-        const request = {
-            'symbol': market['id'],
-        };
-        if (since !== undefined) {
-            request['startTime'] = since;
-        }
-        if (limit !== undefined) {
-            request['limit'] = limit;
-        }
-        let subType = undefined;
-        [subType, params] = this.handleSubTypeAndParams('fetchFundingHistory', market, params);
-        let response = undefined;
-        if (subType === 'inverse') {
-            response = await this.privateInverseGetFutureUserV1BalanceFundingRateList(this.extend(request, params));
-        }
-        else {
-            response = await this.privateLinearGetFutureUserV1BalanceFundingRateList(this.extend(request, params));
-        }
-        //
-        //     {
-        //         "returnCode": 0,
-        //         "msgInfo": "success",
-        //         "error": null,
-        //         "result": {
-        //             "hasPrev": false,
-        //             "hasNext": false,
-        //             "items": [
-        //                 {
-        //                     "id": "210804044057280512",
-        //                     "symbol": "btc_usdt",
-        //                     "cast": "-0.0013",
-        //                     "coin": "usdt",
-        //                     "positionSide": "SHORT",
-        //                     "createdTime": 1679961600653
-        //                 },
-        //             ]
-        //         }
-        //     }
-        //
-        const data = this.safeValue(response, 'result', {});
-        const items = this.safeValue(data, 'items', []);
-        const result = [];
-        for (let i = 0; i < items.length; i++) {
-            const entry = items[i];
-            result.push(this.parseFundingHistory(entry, market));
-        }
-        const sorted = this.sortBy(result, 'timestamp');
-        return this.filterBySinceLimit(sorted, since, limit);
-    }
-    parseFundingHistory(contract, market = undefined) {
-        //
-        //     {
-        //         "id": "210804044057280512",
-        //         "symbol": "btc_usdt",
-        //         "cast": "-0.0013",
-        //         "coin": "usdt",
-        //         "positionSide": "SHORT",
-        //         "createdTime": 1679961600653
-        //     }
-        //
-        const marketId = this.safeString(contract, 'symbol');
-        const symbol = this.safeSymbol(marketId, market, '_', 'swap');
-        const currencyId = this.safeString(contract, 'coin');
-        const code = this.safeCurrencyCode(currencyId);
-        const timestamp = this.safeInteger(contract, 'createdTime');
-        return {
-            'info': contract,
-            'symbol': symbol,
-            'code': code,
-            'timestamp': timestamp,
-            'datetime': this.iso8601(timestamp),
-            'id': this.safeString(contract, 'id'),
-            'amount': this.safeNumber(contract, 'cast'),
-        };
-    }
+    // parseLeverageTiers (response, symbols = undefined, marketIdKey = undefined) {
+    //     //
+    //     //     {
+    //     //         "symbol": "rad_usdt",
+    //     //         "leverageBrackets": [
+    //     //             {
+    //     //                 "symbol": "rad_usdt",
+    //     //                 "bracket": 1,
+    //     //                 "maxNominalValue": "5000",
+    //     //                 "maintMarginRate": "0.025",
+    //     //                 "startMarginRate": "0.05",
+    //     //                 "maxStartMarginRate": null,
+    //     //                 "maxLeverage": "20",
+    //     //                 "minLeverage": "1"
+    //     //             },
+    //     //         ]
+    //     //     }
+    //     //
+    //     const result = {};
+    //     for (let i = 0; i < response.length; i++) {
+    //         const entry = response[i];
+    //         const marketId = this.safeString (entry, 'symbol');
+    //         const market = this.safeMarket (marketId, undefined, '_', 'contract');
+    //         const symbol = this.safeSymbol (marketId, market);
+    //         if (symbols !== undefined) {
+    //             if (this.inArray (symbol, symbols)) {
+    //                 result[symbol] = this.parseMarketLeverageTiers (entry, market);
+    //             }
+    //         } else {
+    //             result[symbol] = this.parseMarketLeverageTiers (response[i], market);
+    //         }
+    //     }
+    //     return result;
+    // }
+    // async fetchMarketLeverageTiers (symbol: string, params = {}) {
+    //     /**
+    //      * @method
+    //      * @name xt#fetchMarketLeverageTiers
+    //      * @see https://doc.xt.com/#futures_quotesgetLeverageBracket
+    //      * @description retrieve information on the maximum leverage for different trade sizes of a single market
+    //      * @param {string} symbol unified market symbol
+    //      * @param {object} params extra parameters specific to the xt api endpoint
+    //      * @returns {object} a [leverage tiers structure]{@link https://docs.ccxt.com/#/?id=leverage-tiers-structure}
+    //      */
+    //     await this.loadMarkets ();
+    //     const market = this.market (symbol);
+    //     const request = {
+    //         'symbol': market['id'],
+    //     };
+    //     let subType = undefined;
+    //     [ subType, params ] = this.handleSubTypeAndParams ('fetchMarketLeverageTiers', market, params);
+    //     let response = undefined;
+    //     if (subType === 'inverse') {
+    //         response = await this.publicInverseGetFutureMarketV1PublicLeverageBracketDetail (this.extend (request, params));
+    //     } else {
+    //         response = await this.publicLinearGetFutureMarketV1PublicLeverageBracketDetail (this.extend (request, params));
+    //     }
+    //     //
+    //     //     {
+    //     //         "returnCode": 0,
+    //     //         "msgInfo": "success",
+    //     //         "error": null,
+    //     //         "result": {
+    //     //             "symbol": "btc_usdt",
+    //     //             "leverageBrackets": [
+    //     //                 {
+    //     //                     "symbol": "btc_usdt",
+    //     //                     "bracket": 1,
+    //     //                     "maxNominalValue": "500000",
+    //     //                     "maintMarginRate": "0.004",
+    //     //                     "startMarginRate": "0.008",
+    //     //                     "maxStartMarginRate": null,
+    //     //                     "maxLeverage": "125",
+    //     //                     "minLeverage": "1"
+    //     //                 },
+    //     //             ]
+    //     //         }
+    //     //     }
+    //     //
+    //     const data = this.safeValue (response, 'result', {});
+    //     return this.parseMarketLeverageTiers (data, market);
+    // }
+    // parseMarketLeverageTiers (info, market = undefined) {
+    //     //
+    //     //     {
+    //     //         "symbol": "rad_usdt",
+    //     //         "leverageBrackets": [
+    //     //             {
+    //     //                 "symbol": "rad_usdt",
+    //     //                 "bracket": 1,
+    //     //                 "maxNominalValue": "5000",
+    //     //                 "maintMarginRate": "0.025",
+    //     //                 "startMarginRate": "0.05",
+    //     //                 "maxStartMarginRate": null,
+    //     //                 "maxLeverage": "20",
+    //     //                 "minLeverage": "1"
+    //     //             },
+    //     //         ]
+    //     //     }
+    //     //
+    //     const tiers = [];
+    //     const brackets = this.safeValue (info, 'leverageBrackets', []);
+    //     for (let i = 0; i < brackets.length; i++) {
+    //         const tier = brackets[i];
+    //         const marketId = this.safeString (info, 'symbol');
+    //         market = this.safeMarket (marketId, market, '_', 'contract');
+    //         tiers.push ({
+    //             'tier': this.safeInteger (tier, 'bracket'),
+    //             'currency': market['settle'],
+    //             'minNotional': this.safeNumber (brackets[i - 1], 'maxNominalValue', 0),
+    //             'maxNotional': this.safeNumber (tier, 'maxNominalValue'),
+    //             'maintenanceMarginRate': this.safeNumber (tier, 'maintMarginRate'),
+    //             'maxLeverage': this.safeNumber (tier, 'maxLeverage'),
+    //             'info': tier,
+    //         });
+    //     }
+    //     return tiers;
+    // }
+    // async fetchFundingRateHistory (symbol: string = undefined, since: Int = undefined, limit: Int = undefined, params = {}) {
+    //     /**
+    //      * @method
+    //      * @name xt#fetchFundingRateHistory
+    //      * @description fetches historical funding rates
+    //      * @see https://doc.xt.com/#futures_quotesgetFundingRateRecord
+    //      * @param {string|undefined} symbol unified symbol of the market to fetch the funding rate history for
+    //      * @param {int|undefined} since timestamp in ms of the earliest funding rate to fetch
+    //      * @param {int|undefined} limit the maximum amount of [funding rate structures] to fetch
+    //      * @param {object} params extra parameters specific to the xt api endpoint
+    //      * @returns {[object]} a list of [funding rate structures]{@link https://docs.ccxt.com/en/latest/manual.html?#funding-rate-history-structure}
+    //      */
+    //     this.checkRequiredSymbol ('fetchFundingRateHistory', symbol);
+    //     await this.loadMarkets ();
+    //     const market = this.market (symbol);
+    //     if (!market['swap']) {
+    //         throw new BadSymbol (this.id + ' fetchFundingRateHistory() supports swap contracts only');
+    //     }
+    //     const request = {
+    //         'symbol': market['id'],
+    //     };
+    //     if (limit !== undefined) {
+    //         request['limit'] = limit;
+    //     }
+    //     let subType = undefined;
+    //     [ subType, params ] = this.handleSubTypeAndParams ('fetchFundingRateHistory', market, params);
+    //     let response = undefined;
+    //     if (subType === 'inverse') {
+    //         response = await this.publicInverseGetFutureMarketV1PublicQFundingRateRecord (this.extend (request, params));
+    //     } else {
+    //         response = await this.publicLinearGetFutureMarketV1PublicQFundingRateRecord (this.extend (request, params));
+    //     }
+    //     //
+    //     //     {
+    //     //         "returnCode": 0,
+    //     //         "msgInfo": "success",
+    //     //         "error": null,
+    //     //         "result": {
+    //     //             "hasPrev": false,
+    //     //             "hasNext": true,
+    //     //             "items": [
+    //     //                 {
+    //     //                     "id": "210441653482221888",
+    //     //                     "symbol": "btc_usdt",
+    //     //                     "fundingRate": "0.000057",
+    //     //                     "createdTime": 1679875200000,
+    //     //                     "collectionInternal": 28800
+    //     //                 },
+    //     //             ]
+    //     //         }
+    //     //     }
+    //     //
+    //     const result = this.safeValue (response, 'result', {});
+    //     const items = this.safeValue (result, 'items', []);
+    //     const rates = [];
+    //     for (let i = 0; i < items.length; i++) {
+    //         const entry = items[i];
+    //         const marketId = this.safeString (entry, 'symbol');
+    //         const symbolInner = this.safeSymbol (marketId, market);
+    //         const timestamp = this.safeInteger (entry, 'createdTime');
+    //         rates.push ({
+    //             'info': entry,
+    //             'symbol': symbolInner,
+    //             'fundingRate': this.safeNumber (entry, 'fundingRate'),
+    //             'timestamp': timestamp,
+    //             'datetime': this.iso8601 (timestamp),
+    //         });
+    //     }
+    //     const sorted = this.sortBy (rates, 'timestamp');
+    //     return this.filterBySymbolSinceLimit (sorted, market['symbol'], since, limit);
+    // }
+    // async fetchFundingRate (symbol: string, params = {}) {
+    //     /**
+    //      * @method
+    //      * @name xt#fetchFundingRate
+    //      * @description fetch the current funding rate
+    //      * @see https://doc.xt.com/#futures_quotesgetFundingRate
+    //      * @param {string} symbol unified market symbol
+    //      * @param {object} params extra parameters specific to the xt api endpoint
+    //      * @returns {object} a [funding rate structure]{@link https://docs.ccxt.com/#/?id=funding-rate-structure}
+    //      */
+    //     await this.loadMarkets ();
+    //     const market = this.market (symbol);
+    //     if (!market['swap']) {
+    //         throw new BadSymbol (this.id + ' fetchFundingRate() supports swap contracts only');
+    //     }
+    //     const request = {
+    //         'symbol': market['id'],
+    //     };
+    //     let subType = undefined;
+    //     [ subType, params ] = this.handleSubTypeAndParams ('fetchFundingRate', market, params);
+    //     let response = undefined;
+    //     if (subType === 'inverse') {
+    //         response = await this.publicInverseGetFutureMarketV1PublicQFundingRate (this.extend (request, params));
+    //     } else {
+    //         response = await this.publicLinearGetFutureMarketV1PublicQFundingRate (this.extend (request, params));
+    //     }
+    //     //
+    //     //     {
+    //     //         "returnCode": 0,
+    //     //         "msgInfo": "success",
+    //     //         "error": null,
+    //     //         "result": {
+    //     //             "symbol": "btc_usdt",
+    //     //             "fundingRate": "0.000086",
+    //     //             "nextCollectionTime": 1680307200000,
+    //     //             "collectionInternal": 8
+    //     //         }
+    //     //     }
+    //     //
+    //     const result = this.safeValue (response, 'result', {});
+    //     return this.parseFundingRate (result, market);
+    // }
+    // parseFundingRate (contract, market = undefined) {
+    //     //
+    //     //     {
+    //     //         "symbol": "btc_usdt",
+    //     //         "fundingRate": "0.000086",
+    //     //         "nextCollectionTime": 1680307200000,
+    //     //         "collectionInternal": 8
+    //     //     }
+    //     //
+    //     const marketId = this.safeString (contract, 'symbol');
+    //     const symbol = this.safeSymbol (marketId, market, '_', 'swap');
+    //     const timestamp = this.safeInteger (contract, 'nextCollectionTime');
+    //     return {
+    //         'info': contract,
+    //         'symbol': symbol,
+    //         'markPrice': undefined,
+    //         'indexPrice': undefined,
+    //         'interestRate': undefined,
+    //         'estimatedSettlePrice': undefined,
+    //         'timestamp': undefined,
+    //         'datetime': undefined,
+    //         'fundingRate': this.safeNumber (contract, 'fundingRate'),
+    //         'fundingTimestamp': timestamp,
+    //         'fundingDatetime': this.iso8601 (timestamp),
+    //         'nextFundingRate': undefined,
+    //         'nextFundingTimestamp': undefined,
+    //         'nextFundingDatetime': undefined,
+    //         'previousFundingRate': undefined,
+    //         'previousFundingTimestamp': undefined,
+    //         'previousFundingDatetime': undefined,
+    //     };
+    // }
+    // async fetchFundingHistory (symbol: string, since: Int = undefined, limit: Int = undefined, params = {}) {
+    //     /**
+    //      * @method
+    //      * @name xt#fetchFundingHistory
+    //      * @description fetch the funding history
+    //      * @see https://doc.xt.com/#futures_usergetFunding
+    //      * @param {string} symbol unified market symbol
+    //      * @param {int|undefined} since the starting timestamp in milliseconds
+    //      * @param {int|undefined} limit the number of entries to return
+    //      * @param {object} params extra parameters specific to the xt api endpoint
+    //      * @returns {[object]} a list of [funding history structures]{@link https://docs.ccxt.com/#/?id=funding-history-structure}
+    //      */
+    //     await this.loadMarkets ();
+    //     const market = this.market (symbol);
+    //     if (!market['swap']) {
+    //         throw new BadSymbol (this.id + ' fetchFundingHistory() supports swap contracts only');
+    //     }
+    //     const request = {
+    //         'symbol': market['id'],
+    //     };
+    //     if (since !== undefined) {
+    //         request['startTime'] = since;
+    //     }
+    //     if (limit !== undefined) {
+    //         request['limit'] = limit;
+    //     }
+    //     let subType = undefined;
+    //     [ subType, params ] = this.handleSubTypeAndParams ('fetchFundingHistory', market, params);
+    //     let response = undefined;
+    //     if (subType === 'inverse') {
+    //         response = await this.privateInverseGetFutureUserV1BalanceFundingRateList (this.extend (request, params));
+    //     } else {
+    //         response = await this.privateLinearGetFutureUserV1BalanceFundingRateList (this.extend (request, params));
+    //     }
+    //     //
+    //     //     {
+    //     //         "returnCode": 0,
+    //     //         "msgInfo": "success",
+    //     //         "error": null,
+    //     //         "result": {
+    //     //             "hasPrev": false,
+    //     //             "hasNext": false,
+    //     //             "items": [
+    //     //                 {
+    //     //                     "id": "210804044057280512",
+    //     //                     "symbol": "btc_usdt",
+    //     //                     "cast": "-0.0013",
+    //     //                     "coin": "usdt",
+    //     //                     "positionSide": "SHORT",
+    //     //                     "createdTime": 1679961600653
+    //     //                 },
+    //     //             ]
+    //     //         }
+    //     //     }
+    //     //
+    //     const data = this.safeValue (response, 'result', {});
+    //     const items = this.safeValue (data, 'items', []);
+    //     const result = [];
+    //     for (let i = 0; i < items.length; i++) {
+    //         const entry = items[i];
+    //         result.push (this.parseFundingHistory (entry, market));
+    //     }
+    //     const sorted = this.sortBy (result, 'timestamp');
+    //     return this.filterBySinceLimit (sorted, since, limit);
+    // }
+    // parseFundingHistory (contract, market = undefined) {
+    //     //
+    //     //     {
+    //     //         "id": "210804044057280512",
+    //     //         "symbol": "btc_usdt",
+    //     //         "cast": "-0.0013",
+    //     //         "coin": "usdt",
+    //     //         "positionSide": "SHORT",
+    //     //         "createdTime": 1679961600653
+    //     //     }
+    //     //
+    //     const marketId = this.safeString (contract, 'symbol');
+    //     const symbol = this.safeSymbol (marketId, market, '_', 'swap');
+    //     const currencyId = this.safeString (contract, 'coin');
+    //     const code = this.safeCurrencyCode (currencyId);
+    //     const timestamp = this.safeInteger (contract, 'createdTime');
+    //     return {
+    //         'info': contract,
+    //         'symbol': symbol,
+    //         'code': code,
+    //         'timestamp': timestamp,
+    //         'datetime': this.iso8601 (timestamp),
+    //         'id': this.safeString (contract, 'id'),
+    //         'amount': this.safeNumber (contract, 'cast'),
+    //     };
+    // }
     async fetchPosition(symbol, params = {}) {
         /**
          * @method
@@ -4404,170 +4396,169 @@ class xt extends xt$1 {
         }
         return undefined;
     }
-    async fetchPositions(symbols = undefined, params = {}) {
-        /**
-         * @method
-         * @name xt#fetchPositions
-         * @description fetch all open positions
-         * @see https://doc.xt.com/#futures_usergetPosition
-         * @param {[string]|undefined} symbols list of unified market symbols, not supported with xt
-         * @param {object} params extra parameters specific to the xt api endpoint
-         * @returns {[object]} a list of [position structure]{@link https://docs.ccxt.com/#/?id=position-structure}
-         */
-        await this.loadMarkets();
-        if (symbols !== undefined) {
-            throw new errors.BadRequest(this.id + ' fetchPositions() only supports the symbols argument as undefined');
-        }
-        let subType = undefined;
-        [subType, params] = this.handleSubTypeAndParams('fetchPositions', undefined, params);
-        let response = undefined;
-        if (subType === 'inverse') {
-            response = await this.privateInverseGetFutureUserV1PositionList(params);
-        }
-        else {
-            response = await this.privateLinearGetFutureUserV1PositionList(params);
-        }
-        //
-        //     {
-        //         "returnCode": 0,
-        //         "msgInfo": "success",
-        //         "error": null,
-        //         "result": [
-        //             {
-        //                 "symbol": "btc_usdt",
-        //                 "positionType": "ISOLATED",
-        //                 "positionSide": "SHORT",
-        //                 "contractType": "PERPETUAL",
-        //                 "positionSize": "10",
-        //                 "closeOrderSize": "0",
-        //                 "availableCloseSize": "10",
-        //                 "entryPrice": "27060",
-        //                 "openOrderSize": "0",
-        //                 "isolatedMargin": "1.0824",
-        //                 "openOrderMarginFrozen": "0",
-        //                 "realizedProfit": "-0.00130138",
-        //                 "autoMargin": false,
-        //                 "leverage": 25
-        //             },
-        //         ]
-        //     }
-        //
-        const positions = this.safeValue(response, 'result', []);
-        const result = [];
-        for (let i = 0; i < positions.length; i++) {
-            const entry = positions[i];
-            const marketId = this.safeString(entry, 'symbol');
-            const marketInner = this.safeMarket(marketId, undefined, undefined, 'contract');
-            result.push(this.parsePosition(entry, marketInner));
-        }
-        return this.filterByArray(result, 'symbol', undefined, false);
-    }
-    parsePosition(position, market = undefined) {
-        //
-        //     {
-        //         "symbol": "btc_usdt",
-        //         "positionType": "ISOLATED",
-        //         "positionSide": "SHORT",
-        //         "contractType": "PERPETUAL",
-        //         "positionSize": "10",
-        //         "closeOrderSize": "0",
-        //         "availableCloseSize": "10",
-        //         "entryPrice": "27060",
-        //         "openOrderSize": "0",
-        //         "isolatedMargin": "1.0824",
-        //         "openOrderMarginFrozen": "0",
-        //         "realizedProfit": "-0.00130138",
-        //         "autoMargin": false,
-        //         "leverage": 25
-        //     }
-        //
-        const marketId = this.safeString(position, 'symbol');
-        market = this.safeMarket(marketId, market, undefined, 'contract');
-        const symbol = this.safeSymbol(marketId, market, undefined, 'contract');
-        const positionType = this.safeString(position, 'positionType');
-        const marginMode = (positionType === 'CROSSED') ? 'cross' : 'isolated';
-        const collateral = this.safeNumber(position, 'isolatedMargin');
-        return this.safePosition({
-            'info': position,
-            'id': undefined,
-            'symbol': symbol,
-            'timestamp': undefined,
-            'datetime': undefined,
-            'hedged': undefined,
-            'side': this.safeStringLower(position, 'positionSide'),
-            'contracts': this.safeNumber(position, 'positionSize'),
-            'contractSize': market['contractSize'],
-            'entryPrice': this.safeNumber(position, 'entryPrice'),
-            'markPrice': undefined,
-            'notional': undefined,
-            'leverage': this.safeInteger(position, 'leverage'),
-            'collateral': collateral,
-            'initialMargin': collateral,
-            'maintenanceMargin': undefined,
-            'initialMarginPercentage': undefined,
-            'maintenanceMarginPercentage': undefined,
-            'unrealizedPnl': undefined,
-            'liquidationPrice': undefined,
-            'marginMode': marginMode,
-            'percentage': undefined,
-            'marginRatio': undefined,
-        });
-    }
-    async transfer(code, amount, fromAccount, toAccount, params = {}) {
-        /**
-         * @method
-         * @name xt#transfer
-         * @description transfer currency internally between wallets on the same account
-         * @see https://doc.xt.com/#transfersubTransferPost
-         * @param {string} code unified currency code
-         * @param {float} amount amount to transfer
-         * @param {string} fromAccount account to transfer from -  spot, swap, leverage, finance
-         * @param {string} toAccount account to transfer to - spot, swap, leverage, finance
-         * @param {object} params extra parameters specific to the whitebit api endpoint
-         * @returns {object} a [transfer structure]{@link https://docs.ccxt.com/#/?id=transfer-structure}
-         */
-        await this.loadMarkets();
-        const currency = this.currency(code);
-        const accountsByType = this.safeValue(this.options, 'accountsById');
-        const fromAccountId = this.safeString(accountsByType, fromAccount, fromAccount);
-        const toAccountId = this.safeString(accountsByType, toAccount, toAccount);
-        const amountString = this.currencyToPrecision(code, amount);
-        const request = {
-            'bizId': this.uuid(),
-            'currency': currency['id'],
-            'amount': amountString,
-            'from': fromAccountId,
-            'to': toAccountId,
-        };
-        const response = await this.privateSpotPostBalanceTransfer(this.extend(request, params));
-        //
-        //   {
-        //       info: { rc: '0', mc: 'SUCCESS', ma: [], result: '226971333791398656' },
-        //       id: '226971333791398656',
-        //       timestamp: undefined,
-        //       datetime: undefined,
-        //       currency: undefined,
-        //       amount: undefined,
-        //       fromAccount: undefined,
-        //       toAccount: undefined,
-        //       status: undefined
-        //   }
-        //
-        return this.parseTransfer(response, currency);
-    }
-    parseTransfer(transfer, currency = undefined) {
-        return {
-            'info': transfer,
-            'id': this.safeString(transfer, 'result'),
-            'timestamp': undefined,
-            'datetime': undefined,
-            'currency': undefined,
-            'amount': undefined,
-            'fromAccount': undefined,
-            'toAccount': undefined,
-            'status': undefined,
-        };
-    }
+    // async fetchPositions (symbols: string[] = undefined, params = {}) {
+    //     /**
+    //      * @method
+    //      * @name xt#fetchPositions
+    //      * @description fetch all open positions
+    //      * @see https://doc.xt.com/#futures_usergetPosition
+    //      * @param {[string]|undefined} symbols list of unified market symbols, not supported with xt
+    //      * @param {object} params extra parameters specific to the xt api endpoint
+    //      * @returns {[object]} a list of [position structure]{@link https://docs.ccxt.com/#/?id=position-structure}
+    //      */
+    //     await this.loadMarkets ();
+    //     if (symbols !== undefined) {
+    //         throw new BadRequest (this.id + ' fetchPositions() only supports the symbols argument as undefined');
+    //     }
+    //     let subType = undefined;
+    //     [ subType, params ] = this.handleSubTypeAndParams ('fetchPositions', undefined, params);
+    //     let response = undefined;
+    //     if (subType === 'inverse') {
+    //         response = await this.privateInverseGetFutureUserV1PositionList (params);
+    //     } else {
+    //         response = await this.privateLinearGetFutureUserV1PositionList (params);
+    //     }
+    //     //
+    //     //     {
+    //     //         "returnCode": 0,
+    //     //         "msgInfo": "success",
+    //     //         "error": null,
+    //     //         "result": [
+    //     //             {
+    //     //                 "symbol": "btc_usdt",
+    //     //                 "positionType": "ISOLATED",
+    //     //                 "positionSide": "SHORT",
+    //     //                 "contractType": "PERPETUAL",
+    //     //                 "positionSize": "10",
+    //     //                 "closeOrderSize": "0",
+    //     //                 "availableCloseSize": "10",
+    //     //                 "entryPrice": "27060",
+    //     //                 "openOrderSize": "0",
+    //     //                 "isolatedMargin": "1.0824",
+    //     //                 "openOrderMarginFrozen": "0",
+    //     //                 "realizedProfit": "-0.00130138",
+    //     //                 "autoMargin": false,
+    //     //                 "leverage": 25
+    //     //             },
+    //     //         ]
+    //     //     }
+    //     //
+    //     const positions = this.safeValue (response, 'result', []);
+    //     const result = [];
+    //     for (let i = 0; i < positions.length; i++) {
+    //         const entry = positions[i];
+    //         const marketId = this.safeString (entry, 'symbol');
+    //         const marketInner = this.safeMarket (marketId, undefined, undefined, 'contract');
+    //         result.push (this.parsePosition (entry, marketInner));
+    //     }
+    //     return this.filterByArray (result, 'symbol', undefined, false);
+    // }
+    // parsePosition (position, market = undefined) {
+    //     //
+    //     //     {
+    //     //         "symbol": "btc_usdt",
+    //     //         "positionType": "ISOLATED",
+    //     //         "positionSide": "SHORT",
+    //     //         "contractType": "PERPETUAL",
+    //     //         "positionSize": "10",
+    //     //         "closeOrderSize": "0",
+    //     //         "availableCloseSize": "10",
+    //     //         "entryPrice": "27060",
+    //     //         "openOrderSize": "0",
+    //     //         "isolatedMargin": "1.0824",
+    //     //         "openOrderMarginFrozen": "0",
+    //     //         "realizedProfit": "-0.00130138",
+    //     //         "autoMargin": false,
+    //     //         "leverage": 25
+    //     //     }
+    //     //
+    //     const marketId = this.safeString (position, 'symbol');
+    //     market = this.safeMarket (marketId, market, undefined, 'contract');
+    //     const symbol = this.safeSymbol (marketId, market, undefined, 'contract');
+    //     const positionType = this.safeString (position, 'positionType');
+    //     const marginMode = (positionType === 'CROSSED') ? 'cross' : 'isolated';
+    //     const collateral = this.safeNumber (position, 'isolatedMargin');
+    //     return this.safePosition ({
+    //         'info': position,
+    //         'id': undefined,
+    //         'symbol': symbol,
+    //         'timestamp': undefined,
+    //         'datetime': undefined,
+    //         'hedged': undefined,
+    //         'side': this.safeStringLower (position, 'positionSide'),
+    //         'contracts': this.safeNumber (position, 'positionSize'),
+    //         'contractSize': market['contractSize'],
+    //         'entryPrice': this.safeNumber (position, 'entryPrice'),
+    //         'markPrice': undefined,
+    //         'notional': undefined,
+    //         'leverage': this.safeInteger (position, 'leverage'),
+    //         'collateral': collateral,
+    //         'initialMargin': collateral,
+    //         'maintenanceMargin': undefined,
+    //         'initialMarginPercentage': undefined,
+    //         'maintenanceMarginPercentage': undefined,
+    //         'unrealizedPnl': undefined,
+    //         'liquidationPrice': undefined,
+    //         'marginMode': marginMode,
+    //         'percentage': undefined,
+    //         'marginRatio': undefined,
+    //     });
+    // }
+    // async transfer (code: string, amount, fromAccount, toAccount, params = {}) {
+    //     /**
+    //      * @method
+    //      * @name xt#transfer
+    //      * @description transfer currency internally between wallets on the same account
+    //      * @see https://doc.xt.com/#transfersubTransferPost
+    //      * @param {string} code unified currency code
+    //      * @param {float} amount amount to transfer
+    //      * @param {string} fromAccount account to transfer from -  spot, swap, leverage, finance
+    //      * @param {string} toAccount account to transfer to - spot, swap, leverage, finance
+    //      * @param {object} params extra parameters specific to the whitebit api endpoint
+    //      * @returns {object} a [transfer structure]{@link https://docs.ccxt.com/#/?id=transfer-structure}
+    //      */
+    //     await this.loadMarkets ();
+    //     const currency = this.currency (code);
+    //     const accountsByType = this.safeValue (this.options, 'accountsById');
+    //     const fromAccountId = this.safeString (accountsByType, fromAccount, fromAccount);
+    //     const toAccountId = this.safeString (accountsByType, toAccount, toAccount);
+    //     const amountString = this.currencyToPrecision (code, amount);
+    //     const request = {
+    //         'bizId': this.uuid (),
+    //         'currency': currency['id'],
+    //         'amount': amountString,
+    //         'from': fromAccountId,
+    //         'to': toAccountId,
+    //     };
+    //     const response = await this.privateSpotPostBalanceTransfer (this.extend (request, params));
+    //     //
+    //     //   {
+    //     //       info: { rc: '0', mc: 'SUCCESS', ma: [], result: '226971333791398656' },
+    //     //       id: '226971333791398656',
+    //     //       timestamp: undefined,
+    //     //       datetime: undefined,
+    //     //       currency: undefined,
+    //     //       amount: undefined,
+    //     //       fromAccount: undefined,
+    //     //       toAccount: undefined,
+    //     //       status: undefined
+    //     //   }
+    //     //
+    //     return this.parseTransfer (response, currency);
+    // }
+    // parseTransfer (transfer, currency = undefined) {
+    //     return {
+    //         'info': transfer,
+    //         'id': this.safeString (transfer, 'result'),
+    //         'timestamp': undefined,
+    //         'datetime': undefined,
+    //         'currency': undefined,
+    //         'amount': undefined,
+    //         'fromAccount': undefined,
+    //         'toAccount': undefined,
+    //         'status': undefined,
+    //     };
+    // }
     handleErrors(code, reason, url, method, headers, body, response, requestHeaders, requestBody) {
         //
         // spot: error
