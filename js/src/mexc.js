@@ -33,6 +33,7 @@ export default class mexc extends Exchange {
                 'future': false,
                 'option': false,
                 'addMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': undefined,
@@ -927,6 +928,16 @@ export default class mexc extends Exchange {
                 },
             },
         });
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name mexc#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the gateio api endpoint
+         * @param {marketData} data extra parameters specific to the gateio api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     async fetchStatus(params = {}) {
         /**
