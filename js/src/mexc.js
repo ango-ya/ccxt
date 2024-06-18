@@ -891,7 +891,7 @@ export default class mexc extends Exchange {
                     '700004': BadRequest,
                     '700005': InvalidNonce,
                     '700006': BadRequest,
-                    '700007': AuthenticationError,
+                    '700007': PermissionDenied,
                     '700008': BadRequest,
                     '730001': BadRequest,
                     '730002': BadRequest,
