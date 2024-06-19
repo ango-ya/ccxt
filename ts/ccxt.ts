@@ -40,7 +40,7 @@ import { BaseError, ExchangeError, PermissionDenied, AccountNotEnabled, AccountS
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
 
-const version = '4.2.52';
+const version = '4.2.53';
 
 (Exchange as any).ccxtVersion = version
 
@@ -423,7 +423,7 @@ export {
     OrderImmediatelyFillable,
     OrderNotFillable,
     DuplicateOrderId,
-    InvalidUsdOrder, 
+    InvalidUsdOrder,
     InvalidRangeOrder,
     NotSupported,
     NetworkError,
