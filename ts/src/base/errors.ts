@@ -204,16 +204,16 @@ class DuplicateOrderId extends InvalidOrder {
     }
 }
 class InvalidUsdOrder extends InvalidOrder {
-	constructor(message) {
-		super(message);
-		this.name = 'InvalidUsdOrder';
-	}
+    constructor (message) {
+        super (message);
+        this.name = 'InvalidUsdOrder';
+    }
 }
 class InvalidRangeOrder extends InvalidOrder {
-	constructor(message) {
-		super(message);
-		this.name = 'InvalidRangeOrder';
-	}
+    constructor (message) {
+        super (message);
+        this.name = 'InvalidRangeOrder';
+    }
 }
 class NotSupported extends ExchangeError {
     constructor (message) {
