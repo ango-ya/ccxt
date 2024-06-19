@@ -934,8 +934,8 @@ export default class mexc extends Exchange {
          * @method
          * @name mexc#callLoadMarkets
          * @description call fetchCurrencies and fetchMarkets api
-         * @param {coinListData} data extra parameters specific to the gateio api endpoint
-         * @param {marketData} data extra parameters specific to the gateio api endpoint
+         * @param {coinListData} data extra parameters specific to the mexc api endpoint
+         * @param {marketData} data extra parameters specific to the mexc api endpoint
          */
         await this.loadMarkets(coinListData, marketData);
     }
