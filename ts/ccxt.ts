@@ -423,7 +423,7 @@ export {
     OrderImmediatelyFillable,
     OrderNotFillable,
     DuplicateOrderId,
-    InvalidUsdOrder, 
+    InvalidUsdOrder,
     InvalidRangeOrder,
     NotSupported,
     NetworkError,
