@@ -68,6 +68,7 @@ export default class coincheck extends Exchange {
                 'setLeverage': false,
                 'setMarginMode': false,
                 'setPositionMode': false,
+                'withdraw': true,
                 'ws': true,
             },
             'urls': {
@@ -742,6 +743,36 @@ export default class coincheck extends Exchange {
         // }
         const data = this.safeValue (response, 'data', []);
         return this.parseTransactions (data, currency, since, limit, { 'type': 'withdrawal' });
+    }
+
+    async withdraw (code: string, amount: number, address: string, tag = undefined, params = {}) {
+        /**
+         * @method
+         * @name coincheck#withdraw
+         * @description make a withdraw made from an account
+         * @see https://coincheck.com/ja/documents/exchange/api#account-sendmoney
+         * @param {string} code unified currency code
+         * @param {float} amount the amount to withdraw
+         * @param {string} address the address to withdraw to
+         * @param {string} tag
+         * @param {object} [params] extra parameters specific to the exchange API endpoint
+         * @returns {object[]} a list of [transaction structures]{@link https://docs.ccxt.com/#/?id=transaction-structure}
+         */
+        await this.loadMarkets ();
+        this.checkAddress (address);
+        const currency = this.currency (code);
+        if (code !== 'BTC') {
+            throw new BadSymbol (this.id + 'withdraw () currently supports BTC only');
+        }
+        const request = {
+            'amount': amount.toString (),
+            'address': address,
+        };
+        if (tag !== undefined) {
+            request['tag'] = tag;
+        }
+        const response = await this.privatePostSendMoney (this.extend (request, params));
+        return this.parseTransaction (response, currency);
     }
 
     parseTransactionStatus (status) {
