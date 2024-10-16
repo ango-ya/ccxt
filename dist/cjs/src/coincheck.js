@@ -141,6 +141,7 @@ class coincheck extends coincheck$1 {
                 // 'LTC/JPY': { 'id': 'ltc_jpy', 'symbol': 'LTC/JPY', 'base': 'LTC', 'quote': 'JPY', 'baseId': 'ltc', 'quoteId': 'jpy' },
                 // 'DASH/JPY': { 'id': 'dash_jpy', 'symbol': 'DASH/JPY', 'base': 'DASH', 'quote': 'JPY', 'baseId': 'dash', 'quoteId': 'jpy' },
                 'BRIL/JPY': this.safeMarketStructure({ 'id': 'bril_jpy', 'symbol': 'BRIL/JPY', 'base': 'BRIL', 'quote': 'JPY', 'baseId': 'bril', 'quoteId': 'jpy', 'type': 'spot', 'spot': true }),
+                'BC/JPY': this.safeMarketStructure({ 'id': 'bc_jpy', 'symbol': 'BC/JPY', 'base': 'BC', 'quote': 'JPY', 'baseId': 'bc', 'quoteId': 'jpy', 'type': 'spot', 'spot': true }),
                 // 'ETH/BTC': { 'id': 'eth_btc', 'symbol': 'ETH/BTC', 'base': 'ETH', 'quote': 'BTC', 'baseId': 'eth', 'quoteId': 'btc' },
                 'ETC/BTC': this.safeMarketStructure({ 'id': 'etc_btc', 'symbol': 'ETC/BTC', 'base': 'ETC', 'quote': 'BTC', 'baseId': 'etc', 'quoteId': 'btc', 'type': 'spot', 'spot': true }),
                 // 'LSK/BTC': { 'id': 'lsk_btc', 'symbol': 'LSK/BTC', 'base': 'LSK', 'quote': 'BTC', 'baseId': 'lsk', 'quoteId': 'btc' },
