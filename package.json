@@ -1,6 +1,6 @@
 {
-  "name": "ccxt",
-  "version": "4.2.45",
+  "name": "@ango-ya/ccxt",
+  "version": "4.2.59",
   "description": "A JavaScript / TypeScript / Python / C# / PHP cryptocurrency trading library with support for 100+ exchanges",
   "unpkg": "dist/ccxt.browser.js",
   "type": "module",
@@ -13,12 +13,9 @@
   "engines": {
     "node": ">=15.0.0"
   },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.com"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ccxt/ccxt.git"
+    "url": "https://github.com/ango-ya/ccxt.git"
   },
   "readme": "README.md",
   "scripts": {
@@ -166,9 +163,9 @@
     "webpack-cli": "^5.0.1"
   },
   "author": {
-    "name": "Igor Kroitor",
-    "email": "igor.kroitor@gmail.com",
-    "url": "https://github.com/kroitor"
+    "name": "ango-ya",
+    "email": "tools@ango-ya.org",
+    "url": "https://github.com/ango-ya"
   },
   "license": "MIT",
   "bugs": {

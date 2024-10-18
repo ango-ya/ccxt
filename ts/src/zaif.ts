@@ -30,6 +30,7 @@ export default class zaif extends Exchange {
                 'swap': false,
                 'future': false,
                 'option': false,
+                'callLoadMarkets': true,
                 'cancelOrder': true,
                 'createMarketOrder': false,
                 'createOrder': true,
@@ -141,6 +142,17 @@ export default class zaif extends Exchange {
                 },
             },
         });
+    }
+
+    async callLoadMarkets (coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name zaif#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the zaif api endpoint
+         * @param {marketData} data extra parameters specific to the zaif api endpoint
+         */
+        await this.loadMarkets (coinListData, marketData);
     }
 
     async fetchMarkets (params = {}) {

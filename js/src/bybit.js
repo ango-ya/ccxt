@@ -36,6 +36,7 @@ export default class bybit extends Exchange {
                 'future': true,
                 'option': true,
                 'borrowCrossMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'closeAllPositions': false,
@@ -1254,6 +1255,16 @@ export default class bybit extends Exchange {
             },
             'info': undefined,
         };
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name bybit#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the bybit api endpoint
+         * @param {marketData} data extra parameters specific to the bybit api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     safeMarket(marketId = undefined, market = undefined, delimiter = undefined, marketType = undefined) {
         const isOption = (marketId !== undefined) && ((marketId.indexOf('-C') > -1) || (marketId.indexOf('-P') > -1));

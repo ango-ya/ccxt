@@ -78,6 +78,7 @@ class gate extends gate$1 {
                 'addMargin': true,
                 'borrowCrossMargin': true,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'createMarketBuyOrderWithCost': true,
@@ -799,7 +800,7 @@ class gate extends gate$1 {
                     'ORDER_CLOSED': errors.InvalidOrder,
                     'ORDER_CANCELLED': errors.InvalidOrder,
                     'QUANTITY_NOT_ENOUGH': errors.InvalidOrder,
-                    'BALANCE_NOT_ENOUGH': errors.InsufficientFunds,
+                    'BALANCE_NOT_ENOUGH': errors.InvalidOrder,
                     'MARGIN_NOT_SUPPORTED': errors.InvalidOrder,
                     'MARGIN_BALANCE_NOT_ENOUGH': errors.InsufficientFunds,
                     'AMOUNT_TOO_LITTLE': errors.InvalidOrder,
@@ -856,6 +857,16 @@ class gate extends gate$1 {
                 'broad': {},
             },
         });
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name gate#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the gateio api endpoint
+         * @param {marketData} data extra parameters specific to the gateio api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     setSandboxMode(enable) {
         super.setSandboxMode(enable);
@@ -2432,7 +2443,6 @@ class gate extends gate$1 {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/#/?id=ticker-structure}
          */
-        await this.loadMarkets();
         const market = this.market(symbol);
         const [request, query] = this.prepareRequest(market, undefined, params);
         let response = undefined;
@@ -2644,7 +2654,6 @@ class gate extends gate$1 {
          * @param {string} [params.marginMode] 'cross' or 'isolated' - marginMode for margin trading if not provided this.options['defaultMarginMode'] is used
          * @param {string} [params.symbol] margin only - unified ccxt symbol
          */
-        await this.loadMarkets();
         const symbol = this.safeString(params, 'symbol');
         params = this.omit(params, 'symbol');
         const [type, query] = this.handleMarketTypeAndParams('fetchBalance', undefined, params);
@@ -3188,7 +3197,6 @@ class gate extends gate$1 {
         if (symbol === undefined) {
             throw new errors.ArgumentsRequired(this.id + ' fetchOrderTrades() requires a symbol argument');
         }
-        await this.loadMarkets();
         //
         //      [
         //          {
@@ -3591,7 +3599,6 @@ class gate extends gate$1 {
          */
         [tag, params] = this.handleWithdrawTagAndParams(tag, params);
         this.checkAddress(address);
-        await this.loadMarkets();
         const currency = this.currency(code);
         const request = {
             'currency': currency['id'],
@@ -3767,7 +3774,6 @@ class gate extends gate$1 {
          * @param {float} [params.cost] *spot market buy only* the quote quantity that can be used as an alternative for the amount
          * @returns {object|undefined} [An order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets();
         const market = this.market(symbol);
         const trigger = this.safeValue(params, 'trigger');
         const triggerPrice = this.safeValue2(params, 'triggerPrice', 'stopPrice');
@@ -4562,7 +4568,6 @@ class gate extends gate$1 {
          * @param {string} [params.settle] 'btc' or 'usdt' - settle currency for perpetual swap and future - market settle currency is used if symbol !== undefined, default="usdt" for swap and "btc" for future
          * @returns An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets();
         const stop = this.safeValue2(params, 'is_stop_order', 'stop', false);
         params = this.omit(params, ['is_stop_order', 'stop']);
         let clientOrderId = this.safeString2(params, 'text', 'clientOrderId');
@@ -4653,7 +4658,6 @@ class gate extends gate$1 {
         return await this.fetchOrdersByStatus('finished', symbol, since, limit, params);
     }
     async fetchOrdersByStatus(status, symbol = undefined, since = undefined, limit = undefined, params = {}) {
-        await this.loadMarkets();
         let market = undefined;
         if (symbol !== undefined) {
             market = this.market(symbol);
@@ -4881,7 +4885,6 @@ class gate extends gate$1 {
          * @param {bool} [params.stop] True if the order to be cancelled is a trigger order
          * @returns An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets();
         const market = (symbol === undefined) ? undefined : this.market(symbol);
         const stop = this.safeValue2(params, 'is_stop_order', 'stop', false);
         params = this.omit(params, ['is_stop_order', 'stop']);
@@ -6045,6 +6048,7 @@ class gate extends gate$1 {
                 'Timestamp': timestampString,
                 'SIGN': signature,
                 'Content-Type': 'application/json',
+                'X-Gate-Channel-Id': url === 'https://api.gateio.ws/api/v4/spot/orders' ? 'xgain' : undefined,
             };
         }
         return { 'url': url, 'method': method, 'body': body, 'headers': headers };

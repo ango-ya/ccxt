@@ -32,6 +32,7 @@ export default class mexc extends Exchange {
                 'future': false,
                 'option': false,
                 'addMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': undefined,
@@ -889,7 +890,7 @@ export default class mexc extends Exchange {
                     '700004': BadRequest, // Param 'origClientOrderId' or 'orderId' must be sent, but both were empty/null
                     '700005': InvalidNonce, // recvWindow must less than 60000
                     '700006': BadRequest, // IP non white list
-                    '700007': AuthenticationError, // No permission to access the endpoint
+                    '700007': PermissionDenied, // No permission to access the endpoint
                     '700008': BadRequest, // Illegal characters found in parameter
                     '730001': BadRequest, // Pair not found
                     '730002': BadRequest, // Your input param is invalid
@@ -926,6 +927,17 @@ export default class mexc extends Exchange {
                 },
             },
         });
+    }
+
+    async callLoadMarkets (coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name mexc#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the mexc api endpoint
+         * @param {marketData} data extra parameters specific to the mexc api endpoint
+         */
+        await this.loadMarkets (coinListData, marketData);
     }
 
     async fetchStatus (params = {}) {
