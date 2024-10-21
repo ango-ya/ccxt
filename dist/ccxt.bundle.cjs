@@ -248977,10 +248977,10 @@ class zaif extends Exchange {
                 'swap': false,
                 'future': false,
                 'option': false,
+                'callLoadMarkets': true,
                 'cancelOrder': true,
                 'createMarketOrder': false,
                 'createOrder': true,
-                'callLoadMarkets': true,
                 'fetchBalance': true,
                 'fetchClosedOrders': true,
                 'fetchFundingHistory': false,
@@ -249433,8 +249433,10 @@ class zaif extends Exchange {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
+        const market = this.market(symbol);
         const request = {
             'order_id': id,
+            'currency_pair': market['id'],
         };
         return await this.privatePostCancelOrder(this.extend(request, params));
     }
@@ -302675,7 +302677,7 @@ class woo extends woo$1 {
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.59';
+const version = '4.2.60';
 Exchange$1p.ccxtVersion = version;
 const exchanges = {
     'ace': ace,

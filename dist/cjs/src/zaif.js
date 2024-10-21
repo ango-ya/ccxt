@@ -28,10 +28,10 @@ class zaif extends zaif$1 {
                 'swap': false,
                 'future': false,
                 'option': false,
+                'callLoadMarkets': true,
                 'cancelOrder': true,
                 'createMarketOrder': false,
                 'createOrder': true,
-                'callLoadMarkets': true,
                 'fetchBalance': true,
                 'fetchClosedOrders': true,
                 'fetchFundingHistory': false,
@@ -484,8 +484,10 @@ class zaif extends zaif$1 {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
+        const market = this.market(symbol);
         const request = {
             'order_id': id,
+            'currency_pair': market['id'],
         };
         return await this.privatePostCancelOrder(this.extend(request, params));
     }
