@@ -116419,9 +116419,6 @@ class coincheck$1 extends Exchange$P {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/#/?id=ticker-structure}
          */
-        if (symbol !== 'BTC/JPY') {
-            throw new BadSymbol(this.id + ' fetchTicker() supports BTC/JPY only');
-        }
         await this.loadMarkets();
         const market = this.market(symbol);
         const request = {
@@ -302677,7 +302674,7 @@ class woo extends woo$1 {
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.60';
+const version = '4.2.61';
 Exchange$1p.ccxtVersion = version;
 const exchanges = {
     'ace': ace,
