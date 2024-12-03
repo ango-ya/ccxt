@@ -98299,9 +98299,6 @@ class coincheck extends _abstract_coincheck_js__WEBPACK_IMPORTED_MODULE_0__/* ["
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/#/?id=ticker-structure}
          */
-        if (symbol !== 'BTC/JPY') {
-            throw new _base_errors_js__WEBPACK_IMPORTED_MODULE_2__.BadSymbol(this.id + ' fetchTicker() supports BTC/JPY only');
-        }
         await this.loadMarkets();
         const market = this.market(symbol);
         const request = {
@@ -306548,7 +306545,7 @@ SOFTWARE.
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.60';
+const version = '4.2.61';
 _src_base_Exchange_js__WEBPACK_IMPORTED_MODULE_0__/* .Exchange */ .k.ccxtVersion = version;
 //-----------------------------------------------------------------------------
 
