@@ -53,6 +53,7 @@ export default class coincheck extends Exchange {
                 'fetchMyTrades': true,
                 'fetchOpenInterestHistory': false,
                 'fetchOpenOrders': true,
+                'fetchOrder': true,
                 'fetchOrderBook': true,
                 'fetchPosition': false,
                 'fetchPositionMode': false,
@@ -103,6 +104,7 @@ export default class coincheck extends Exchange {
                         'exchange/orders/opens',
                         'exchange/orders/transactions',
                         'exchange/orders/transactions_pagination',
+                        'exchange/orders/{id}',
                         'exchange/leverage/positions',
                         'lending/borrows/matches',
                         'send_money',
@@ -314,6 +316,23 @@ export default class coincheck extends Exchange {
         };
         const response = await this.publicGetOrderBooks (this.extend (request, params));
         return this.parseOrderBook (response, market['symbol']);
+    }
+
+    async fetchOrder (id: string, symbol: string = undefined, params = {}): Promise<Order> {
+        /**
+         * @method
+         * @name coincheck#fetchOrder
+         * @description fetches order details
+         * @see https://coincheck.com/ja/documents/exchange/api#order-show
+         * @param {string} id order id
+         * @param {object} [params] extra parameters specific to the exchange API endpoint
+         * @returns {object} An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
+         */
+        await this.loadMarkets ();
+        const request = {
+            'id': id,
+        };
+        return await this.privateGetExchangeOrdersId (this.extend (request, params));
     }
 
     parseTicker (ticker, market: Market = undefined): Ticker {
