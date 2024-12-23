@@ -116116,6 +116116,7 @@ class coincheck$1 extends Exchange$P {
                 'fetchOpenInterestHistory': false,
                 'fetchOpenOrders': true,
                 'fetchOrderBook': true,
+                'fetchOrder': true,
                 'fetchPosition': false,
                 'fetchPositionMode': false,
                 'fetchPositions': false,
@@ -116165,6 +116166,7 @@ class coincheck$1 extends Exchange$P {
                         'exchange/orders/opens',
                         'exchange/orders/transactions',
                         'exchange/orders/transactions_pagination',
+                        'exchange/orders/{id}',
                         'exchange/leverage/positions',
                         'lending/borrows/matches',
                         'send_money',
@@ -116370,6 +116372,22 @@ class coincheck$1 extends Exchange$P {
         };
         const response = await this.publicGetOrderBooks(this.extend(request, params));
         return this.parseOrderBook(response, market['symbol']);
+    }
+    async fetchOrder(id, symbol = undefined, params = {}) {
+        /**
+         * @method
+         * @name coincheck#fetchOrder
+         * @description fetches order details
+         * @see https://coincheck.com/ja/documents/exchange/api#order-show
+         * @param {string} id order id
+         * @param {object} [params] extra parameters specific to the exchange API endpoint
+         * @returns {object} An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
+         */
+        await this.loadMarkets();
+        const request = {
+            'id': id,
+        };
+        return await this.privateGetExchangeOrdersId(this.extend(request, params));
     }
     parseTicker(ticker, market = undefined) {
         //
@@ -302674,7 +302692,7 @@ class woo extends woo$1 {
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.61';
+const version = '4.2.62';
 Exchange$1p.ccxtVersion = version;
 const exchanges = {
     'ace': ace,

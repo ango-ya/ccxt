@@ -14,6 +14,7 @@ interface Exchange {
     privateGetExchangeOrdersOpens(params?: {}): Promise<implicitReturnType>;
     privateGetExchangeOrdersTransactions(params?: {}): Promise<implicitReturnType>;
     privateGetExchangeOrdersTransactionsPagination(params?: {}): Promise<implicitReturnType>;
+    privateGetExchangeOrdersId(params?: {}): Promise<implicitReturnType>;
     privateGetExchangeLeveragePositions(params?: {}): Promise<implicitReturnType>;
     privateGetLendingBorrowsMatches(params?: {}): Promise<implicitReturnType>;
     privateGetSendMoney(params?: {}): Promise<implicitReturnType>;
