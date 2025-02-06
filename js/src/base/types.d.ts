@@ -1,4 +1,5 @@
 export declare type Int = number | undefined;
+export declare type int = number;
 export declare type Str = string | undefined;
 export declare type Strings = string[] | undefined;
 export declare type Num = number | undefined;
@@ -191,10 +192,11 @@ export interface Balances extends Dictionary<Balance> {
     datetime?: any;
 }
 export interface DepositAddress {
-    currency: string;
-    address: string;
-    status: string;
     info: any;
+    currency: string;
+    network?: string;
+    address: string;
+    tag?: Str;
 }
 export interface WithdrawalResponse {
     info: any;
@@ -397,3 +399,28 @@ export declare type OHLCVC = [Num, Num, Num, Num, Num, Num, Num];
 export declare type implicitReturnType = any;
 export declare type Market = MarketInterface | undefined;
 export declare type Currency = CurrencyInterface | undefined;
+export interface IsolatedBorrowRate {
+    info: any;
+    symbol: string;
+    base: string;
+    baseRate: number;
+    quote: string;
+    quoteRate: number;
+    period?: Int;
+    timestamp?: Int;
+    datetime?: Str;
+}
+export interface IsolatedBorrowRates extends Dictionary<IsolatedBorrowRates> {
+}
+export interface TradingFeeInterface {
+    info: any;
+    symbol: Str;
+    maker: Num;
+    taker: Num;
+    percentage: Bool;
+    tierBased: Bool;
+}
+export interface Currencies extends Dictionary<CurrencyInterface> {
+}
+export interface TradingFees extends Dictionary<TradingFeeInterface> {
+}

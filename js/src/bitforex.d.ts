@@ -18,7 +18,7 @@ export default class bitforex extends Exchange {
     fetchOHLCV(symbol: string, timeframe?: string, since?: Int, limit?: Int, params?: {}): Promise<OHLCV[]>;
     fetchOrderBook(symbol: string, limit?: Int, params?: {}): Promise<OrderBook>;
     parseOrderStatus(status: any): any;
-    parseSide(sideId: any): "buy" | "sell";
+    parseSide(sideId: any): "sell" | "buy";
     parseOrder(order: any, market?: Market): Order;
     cancelAllOrders(symbol?: Str, params?: {}): Promise<any>;
     fetchOrder(id: string, symbol?: Str, params?: {}): Promise<Order>;

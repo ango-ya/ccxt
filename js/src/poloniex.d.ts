@@ -31,7 +31,7 @@ export default class poloniex extends Exchange {
     cancelOrder(id: string, symbol?: Str, params?: {}): Promise<Order>;
     cancelAllOrders(symbol?: Str, params?: {}): Promise<Order[]>;
     fetchOrder(id: string, symbol?: Str, params?: {}): Promise<Order>;
-    fetchOrderStatus(id: string, symbol?: Str, params?: {}): Promise<"open" | "closed">;
+    fetchOrderStatus(id: string, symbol?: Str, params?: {}): Promise<"closed" | "open">;
     fetchOrderTrades(id: string, symbol?: Str, since?: Int, limit?: Int, params?: {}): Promise<Trade[]>;
     parseBalance(response: any): Balances;
     fetchBalance(params?: {}): Promise<Balances>;

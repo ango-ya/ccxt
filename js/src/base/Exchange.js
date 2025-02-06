@@ -5521,5 +5521,18 @@ export default class Exchange {
     parseGreeks(greeks, market = undefined) {
         throw new NotSupported(this.id + ' parseGreeks () is not supported yet');
     }
+    parseIsolatedBorrowRate(info, market = undefined) {
+        throw new NotSupported(this.id + ' parseIsolatedBorrowRate() is not supported yet');
+    }
+    parseIsolatedBorrowRates(info) {
+        const result = {};
+        for (let i = 0; i < info.length; i++) {
+            const item = info[i];
+            const borrowRate = this.parseIsolatedBorrowRate(item);
+            const symbol = this.safeString(borrowRate, 'symbol');
+            result[symbol] = borrowRate;
+        }
+        return result;
+    }
 }
 export { Exchange, };
