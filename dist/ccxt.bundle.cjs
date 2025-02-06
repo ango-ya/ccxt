@@ -303639,7 +303639,7 @@ class woo extends woo$1 {
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.62';
+const version = '4.2.63';
 Exchange$1p.ccxtVersion = version;
 const exchanges = {
     'ace': ace,
