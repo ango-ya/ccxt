@@ -5525,6 +5525,19 @@ class Exchange {
     parseGreeks(greeks, market = undefined) {
         throw new errors.NotSupported(this.id + ' parseGreeks () is not supported yet');
     }
+    parseIsolatedBorrowRate(info, market = undefined) {
+        throw new errors.NotSupported(this.id + ' parseIsolatedBorrowRate() is not supported yet');
+    }
+    parseIsolatedBorrowRates(info) {
+        const result = {};
+        for (let i = 0; i < info.length; i++) {
+            const item = info[i];
+            const borrowRate = this.parseIsolatedBorrowRate(item);
+            const symbol = this.safeString(borrowRate, 'symbol');
+            result[symbol] = borrowRate;
+        }
+        return result;
+    }
 }
 
 exports.Exchange = Exchange;
