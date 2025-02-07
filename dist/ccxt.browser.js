@@ -54700,6 +54700,7 @@ class bitmart extends _abstract_bitmart_js__WEBPACK_IMPORTED_MODULE_0__/* ["defa
                 'option': false,
                 'borrowCrossMargin': false,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,
@@ -55504,6 +55505,15 @@ class bitmart extends _abstract_bitmart_js__WEBPACK_IMPORTED_MODULE_0__/* ["defa
                 },
             },
         });
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name bitget#callLoadMarkets
+         * @description call fetch currencies and fetch markets
+         * @param {object} data extra parameters specific to the bitget api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     async fetchTime(params = {}) {
         /**
@@ -307510,7 +307520,7 @@ SOFTWARE.
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.63';
+const version = '4.2.64';
 _src_base_Exchange_js__WEBPACK_IMPORTED_MODULE_0__/* .Exchange */ .k.ccxtVersion = version;
 //-----------------------------------------------------------------------------
 

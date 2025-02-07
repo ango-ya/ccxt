@@ -6,6 +6,7 @@ import type { Int, OrderSide, Balances, OrderType, OHLCV, Order, Str, Trade, Tra
  */
 export default class bitmart extends Exchange {
     describe(): any;
+    callLoadMarkets(coinListData?: any, marketData?: any): Promise<void>;
     fetchTime(params?: {}): Promise<number>;
     fetchStatus(params?: {}): Promise<{
         status: any;

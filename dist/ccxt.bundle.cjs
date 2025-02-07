@@ -71116,6 +71116,7 @@ class bitmart$1 extends Exchange$17 {
                 'option': false,
                 'borrowCrossMargin': false,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,
@@ -71920,6 +71921,15 @@ class bitmart$1 extends Exchange$17 {
                 },
             },
         });
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name bitget#callLoadMarkets
+         * @description call fetch currencies and fetch markets
+         * @param {object} data extra parameters specific to the bitget api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     async fetchTime(params = {}) {
         /**
@@ -303639,7 +303649,7 @@ class woo extends woo$1 {
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.63';
+const version = '4.2.64';
 Exchange$1p.ccxtVersion = version;
 const exchanges = {
     'ace': ace,
