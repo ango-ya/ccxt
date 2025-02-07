@@ -35,6 +35,7 @@ export default class bitmart extends Exchange {
                 'option': false,
                 'borrowCrossMargin': false,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,
@@ -839,6 +840,16 @@ export default class bitmart extends Exchange {
                 },
             },
         });
+    }
+
+    async callLoadMarkets (coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name bitget#callLoadMarkets
+         * @description call fetch currencies and fetch markets
+         * @param {object} data extra parameters specific to the bitget api endpoint
+         */
+        await this.loadMarkets (coinListData, marketData);
     }
 
     async fetchTime (params = {}) {
