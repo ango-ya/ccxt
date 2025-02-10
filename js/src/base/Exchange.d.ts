@@ -3,7 +3,7 @@ import { // eslint-disable-line object-curly-newline
 ExchangeError, AuthenticationError, DDoSProtection, RequestTimeout, ExchangeNotAvailable, RateLimitExceeded } from "./errors.js";
 import WsClient from './ws/WsClient.js';
 import { OrderBook as WsOrderBook, IndexedOrderBook, CountedOrderBook } from './ws/OrderBook.js';
-import type { Market, Trade, Ticker, OHLCV, OHLCVC, Order, OrderBook, Balance, Balances, Dictionary, Transaction, DepositAddressResponse, Currency, MinMax, IndexType, Int, OrderType, OrderSide, Position, FundingRate, DepositWithdrawFeeNetwork, LedgerEntry, BorrowInterest, OpenInterest, LeverageTier, TransferEntry, FundingRateHistory, Liquidation, FundingHistory, OrderRequest, MarginMode, Tickers, Greeks, Str, Num, MarketInterface, CurrencyInterface, Account, Dict, IsolatedBorrowRate, IsolatedBorrowRates } from './types.js';
+import type { Market, Trade, Ticker, OHLCV, OHLCVC, Order, OrderBook, Balance, Balances, Dictionary, Transaction, DepositAddressResponse, Currency, MinMax, IndexType, Int, OrderType, OrderSide, Position, FundingRate, DepositWithdrawFeeNetwork, LedgerEntry, BorrowInterest, OpenInterest, LeverageTiers, TransferEntry, FundingRateHistory, Liquidation, FundingHistory, OrderRequest, MarginMode, Tickers, Greeks, Str, Num, MarketInterface, CurrencyInterface, Account, Dict, IsolatedBorrowRate, IsolatedBorrowRates } from './types.js';
 export type { Market, Trade, Fee, Ticker, OHLCV, OHLCVC, Order, OrderBook, Balance, Balances, Dictionary, Transaction, DepositAddressResponse, Currency, MinMax, IndexType, Int, OrderType, OrderSide, Position, FundingRateHistory, Liquidation, FundingHistory, Greeks } from './types.js';
 /**
  * @class Exchange
@@ -626,7 +626,7 @@ export default class Exchange {
     fetchCrossBorrowRates(params?: {}): Promise<{}>;
     fetchIsolatedBorrowRates(params?: {}): Promise<{}>;
     parseMarketLeverageTiers(info: any, market?: Market): object;
-    fetchLeverageTiers(symbols?: string[], params?: {}): Promise<Dictionary<LeverageTier>>;
+    fetchLeverageTiers(symbols?: string[], params?: {}): Promise<LeverageTiers>;
     parsePosition(position: any, market?: Market): Position;
     parseFundingRateHistory(info: any, market?: Market): FundingRateHistory;
     parseBorrowInterest(info: any, market?: Market): BorrowInterest;

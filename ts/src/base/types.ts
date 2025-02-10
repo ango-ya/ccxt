@@ -474,3 +474,19 @@ export interface Currencies extends Dictionary<CurrencyInterface> {
 
 export interface TradingFees extends Dictionary<TradingFeeInterface> {
 }
+
+export interface MarginModification {
+    'info': any,
+    'symbol': string,
+    'type': 'add' | 'reduce' | 'set' | undefined,
+    'marginMode': 'cross' | 'isolated' | undefined,
+    'amount': Num,
+    'total': Num,
+    'code': Str,
+    'status': Str,
+    'timestamp': Int,
+    'datetime': Str,
+}
+
+export interface LeverageTiers extends Dictionary<LeverageTier[]> {
+}
