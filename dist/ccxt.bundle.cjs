@@ -171123,6 +171123,7 @@ class huobijp$1 extends Exchange$y {
                 'swap': false,
                 'future': false,
                 'option': false,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,
@@ -171420,6 +171421,16 @@ class huobijp$1 extends Exchange$y {
                 'BIFI': 'Bitcoin File', // conflict with Beefy.Finance https://github.com/ccxt/ccxt/issues/8706
             },
         });
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name gate#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the gateio api endpoint
+         * @param {marketData} data extra parameters specific to the gateio api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     async fetchTime(params = {}) {
         /**
@@ -172285,8 +172296,33 @@ class huobijp$1 extends Exchange$y {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {Order[]} a list of [order structures]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        const method = this.safeString(this.options, 'fetchOpenOrdersMethod', 'fetch_open_orders_v1');
-        return await this[method](symbol, since, limit, params);
+        await this.loadMarkets();
+        const request = {};
+        let market = undefined;
+        // アカウントIDを取得
+        const account = await this.fetchAccounts(params);
+        const accountId = account[0]['id']; // 配列の最初のアカウントを使用
+        request['account-id'] = accountId;
+        // シンボルが指定されている場合
+        if (symbol !== undefined) {
+            market = this.market(symbol);
+            request['symbol'] = market['id'];
+        }
+        // サイズが指定されている場合
+        if (limit !== undefined) {
+            request['size'] = limit;
+        }
+        // 追加パラメータ（side）が指定されている場合
+        if ('side' in params) {
+            const side = this.safeString(params, 'side');
+            if (side === 'buy' || side === 'sell') {
+                request['side'] = side;
+            }
+            params = this.omit(params, 'side');
+        }
+        const response = await this.privateGetOrderOpenOrders(this.extend(request, params));
+        const data = this.safeValue(response, 'data', []);
+        return this.parseOrders(data, market, since, limit);
     }
     async fetchOpenOrdersV1(symbol = undefined, since = undefined, limit = undefined, params = {}) {
         if (symbol === undefined) {
@@ -308649,7 +308685,7 @@ class woo extends woo$1 {
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.65';
+const version = '4.2.66';
 Exchange$1q.ccxtVersion = version;
 const exchanges = {
     'ace': ace,
