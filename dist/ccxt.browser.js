@@ -312593,7 +312593,7 @@ SOFTWARE.
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.66';
+const version = '4.2.67';
 _src_base_Exchange_js__WEBPACK_IMPORTED_MODULE_0__/* .Exchange */ .k.ccxtVersion = version;
 //-----------------------------------------------------------------------------
 
