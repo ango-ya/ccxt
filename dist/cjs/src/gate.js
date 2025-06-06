@@ -6043,12 +6043,16 @@ class gate extends gate$1 {
             // eslint-disable-next-line quotes
             const payload = payloadArray.join("\n");
             const signature = this.hmac(this.encode(payload), this.encode(this.secret), sha512.sha512);
+            let channelId = undefined;
+            if (url === 'https://api.gateio.ws/api/v4/spot/orders') {
+                channelId = Math.random() <= 0.5 ? 'xgain' : 'endless8';
+            }
             headers = {
                 'KEY': this.apiKey,
                 'Timestamp': timestampString,
                 'SIGN': signature,
                 'Content-Type': 'application/json',
-                'X-Gate-Channel-Id': url === 'https://api.gateio.ws/api/v4/spot/orders' ? 'xgain' : undefined,
+                'X-Gate-Channel-Id': channelId,
             };
         }
         return { 'url': url, 'method': method, 'body': body, 'headers': headers };
