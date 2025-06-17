@@ -5445,11 +5445,15 @@ export default class mexc extends Exchange {
                 this.checkRequiredCredentials ();
                 const signature = this.hmac (this.encode (paramsEncoded), this.encode (this.secret), sha256);
                 url += '&' + 'signature=' + signature;
-                headers = {
-                    'X-MEXC-APIKEY': this.apiKey,
-                    'source': this.safeString (this.options, 'broker', 'CCXT'),
-                };
+                // headers = {
+                //     'X-MEXC-APIKEY': this.apiKey,
+                //     'source': this.safeString (this.options, 'broker', 'CCXT'),
+                // };
             }
+            headers = {
+                'X-MEXC-APIKEY': this.apiKey,
+                'source': this.safeString (this.options, 'broker', 'CCXT'),
+            };
             if (method === 'POST') {
                 headers['Content-Type'] = 'application/json';
             }
