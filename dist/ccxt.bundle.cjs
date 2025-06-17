@@ -205844,11 +205844,15 @@ class mexc$1 extends Exchange$l {
                 this.checkRequiredCredentials();
                 const signature = this.hmac(this.encode(paramsEncoded), this.encode(this.secret), sha256);
                 url += '&' + 'signature=' + signature;
-                headers = {
-                    'X-MEXC-APIKEY': this.apiKey,
-                    'source': this.safeString(this.options, 'broker', 'CCXT'),
-                };
+                // headers = {
+                //     'X-MEXC-APIKEY': this.apiKey,
+                //     'source': this.safeString (this.options, 'broker', 'CCXT'),
+                // };
             }
+            headers = {
+                'X-MEXC-APIKEY': this.apiKey,
+                'source': this.safeString(this.options, 'broker', 'CCXT'),
+            };
             if (method === 'POST') {
                 headers['Content-Type'] = 'application/json';
             }
@@ -308689,7 +308693,7 @@ class woo extends woo$1 {
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.67';
+const version = '4.2.68';
 Exchange$1q.ccxtVersion = version;
 const exchanges = {
     'ace': ace,

@@ -190288,11 +190288,15 @@ class mexc extends _abstract_mexc_js__WEBPACK_IMPORTED_MODULE_0__/* ["default"] 
                 this.checkRequiredCredentials();
                 const signature = this.hmac(this.encode(paramsEncoded), this.encode(this.secret), _static_dependencies_noble_hashes_sha256_js__WEBPACK_IMPORTED_MODULE_4__/* .sha256 */ .s);
                 url += '&' + 'signature=' + signature;
-                headers = {
-                    'X-MEXC-APIKEY': this.apiKey,
-                    'source': this.safeString(this.options, 'broker', 'CCXT'),
-                };
+                // headers = {
+                //     'X-MEXC-APIKEY': this.apiKey,
+                //     'source': this.safeString (this.options, 'broker', 'CCXT'),
+                // };
             }
+            headers = {
+                'X-MEXC-APIKEY': this.apiKey,
+                'source': this.safeString(this.options, 'broker', 'CCXT'),
+            };
             if (method === 'POST') {
                 headers['Content-Type'] = 'application/json';
             }
@@ -312593,7 +312597,7 @@ SOFTWARE.
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.67';
+const version = '4.2.68';
 _src_base_Exchange_js__WEBPACK_IMPORTED_MODULE_0__/* .Exchange */ .k.ccxtVersion = version;
 //-----------------------------------------------------------------------------
 
