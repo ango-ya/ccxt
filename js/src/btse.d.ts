@@ -3,7 +3,6 @@ import type { Balances, Int, Market, Ticker, OrderBook, Dict, Order, Trade, OHLC
 export default class btse extends Exchange {
     constructor(options?: {});
     describe(): any;
-    loadMarkets(reload?: boolean, params?: {}): Promise<import("./base/types.js").Dictionary<import("./base/types.js").MarketInterface>>;
     fetchMarkets(params?: {}): Promise<any[]>;
     fetchTicker(symbol: string, params?: {}): Promise<Ticker>;
     parseTicker(ticker: Dict, market?: Market): Ticker;

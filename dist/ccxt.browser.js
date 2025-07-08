@@ -84086,19 +84086,15 @@ class btse extends _abstract_btse_js__WEBPACK_IMPORTED_MODULE_0__/* ["default"] 
                 'private': {
                     'get': [
                         'api/v3.2/user/wallet',
-                        'api/v3.2/user/wallet/{symbol}',
                         'api/v3.2/user/open_orders',
-                        'api/v3.2/user/orders',
-                        'api/v3.2/user/order/{order_id}',
-                        'api/v3.2/user/trades',
-                        'api/v3.2/user/trades/{symbol}',
+                        'api/v3.2/order',
+                        'api/v3.2/user/trade_history',
                     ],
                     'post': [
                         'api/v3.2/order',
                     ],
                     'delete': [
                         'api/v3.2/order',
-                        'api/v3.2/order/{order_id}',
                     ],
                 },
             },
@@ -84147,10 +84143,6 @@ class btse extends _abstract_btse_js__WEBPACK_IMPORTED_MODULE_0__/* ["default"] 
                 'secret': true,
             },
         });
-    }
-    async loadMarkets(reload = false, params = {}) {
-        const markets = await super.loadMarkets(reload, params);
-        return markets;
     }
     async fetchMarkets(params = {}) {
         const response = await this.request('api/v3.2/market_summary', 'public', 'GET', params);

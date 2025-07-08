@@ -18,15 +18,11 @@ interface Exchange {
     publicGetApiV32TradesSymbol (params?: {}): Promise<implicitReturnType>;
     publicGetApiV32OhlcvSymbol (params?: {}): Promise<implicitReturnType>;
     privateGetApiV32UserWallet (params?: {}): Promise<implicitReturnType>;
-    privateGetApiV32UserWalletSymbol (params?: {}): Promise<implicitReturnType>;
     privateGetApiV32UserOpenOrders (params?: {}): Promise<implicitReturnType>;
-    privateGetApiV32UserOrders (params?: {}): Promise<implicitReturnType>;
-    privateGetApiV32UserOrderOrderId (params?: {}): Promise<implicitReturnType>;
-    privateGetApiV32UserTrades (params?: {}): Promise<implicitReturnType>;
-    privateGetApiV32UserTradesSymbol (params?: {}): Promise<implicitReturnType>;
+    privateGetApiV32Order (params?: {}): Promise<implicitReturnType>;
+    privateGetApiV32UserTradeHistory (params?: {}): Promise<implicitReturnType>;
     privatePostApiV32Order (params?: {}): Promise<implicitReturnType>;
     privateDeleteApiV32Order (params?: {}): Promise<implicitReturnType>;
-    privateDeleteApiV32OrderOrderId (params?: {}): Promise<implicitReturnType>;
 }
 abstract class Exchange extends _Exchange {}
 
