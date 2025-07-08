@@ -49,6 +49,7 @@ var btcalpha = require('./src/btcalpha.js');
 var btcbox = require('./src/btcbox.js');
 var btcmarkets = require('./src/btcmarkets.js');
 var btcturk = require('./src/btcturk.js');
+var btse = require('./src/btse.js');
 var bybit = require('./src/bybit.js');
 var cex = require('./src/cex.js');
 var coinbase = require('./src/coinbase.js');
@@ -178,7 +179,7 @@ var woo$1 = require('./src/pro/woo.js');
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.68';
+const version = '4.2.69';
 Exchange["default"].ccxtVersion = version;
 const exchanges = {
     'ace': ace,
@@ -218,6 +219,7 @@ const exchanges = {
     'btcbox': btcbox,
     'btcmarkets': btcmarkets,
     'btcturk': btcturk,
+    'btse': btse,
     'bybit': bybit,
     'cex': cex,
     'coinbase': coinbase,
@@ -427,6 +429,7 @@ exports.btcalpha = btcalpha;
 exports.btcbox = btcbox;
 exports.btcmarkets = btcmarkets;
 exports.btcturk = btcturk;
+exports.btse = btse;
 exports.bybit = bybit;
 exports.cex = cex;
 exports.coinbase = coinbase;

@@ -8754,7 +8754,7 @@ const { isNode, deepExtend, extend, clone: clone$1, flatten, unique, indexBy, so
 /**
  * @class Exchange
  */
-class Exchange$1q {
+class Exchange$1r {
     constructor(userConfig = {}) {
         this.throttleProp = undefined;
         this.api = undefined;
@@ -9290,7 +9290,7 @@ class Exchange$1q {
     }
     checkRequiredVersion(requiredVersion, error = true) {
         let result = true;
-        const [major1, minor1, patch1] = requiredVersion.split('.'), [major2, minor2, patch2] = Exchange$1q.ccxtVersion.split('.'), intMajor1 = this.parseToInt(major1), intMinor1 = this.parseToInt(minor1), intPatch1 = this.parseToInt(patch1), intMajor2 = this.parseToInt(major2), intMinor2 = this.parseToInt(minor2), intPatch2 = this.parseToInt(patch2);
+        const [major1, minor1, patch1] = requiredVersion.split('.'), [major2, minor2, patch2] = Exchange$1r.ccxtVersion.split('.'), intMajor1 = this.parseToInt(major1), intMinor1 = this.parseToInt(minor1), intPatch1 = this.parseToInt(patch1), intMajor2 = this.parseToInt(major2), intMinor2 = this.parseToInt(minor2), intPatch2 = this.parseToInt(patch2);
         if (intMajor1 > intMajor2) {
             result = false;
         }
@@ -9304,7 +9304,7 @@ class Exchange$1q {
         }
         if (!result) {
             if (error) {
-                throw new NotSupported('Your current version of CCXT is ' + Exchange$1q.ccxtVersion + ', a newer version ' + requiredVersion + ' is required, please, upgrade your version of CCXT');
+                throw new NotSupported('Your current version of CCXT is ' + Exchange$1r.ccxtVersion + ', a newer version ' + requiredVersion + ' is required, please, upgrade your version of CCXT');
             }
             else {
                 return error;
@@ -14258,7 +14258,7 @@ class Exchange$1q {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1p extends Exchange$1q {
+class Exchange$1q extends Exchange$1r {
 }
 
 // Choice: a ? b : c
@@ -14389,7 +14389,7 @@ wrapConstructor(() => new SHA224());
  * @class ace
  * @augments Exchange
  */
-class ace extends Exchange$1p {
+class ace extends Exchange$1q {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'ace',
@@ -15434,7 +15434,7 @@ class ace extends Exchange$1p {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1o extends Exchange$1q {
+class Exchange$1p extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -15443,7 +15443,7 @@ class Exchange$1o extends Exchange$1q {
  * @class alpaca
  * @augments Exchange
  */
-class alpaca$1 extends Exchange$1o {
+class alpaca$1 extends Exchange$1p {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'alpaca',
@@ -16556,7 +16556,7 @@ class alpaca$1 extends Exchange$1o {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1n extends Exchange$1q {
+class Exchange$1o extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -16565,7 +16565,7 @@ class Exchange$1n extends Exchange$1q {
  * @class ascendex
  * @augments Exchange
  */
-class ascendex$1 extends Exchange$1n {
+class ascendex$1 extends Exchange$1o {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'ascendex',
@@ -19922,14 +19922,14 @@ class ascendex$1 extends Exchange$1n {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1m extends Exchange$1q {
+class Exchange$1n extends Exchange$1r {
 }
 
 /**
  * @class hitbtc
  * @augments Exchange
  */
-class hitbtc$1 extends Exchange$1m {
+class hitbtc$1 extends Exchange$1n {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'hitbtc',
@@ -23601,7 +23601,7 @@ class bequant$1 extends hitbtc$1 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1l extends Exchange$1q {
+class Exchange$1m extends Exchange$1r {
 }
 
 function hex2b64(h) {
@@ -28754,7 +28754,7 @@ function jwt(request, secret, hash, isRSA = false) {
  * @class bigone
  * @augments Exchange
  */
-class bigone extends Exchange$1l {
+class bigone extends Exchange$1m {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bigone',
@@ -30973,7 +30973,7 @@ class bigone extends Exchange$1l {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1k extends Exchange$1q {
+class Exchange$1l extends Exchange$1r {
 }
 
 const U32_MASK64 = BigInt(2 ** 32 - 1);
@@ -32831,7 +32831,7 @@ RistrettoPoint.ZERO = new RistrettoPoint(ed25519.ExtendedPoint.ZERO);
  * @class binance
  * @augments Exchange
  */
-class binance$1 extends Exchange$1k {
+class binance$1 extends Exchange$1l {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'binance',
@@ -45080,7 +45080,7 @@ class binanceusdm$1 extends binance$1 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1j extends Exchange$1q {
+class Exchange$1k extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -45089,7 +45089,7 @@ class Exchange$1j extends Exchange$1q {
  * @class bingx
  * @augments Exchange
  */
-class bingx$1 extends Exchange$1j {
+class bingx$1 extends Exchange$1k {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bingx',
@@ -49279,7 +49279,7 @@ class bingx$1 extends Exchange$1j {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1i extends Exchange$1q {
+class Exchange$1j extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -49288,7 +49288,7 @@ class Exchange$1i extends Exchange$1q {
  * @class bit2c
  * @augments Exchange
  */
-class bit2c extends Exchange$1i {
+class bit2c extends Exchange$1j {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bit2c',
@@ -50203,7 +50203,7 @@ class bit2c extends Exchange$1i {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1h extends Exchange$1q {
+class Exchange$1i extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -50212,7 +50212,7 @@ class Exchange$1h extends Exchange$1q {
  * @class bitbank
  * @augments Exchange
  */
-class bitbank extends Exchange$1h {
+class bitbank extends Exchange$1i {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitbank',
@@ -51211,7 +51211,7 @@ class bitbank extends Exchange$1h {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1g extends Exchange$1q {
+class Exchange$1h extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -51220,7 +51220,7 @@ class Exchange$1g extends Exchange$1q {
  * @class zonda
  * @augments Exchange
  */
-class zonda extends Exchange$1g {
+class zonda extends Exchange$1h {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'zonda',
@@ -53101,7 +53101,7 @@ class bitbay extends zonda {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1f extends Exchange$1q {
+class Exchange$1g extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -53110,7 +53110,7 @@ class Exchange$1f extends Exchange$1q {
  * @class bitbns
  * @augments Exchange
  */
-class bitbns extends Exchange$1f {
+class bitbns extends Exchange$1g {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitbns',
@@ -54358,7 +54358,7 @@ class bitcoincom$1 extends fmfwio {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1e extends Exchange$1q {
+class Exchange$1f extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -54367,7 +54367,7 @@ class Exchange$1e extends Exchange$1q {
  * @class bitfinex
  * @augments Exchange
  */
-class bitfinex$1 extends Exchange$1e {
+class bitfinex$1 extends Exchange$1f {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitfinex',
@@ -56044,7 +56044,7 @@ class bitfinex$1 extends Exchange$1e {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1d extends Exchange$1q {
+class Exchange$1e extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -56053,7 +56053,7 @@ class Exchange$1d extends Exchange$1q {
  * @class bitfinex2
  * @augments Exchange
  */
-class bitfinex2$1 extends Exchange$1d {
+class bitfinex2$1 extends Exchange$1e {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitfinex2',
@@ -59729,7 +59729,7 @@ class bitfinex2$1 extends Exchange$1d {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1c extends Exchange$1q {
+class Exchange$1d extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -59738,7 +59738,7 @@ class Exchange$1c extends Exchange$1q {
  * @class bitflyer
  * @augments Exchange
  */
-class bitflyer extends Exchange$1c {
+class bitflyer extends Exchange$1d {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitflyer',
@@ -60770,7 +60770,7 @@ class bitflyer extends Exchange$1c {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1b extends Exchange$1q {
+class Exchange$1c extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -60779,7 +60779,7 @@ class Exchange$1b extends Exchange$1q {
  * @class bitforex
  * @augments Exchange
  */
-class bitforex extends Exchange$1b {
+class bitforex extends Exchange$1c {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitforex',
@@ -61650,7 +61650,7 @@ class bitforex extends Exchange$1b {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1a extends Exchange$1q {
+class Exchange$1b extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -61659,7 +61659,7 @@ class Exchange$1a extends Exchange$1q {
  * @class bitget
  * @augments Exchange
  */
-class bitget$1 extends Exchange$1a {
+class bitget$1 extends Exchange$1b {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitget',
@@ -69982,7 +69982,7 @@ class bitget$1 extends Exchange$1a {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$19 extends Exchange$1q {
+class Exchange$1a extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -69991,7 +69991,7 @@ class Exchange$19 extends Exchange$1q {
  * @class bithumb
  * @augments Exchange
  */
-class bithumb extends Exchange$19 {
+class bithumb extends Exchange$1a {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bithumb',
@@ -71086,7 +71086,7 @@ class bithumb extends Exchange$19 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$18 extends Exchange$1q {
+class Exchange$19 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -71095,7 +71095,7 @@ class Exchange$18 extends Exchange$1q {
  * @class bitmart
  * @augments Exchange
  */
-class bitmart$1 extends Exchange$18 {
+class bitmart$1 extends Exchange$19 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitmart',
@@ -76479,7 +76479,7 @@ class bitmart$1 extends Exchange$18 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$17 extends Exchange$1q {
+class Exchange$18 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -76488,7 +76488,7 @@ class Exchange$17 extends Exchange$1q {
  * @class bitmex
  * @augments Exchange
  */
-class bitmex$1 extends Exchange$17 {
+class bitmex$1 extends Exchange$18 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitmex',
@@ -79377,7 +79377,7 @@ class bitmex$1 extends Exchange$17 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$16 extends Exchange$1q {
+class Exchange$17 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -79386,7 +79386,7 @@ class Exchange$16 extends Exchange$1q {
  * @class bitopro
  * @augments Exchange
  */
-class bitopro$1 extends Exchange$16 {
+class bitopro$1 extends Exchange$17 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitopro',
@@ -81096,7 +81096,7 @@ class bitopro$1 extends Exchange$16 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$15 extends Exchange$1q {
+class Exchange$16 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -81105,7 +81105,7 @@ class Exchange$15 extends Exchange$1q {
  * @class onetrading
  * @augments Exchange
  */
-class onetrading$1 extends Exchange$15 {
+class onetrading$1 extends Exchange$16 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'onetrading',
@@ -83105,7 +83105,7 @@ class bitpanda$1 extends onetrading$1 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$14 extends Exchange$1q {
+class Exchange$15 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -83114,7 +83114,7 @@ class Exchange$14 extends Exchange$1q {
  * @class bitrue
  * @augments Exchange
  */
-class bitrue$1 extends Exchange$14 {
+class bitrue$1 extends Exchange$15 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitrue',
@@ -86346,7 +86346,7 @@ class bitrue$1 extends Exchange$14 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$13 extends Exchange$1q {
+class Exchange$14 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -86355,7 +86355,7 @@ class Exchange$13 extends Exchange$1q {
  * @class bitso
  * @augments Exchange
  */
-class bitso extends Exchange$13 {
+class bitso extends Exchange$14 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitso',
@@ -88110,7 +88110,7 @@ class bitso extends Exchange$13 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$12 extends Exchange$1q {
+class Exchange$13 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -88119,7 +88119,7 @@ class Exchange$12 extends Exchange$1q {
  * @class bitstamp
  * @augments Exchange
  */
-class bitstamp$1 extends Exchange$12 {
+class bitstamp$1 extends Exchange$13 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitstamp',
@@ -90323,7 +90323,7 @@ class bitstamp$1 extends Exchange$12 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$11 extends Exchange$1q {
+class Exchange$12 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -90332,7 +90332,7 @@ class Exchange$11 extends Exchange$1q {
  * @class bitteam
  * @augments Exchange
  */
-class bitteam extends Exchange$11 {
+class bitteam extends Exchange$12 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitteam',
@@ -92628,7 +92628,7 @@ class bitteam extends Exchange$11 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$10 extends Exchange$1q {
+class Exchange$11 extends Exchange$1r {
 }
 
 // ----------------------------------------------------------------------------
@@ -92637,7 +92637,7 @@ class Exchange$10 extends Exchange$1q {
  * @class bitvavo
  * @augments Exchange
  */
-class bitvavo$1 extends Exchange$10 {
+class bitvavo$1 extends Exchange$11 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bitvavo',
@@ -94690,7 +94690,7 @@ class bitvavo$1 extends Exchange$10 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$$ extends Exchange$1q {
+class Exchange$10 extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -94699,7 +94699,7 @@ class Exchange$$ extends Exchange$1q {
  * @class bl3p
  * @augments Exchange
  */
-class bl3p extends Exchange$$ {
+class bl3p extends Exchange$10 {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'bl3p',
@@ -95139,7 +95139,7 @@ class bl3p extends Exchange$$ {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$_ extends Exchange$1q {
+class Exchange$$ extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -95148,7 +95148,7 @@ class Exchange$_ extends Exchange$1q {
  * @class blockchaincom
  * @augments Exchange
  */
-class blockchaincom$1 extends Exchange$_ {
+class blockchaincom$1 extends Exchange$$ {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'blockchaincom',
@@ -96318,7 +96318,7 @@ class blockchaincom$1 extends Exchange$_ {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$Z extends Exchange$1q {
+class Exchange$_ extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -96327,7 +96327,7 @@ class Exchange$Z extends Exchange$1q {
  * @class blofin
  * @augments Exchange
  */
-class blofin extends Exchange$Z {
+class blofin extends Exchange$_ {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'blofin',
@@ -98417,7 +98417,7 @@ class blofin extends Exchange$Z {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$Y extends Exchange$1q {
+class Exchange$Z extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -98426,7 +98426,7 @@ class Exchange$Y extends Exchange$1q {
  * @class btcalpha
  * @augments Exchange
  */
-class btcalpha extends Exchange$Y {
+class btcalpha extends Exchange$Z {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'btcalpha',
@@ -99350,7 +99350,7 @@ class btcalpha extends Exchange$Y {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$X extends Exchange$1q {
+class Exchange$Y extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -99359,7 +99359,7 @@ class Exchange$X extends Exchange$1q {
  * @class btcbox
  * @augments Exchange
  */
-class btcbox extends Exchange$X {
+class btcbox extends Exchange$Y {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'btcbox',
@@ -99919,7 +99919,7 @@ class btcbox extends Exchange$X {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$W extends Exchange$1q {
+class Exchange$X extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -99928,7 +99928,7 @@ class Exchange$W extends Exchange$1q {
  * @class btcmarkets
  * @augments Exchange
  */
-class btcmarkets extends Exchange$W {
+class btcmarkets extends Exchange$X {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'btcmarkets',
@@ -101170,7 +101170,7 @@ class btcmarkets extends Exchange$W {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$V extends Exchange$1q {
+class Exchange$W extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -101179,7 +101179,7 @@ class Exchange$V extends Exchange$1q {
  * @class btcturk
  * @augments Exchange
  */
-class btcturk extends Exchange$V {
+class btcturk extends Exchange$W {
     describe() {
         return this.deepExtend(super.describe(), {
             'id': 'btcturk',
@@ -102105,7 +102105,689 @@ class btcturk extends Exchange$V {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$U extends Exchange$1q {
+class Exchange$V extends Exchange$1r {
+}
+
+class btse extends Exchange$V {
+    constructor(options = {}) {
+        super(options);
+    }
+    describe() {
+        return this.deepExtend(super.describe(), {
+            'id': 'btse',
+            'name': 'BTSE',
+            'country': ['VG'],
+            'rateLimit': 67,
+            'version': 'v3.2',
+            'certified': false,
+            'pro': false,
+            'has': {
+                'CORS': undefined,
+                'spot': true,
+                'margin': false,
+                'swap': false,
+                'future': false,
+                'option': false,
+                'addMargin': false,
+                'borrowCrossMargin': false,
+                'borrowIsolatedMargin': false,
+                'cancelAllOrders': false,
+                'cancelOrder': true,
+                'cancelOrders': false,
+                'createDepositAddress': false,
+                'createMarketBuyOrderWithCost': false,
+                'createMarketOrderWithCost': false,
+                'createMarketSellOrderWithCost': false,
+                'createOrder': true,
+                'createOrderWithTakeProfitAndStopLoss': false,
+                'createPostOnlyOrder': false,
+                'createReduceOnlyOrder': false,
+                'createStopLimitOrder': false,
+                'createStopMarketOrder': false,
+                'createStopOrder': false,
+                'createTrailingAmountOrder': false,
+                'createTrailingPercentOrder': false,
+                'editOrder': false,
+                'fetchBalance': true,
+                'fetchBidsAsks': false,
+                'fetchBorrowInterest': false,
+                'fetchBorrowRateHistories': false,
+                'fetchBorrowRateHistory': false,
+                'fetchCanceledOrders': false,
+                'fetchClosedOrders': false,
+                'fetchCurrencies': true,
+                'fetchDepositAddress': false,
+                'fetchDepositAddresses': false,
+                'fetchDepositAddressesV2': false,
+                'fetchDeposits': false,
+                'fetchFundingHistory': false,
+                'fetchFundingRate': false,
+                'fetchFundingRateHistory': false,
+                'fetchFundingRates': false,
+                'fetchIndexOHLCV': false,
+                'fetchLeverage': false,
+                'fetchLeverageTiers': false,
+                'fetchMarginMode': false,
+                'fetchMarkets': true,
+                'fetchMarkOHLCV': false,
+                'fetchMyTrades': true,
+                'fetchOHLCV': true,
+                'fetchOpenInterest': false,
+                'fetchOpenInterestHistory': false,
+                'fetchOpenOrders': true,
+                'fetchOrder': true,
+                'fetchOrderBook': true,
+                'fetchOrderBooks': false,
+                'fetchOrders': false,
+                'fetchOrderTrades': false,
+                'fetchPosition': false,
+                'fetchPositions': false,
+                'fetchPositionsRisk': false,
+                'fetchPremiumIndexOHLCV': false,
+                'fetchStatus': false,
+                'fetchTicker': true,
+                'fetchTickers': false,
+                'fetchTime': false,
+                'fetchTrades': false,
+                'fetchTradingFee': false,
+                'fetchTradingFees': false,
+                'fetchWithdrawals': false,
+                'setLeverage': false,
+                'setMarginMode': false,
+                'setPositionMode': false,
+                'transfer': false,
+                'withdraw': false,
+            },
+            'timeframes': {
+                '1m': '1m',
+                '5m': '5m',
+                '15m': '15m',
+                '30m': '30m',
+                '1h': '1h',
+                '4h': '4h',
+                '1d': '1d',
+                '1w': '1w',
+                '1M': '1M',
+            },
+            'urls': {
+                'logo': 'https://user-images.githubusercontent.com/1294454/104117117-f2fd9500-52d9-11eb-9b88-cc9e3e8f5ad1.jpg',
+                'api': {
+                    'public': 'https://api.btse.com/spot',
+                    'private': 'https://api.btse.com/spot',
+                },
+                'test': {
+                    'public': 'https://testapi.btse.io/spot',
+                    'private': 'https://testapi.btse.io/spot',
+                },
+                'www': 'https://www.btse.com',
+                'doc': [
+                    'https://btsecom.github.io/docs/spot/en/',
+                ],
+                'fees': 'https://www.btse.com/en/fees',
+                'referral': 'https://www.btse.com/en/register?ref=7j1hT6Cg',
+            },
+            'api': {
+                'public': {
+                    'get': [
+                        'api/v3.2/market_summary',
+                        'api/v3.2/orderbook',
+                        'api/v3.2/trades',
+                        'api/v3.2/ohlcv',
+                        'api/v3.2/market_summary/{symbol}',
+                        'api/v3.2/orderbook/{symbol}',
+                        'api/v3.2/trades/{symbol}',
+                        'api/v3.2/ohlcv/{symbol}',
+                    ],
+                },
+                'private': {
+                    'get': [
+                        'api/v3.2/user/wallet',
+                        'api/v3.2/user/open_orders',
+                        'api/v3.2/order',
+                        'api/v3.2/user/trade_history',
+                    ],
+                    'post': [
+                        'api/v3.2/order',
+                    ],
+                    'delete': [
+                        'api/v3.2/order',
+                    ],
+                },
+            },
+            'fees': {
+                'trading': {
+                    'maker': this.parseNumber('0.001'),
+                    'taker': this.parseNumber('0.001'),
+                },
+            },
+            'exceptions': {
+                'exact': {},
+                'broad': {},
+            },
+            'precisionMode': 4,
+            'paddingMode': 0,
+            'options': {
+                'createMarketBuyOrderRequiresPrice': false,
+                'fetchOrdersRequiresSymbol': false,
+                'fetchMyTradesRequiresSymbol': false,
+                'fetchOrderBookRequiresSymbol': false,
+                'fetchTickerRequiresSymbol': false,
+                'fetchTradesRequiresSymbol': false,
+                'brokerId': 'CCXT',
+                'partner': {
+                    'id': 'CCXT',
+                    'key': 'ccxt',
+                },
+                'networks': {
+                    'BTC': 'BTC',
+                    'ETH': 'ETH',
+                    'LTC': 'LTC',
+                    'BCH': 'BCH',
+                    'EOS': 'EOS',
+                    'XRP': 'XRP',
+                    'TRX': 'TRX',
+                    'USDT': 'USDT',
+                    'USDC': 'USDC',
+                },
+                'partner-id': 'CCXT',
+            },
+            'commonCurrencies': {
+                'PNT': 'Penta',
+            },
+            'requiredCredentials': {
+                'apiKey': true,
+                'secret': true,
+            },
+        });
+    }
+    async fetchMarkets(params = {}) {
+        const response = await this.request('api/v3.2/market_summary', 'public', 'GET', params);
+        const markets = Array.isArray(response) ? response : this.safeList(response, 'data', []);
+        const result = [];
+        for (let i = 0; i < markets.length; i++) {
+            const market = markets[i];
+            const id = this.safeString(market, 'symbol');
+            if (id === undefined) {
+                continue;
+            }
+            const parts = id.split('-');
+            if (parts.length !== 2) {
+                continue;
+            }
+            const baseId = parts[0];
+            const quoteId = parts[1];
+            const base = this.safeCurrencyCode(baseId);
+            const quote = this.safeCurrencyCode(quoteId);
+            const symbol = base + '/' + quote;
+            result.push({
+                'id': id,
+                'symbol': symbol,
+                'base': base,
+                'quote': quote,
+                'settle': undefined,
+                'baseId': baseId,
+                'quoteId': quoteId,
+                'settleId': undefined,
+                'type': 'spot',
+                'spot': true,
+                'margin': false,
+                'swap': false,
+                'future': false,
+                'option': false,
+                'active': true,
+                'contract': false,
+                'linear': undefined,
+                'inverse': undefined,
+                'contractSize': undefined,
+                'expiry': undefined,
+                'expiryDatetime': undefined,
+                'strike': undefined,
+                'optionType': undefined,
+                'precision': {
+                    'amount': undefined,
+                    'price': undefined,
+                },
+                'limits': {
+                    'leverage': {
+                        'min': undefined,
+                        'max': undefined,
+                    },
+                    'amount': {
+                        'min': undefined,
+                        'max': undefined,
+                    },
+                    'price': {
+                        'min': undefined,
+                        'max': undefined,
+                    },
+                    'cost': {
+                        'min': undefined,
+                        'max': undefined,
+                    },
+                },
+                'created': undefined,
+                'info': market,
+            });
+        }
+        return result;
+    }
+    async fetchTicker(symbol, params = {}) {
+        // シンボルを変換 (BTC/USDT -> BTC-USDT)
+        const marketId = symbol.replace('/', '-');
+        const request = {
+            'symbol': marketId,
+        };
+        const response = await this.request('api/v3.2/market_summary', 'public', 'GET', request);
+        const tickers = Array.isArray(response) ? response : [];
+        const ticker = tickers.find((t) => this.safeString(t, 'symbol') === marketId);
+        if (!ticker) {
+            throw new ExchangeError(this.id + ' fetchTicker symbol ' + symbol + ' not found');
+        }
+        return this.parseTicker(ticker, undefined);
+    }
+    parseTicker(ticker, market = undefined) {
+        const marketId = this.safeString(ticker, 'symbol');
+        // marketIdを直接シンボルに変換 (BTC-USDT -> BTC/USDT)
+        const symbol = marketId ? marketId.replace('-', '/') : undefined;
+        const timestamp = this.milliseconds();
+        const last = this.safeString(ticker, 'last');
+        const high = this.safeString(ticker, 'high24Hr');
+        const low = this.safeString(ticker, 'low24Hr');
+        const baseVolume = this.safeString(ticker, 'size');
+        const quoteVolume = this.safeString(ticker, 'volume');
+        const bid = this.safeString(ticker, 'highestBid');
+        const ask = this.safeString(ticker, 'lowestAsk');
+        const percentage = this.safeString(ticker, 'percentageChange');
+        const open = undefined;
+        const change = undefined;
+        const average = undefined;
+        return this.safeTicker({
+            'symbol': symbol,
+            'timestamp': timestamp,
+            'datetime': this.iso8601(timestamp),
+            'high': high,
+            'low': low,
+            'bid': bid,
+            'bidVolume': undefined,
+            'ask': ask,
+            'askVolume': undefined,
+            'vwap': undefined,
+            'open': open,
+            'close': last,
+            'last': last,
+            'previousClose': undefined,
+            'change': change,
+            'percentage': percentage,
+            'average': average,
+            'baseVolume': baseVolume,
+            'quoteVolume': quoteVolume,
+            'info': ticker,
+        }, market);
+    }
+    async fetchOrderBook(symbol, limit = undefined, params = {}) {
+        // await this.loadMarkets ();
+        // const market = this.market (symbol);
+        const symbolId = symbol.replace('/', '-'); // BTC/USDT -> BTC-USDT
+        const request = {
+            'symbol': symbolId,
+        };
+        if (limit !== undefined) {
+            request['depth'] = limit;
+        }
+        const response = await this.request('api/v3.2/orderbook', 'public', 'GET', request);
+        const bids = (response.buyQuote || []).map((bid) => [this.safeString(bid, 'price'), this.safeString(bid, 'size')]);
+        const asks = (response.sellQuote || []).map((ask) => [this.safeString(ask, 'price'), this.safeString(ask, 'size')]);
+        const orderbook = {
+            'bids': bids,
+            'asks': asks,
+            'timestamp': response.timestamp,
+        };
+        const timestamp = this.safeTimestamp(response, 'timestamp');
+        return this.parseOrderBook(orderbook, symbol, timestamp, 'bids', 'asks');
+    }
+    sign(path, api = 'public', method = 'GET', params = {}, headers = undefined, body = undefined) {
+        let url = this.urls['api'][api] + '/' + path;
+        if (api === 'public') {
+            if (Object.keys(params).length) {
+                url += '?' + this.urlencode(params);
+            }
+        }
+        else {
+            this.checkRequiredCredentials();
+            const nonce = Date.now().toString();
+            let bodyStr = '';
+            if (method === 'GET' || method === 'DELETE') {
+                if (Object.keys(params).length) {
+                    const queryString = this.urlencode(params);
+                    url += '?' + queryString;
+                }
+            }
+            else if (method === 'POST') {
+                body = this.json(params);
+                bodyStr = body;
+            }
+            const fullPath = '/' + path;
+            const content = fullPath + nonce + bodyStr;
+            const signature = this.hmac(this.encode(content), this.encode(this.secret), sha384, 'hex');
+            headers = {
+                'request-api': this.apiKey,
+                'request-nonce': nonce,
+                'request-sign': signature,
+                'Content-Type': 'application/json',
+            };
+        }
+        return { 'url': url, 'method': method, 'body': body, 'headers': headers };
+    }
+    async fetchBalance(params = {}) {
+        // await this.loadMarkets ();
+        const response = await this.request('api/v3.2/user/wallet', 'private', 'GET', params);
+        const result = {
+            'info': response,
+            'timestamp': undefined,
+            'datetime': undefined,
+        };
+        for (let i = 0; i < response.length; i++) {
+            const balance = response[i];
+            const currencyId = this.safeString(balance, 'currency');
+            const code = this.safeCurrencyCode(currencyId);
+            const total = this.safeString(balance, 'total');
+            const free = this.safeString(balance, 'available');
+            const used = this.safeString(balance, 'reserved');
+            result[code] = {
+                'free': free,
+                'used': used,
+                'total': total,
+            };
+        }
+        return this.safeBalance(result);
+    }
+    async createOrder(symbol, type, side, amount, price = undefined, params = {}) {
+        const marketId = symbol.replace('/', '-');
+        const request = {
+            'symbol': marketId,
+            'side': side.toUpperCase(),
+            'type': type.toUpperCase(),
+            'size': String(amount),
+        };
+        if (type === 'limit') {
+            if (price === undefined) {
+                throw new ExchangeError(this.id + ' createOrder() requires a price argument for limit orders');
+            }
+            request['price'] = String(price);
+        }
+        const response = await this.request('api/v3.2/order', 'private', 'POST', request);
+        const orderData = Array.isArray(response) ? response[0] : response;
+        return this.parseOrder(orderData, undefined);
+    }
+    async cancelOrder(id, symbol = undefined, params = {}) {
+        if (symbol === undefined) {
+            throw new ExchangeError(this.id + ' cancelOrder() requires a symbol argument');
+        }
+        const request = {
+            'orderID': id,
+            'symbol': symbol.replace('/', '-'),
+            ...params,
+        };
+        const response = await this.request('api/v3.2/order', 'private', 'DELETE', request);
+        const orderData = Array.isArray(response) ? response[0] : response;
+        return this.parseOrder(orderData, undefined);
+    }
+    async fetchOrder(id, symbol = undefined, params = {}) {
+        const request = {
+            'orderID': id,
+        };
+        const response = await this.request('api/v3.2/order', 'private', 'GET', request);
+        return this.parseOrder(response, undefined);
+    }
+    async fetchOpenOrders(symbol = undefined, since = undefined, limit = undefined, params = {}) {
+        const request = {};
+        if (symbol !== undefined) {
+            const marketId = symbol.replace('/', '-');
+            request['symbol'] = marketId;
+        }
+        if (limit !== undefined) {
+            request['limit'] = limit;
+        }
+        const response = await this.request('api/v3.2/user/open_orders', 'private', 'GET', request);
+        const orders = Array.isArray(response) ? response : [];
+        return this.parseOrders(orders, undefined, since, limit);
+    }
+    async fetchMyTrades(symbol = undefined, since = undefined, limit = undefined, params = {}) {
+        const request = {};
+        if (symbol !== undefined) {
+            const marketId = symbol.replace('/', '-');
+            request['symbol'] = marketId;
+        }
+        if (limit !== undefined) {
+            request['count'] = limit;
+        }
+        const response = await this.request('api/v3.2/user/trade_history', 'private', 'GET', request);
+        const trades = Array.isArray(response) ? response : [];
+        return this.parseTrades(trades, undefined, since, limit);
+    }
+    async fetchOHLCV(symbol, timeframe = '1m', since = undefined, limit = undefined, params = {}) {
+        const marketId = symbol.replace('/', '-');
+        const request = {
+            'symbol': marketId,
+            'resolution': this.timeframes[timeframe],
+        };
+        if (limit !== undefined) {
+            request['limit'] = limit;
+        }
+        const response = await this.request('api/v3.2/ohlcv', 'public', 'GET', request);
+        const ohlcvs = Array.isArray(response) ? response : [];
+        return this.parseOHLCVs(ohlcvs, undefined, timeframe, since, limit);
+    }
+    async fetchCurrencies(params = {}) {
+        const markets = await this.fetchMarkets(params);
+        const currencies = {};
+        for (let i = 0; i < markets.length; i++) {
+            const market = markets[i];
+            const baseId = market['baseId'];
+            const quoteId = market['quoteId'];
+            const base = market['base'];
+            const quote = market['quote'];
+            if (!(base in currencies)) {
+                currencies[base] = {
+                    'id': baseId,
+                    'code': base,
+                    'name': base,
+                    'active': true,
+                    'deposit': undefined,
+                    'withdraw': undefined,
+                    'fee': undefined,
+                    'precision': undefined,
+                    'limits': {
+                        'amount': {
+                            'min': undefined,
+                            'max': undefined,
+                        },
+                        'withdraw': {
+                            'min': undefined,
+                            'max': undefined,
+                        },
+                    },
+                    'networks': {},
+                    'info': undefined,
+                };
+            }
+            if (!(quote in currencies)) {
+                currencies[quote] = {
+                    'id': quoteId,
+                    'code': quote,
+                    'name': quote,
+                    'active': true,
+                    'deposit': undefined,
+                    'withdraw': undefined,
+                    'fee': undefined,
+                    'precision': undefined,
+                    'limits': {
+                        'amount': {
+                            'min': undefined,
+                            'max': undefined,
+                        },
+                        'withdraw': {
+                            'min': undefined,
+                            'max': undefined,
+                        },
+                    },
+                    'networks': {},
+                    'info': undefined,
+                };
+            }
+        }
+        return currencies;
+    }
+    parseOrder(order, market = undefined) {
+        const id = this.safeString(order, 'orderID');
+        const marketId = this.safeString(order, 'symbol');
+        const symbol = marketId ? marketId.replace('-', '/') : undefined;
+        const side = this.safeStringLower(order, 'side');
+        const orderType = this.safeInteger(order, 'orderType');
+        const type = this.parseOrderType(orderType) || this.safeStringLower(order, 'type');
+        const amount = this.safeString(order, 'size');
+        const price = this.safeString(order, 'price');
+        const filled = this.safeString(order, 'filledSize');
+        const remaining = this.safeString(order, 'remainingSize');
+        const averageFillPrice = this.safeString(order, 'averageFillPrice');
+        const average = (averageFillPrice && averageFillPrice !== '0') ? averageFillPrice : undefined;
+        const statusCode = this.safeInteger(order, 'status');
+        const orderState = this.safeString(order, 'orderState');
+        const status = statusCode ? this.parseOrderStatusCode(statusCode) : this.parseOrderStatus(orderState);
+        const timestamp = this.safeTimestamp(order, 'timestamp');
+        const fee = undefined;
+        return this.safeOrder({
+            'id': id,
+            'clientOrderId': this.safeString(order, 'clOrderID'),
+            'datetime': this.iso8601(timestamp),
+            'timestamp': timestamp,
+            'lastTradeTimestamp': undefined,
+            'symbol': symbol,
+            'type': type,
+            'timeInForce': undefined,
+            'postOnly': undefined,
+            'side': side,
+            'amount': amount,
+            'price': price,
+            'stopPrice': undefined,
+            'triggerPrice': undefined,
+            'cost': undefined,
+            'average': average,
+            'filled': filled,
+            'remaining': remaining,
+            'status': status,
+            'fee': fee,
+            'trades': undefined,
+            'info': order,
+        }, market);
+    }
+    parseOrderStatus(status) {
+        const statuses = {
+            'PENDING': 'open',
+            'PARTIAL_FILL': 'open',
+            'FILLED': 'closed',
+            'CANCELLED': 'canceled',
+            'REJECTED': 'rejected',
+            'STATUS_ACTIVE': 'open',
+            'STATUS_INACTIVE': 'canceled',
+        };
+        return this.safeString(statuses, status, status);
+    }
+    parseOrderStatusCode(statusCode) {
+        const statuses = {
+            '2': 'open',
+            '4': 'closed',
+            '5': 'open',
+            '6': 'canceled',
+            '8': 'rejected',
+            '9': 'open',
+            '10': 'open',
+            '15': 'rejected',
+            '16': 'rejected',
+            '17': 'rejected', // Failed to complete the request
+        };
+        return this.safeString(statuses, statusCode.toString(), 'open');
+    }
+    parseOrderType(orderType) {
+        const orderTypes = {
+            '76': 'limit',
+            '77': 'market',
+            '80': 'limit', // Peg/Algo order (treated as limit)
+        };
+        return this.safeString(orderTypes, orderType.toString());
+    }
+    parseTrade(trade, market = undefined) {
+        const id = this.safeString(trade, 'tradeId');
+        const orderId = this.safeString(trade, 'orderId');
+        const marketId = this.safeString(trade, 'symbol');
+        const symbol = marketId ? marketId.replace('-', '/') : undefined;
+        const side = this.safeStringLower(trade, 'side');
+        const orderType = this.safeInteger(trade, 'orderType');
+        const type = this.parseOrderType(orderType) || this.safeStringLower(trade, 'type');
+        const amount = this.safeString(trade, 'size');
+        const price = this.safeString(trade, 'price');
+        const cost = this.safeString(trade, 'quoteAmount');
+        const timestamp = this.safeTimestamp(trade, 'timestamp');
+        const feeCost = this.safeString(trade, 'feeAmount');
+        const feeCurrency = this.safeString(trade, 'feeCurrency');
+        const fee = {
+            'cost': feeCost,
+            'currency': feeCurrency,
+        };
+        return this.safeTrade({
+            'id': id,
+            'order': orderId,
+            'info': trade,
+            'timestamp': timestamp,
+            'datetime': this.iso8601(timestamp),
+            'symbol': symbol,
+            'type': type,
+            'side': side,
+            'amount': amount,
+            'price': price,
+            'cost': cost,
+            'fee': fee,
+        }, market);
+    }
+    parseOHLCV(ohlcv, market = undefined) {
+        return [
+            this.safeTimestamp(ohlcv, 0),
+            this.safeNumber(ohlcv, 1),
+            this.safeNumber(ohlcv, 2),
+            this.safeNumber(ohlcv, 3),
+            this.safeNumber(ohlcv, 4),
+            this.safeNumber(ohlcv, 5),
+        ];
+    }
+    handleErrors(code, reason, url, method, headers, body, response, requestHeaders, requestBody) {
+        if (response === undefined) {
+            return undefined;
+        }
+        if (code >= 400) {
+            let message = reason || 'Unknown error';
+            if (response && typeof response === 'object') {
+                message = this.safeString(response, 'message', this.safeString(response, 'error', message));
+            }
+            // Handle 404 errors for order-related endpoints
+            if (code === 404 && (url.includes('/order') || url.includes('/user/order'))) {
+                throw new OrderNotFound(this.id + ' order not found: ' + message);
+            }
+            throw new ExchangeError(this.id + ' ' + message);
+        }
+        const success = this.safeValue(response, 'success');
+        if (success !== undefined && !success) {
+            const message = this.safeString(response, 'message', 'Unknown error');
+            const errorCode = this.safeString(response, 'code');
+            this.throwExactlyMatchedException(this.exceptions['exact'], errorCode, message);
+            this.throwBroadlyMatchedException(this.exceptions['broad'], message, message);
+            throw new ExchangeError(this.id + ' ' + message);
+        }
+        return undefined;
+    }
+}
+
+// -------------------------------------------------------------------------------
+class Exchange$U extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -109834,7 +110516,7 @@ class bybit$1 extends Exchange$U {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$T extends Exchange$1q {
+class Exchange$T extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -111522,7 +112204,7 @@ class cex$1 extends Exchange$T {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$S extends Exchange$1q {
+class Exchange$S extends Exchange$1r {
 }
 
 // ----------------------------------------------------------------------------
@@ -115160,7 +115842,7 @@ class coinbase$1 extends Exchange$S {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$R extends Exchange$1q {
+class Exchange$R extends Exchange$1r {
 }
 
 // ----------------------------------------------------------------------------
@@ -117023,7 +117705,7 @@ class coinbasepro$1 extends Exchange$R {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$Q extends Exchange$1q {
+class Exchange$Q extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -117933,7 +118615,7 @@ class coincheck$1 extends Exchange$Q {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$P extends Exchange$1q {
+class Exchange$P extends Exchange$1r {
 }
 
 /*
@@ -123625,7 +124307,7 @@ class coinex$1 extends Exchange$P {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$O extends Exchange$1q {
+class Exchange$O extends Exchange$1r {
 }
 
 /**
@@ -125959,7 +126641,7 @@ class coinlist extends Exchange$O {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$N extends Exchange$1q {
+class Exchange$N extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -126943,7 +127625,7 @@ class coinmate extends Exchange$N {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$M extends Exchange$1q {
+class Exchange$M extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -128855,7 +129537,7 @@ class coinmetro extends Exchange$M {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$L extends Exchange$1q {
+class Exchange$L extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -130035,7 +130717,7 @@ class coinone$1 extends Exchange$L {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$K extends Exchange$1q {
+class Exchange$K extends Exchange$1r {
 }
 
 /**
@@ -131963,7 +132645,7 @@ class coinsph extends Exchange$K {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$J extends Exchange$1q {
+class Exchange$J extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -132506,7 +133188,7 @@ class coinspot extends Exchange$J {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$I extends Exchange$1q {
+class Exchange$I extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -135508,7 +136190,7 @@ class cryptocom$1 extends Exchange$I {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$H extends Exchange$1q {
+class Exchange$H extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -137518,7 +138200,7 @@ class currencycom$1 extends Exchange$H {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$G extends Exchange$1q {
+class Exchange$G extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -140757,7 +141439,7 @@ class delta extends Exchange$G {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$F extends Exchange$1q {
+class Exchange$F extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -144234,7 +144916,7 @@ class deribit$1 extends Exchange$F {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$E extends Exchange$1q {
+class Exchange$E extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -148541,7 +149223,7 @@ class digifinex extends Exchange$E {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$D extends Exchange$1q {
+class Exchange$D extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -151181,7 +151863,7 @@ class exmo$1 extends Exchange$D {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$C extends Exchange$1q {
+class Exchange$C extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -158226,7 +158908,7 @@ class gateio$1 extends gate$1 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$B extends Exchange$1q {
+class Exchange$B extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -160039,7 +160721,7 @@ class hitbtc3 extends hitbtc$1 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$A extends Exchange$1q {
+class Exchange$A extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -161916,7 +162598,7 @@ class hollaex$1 extends Exchange$A {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$z extends Exchange$1q {
+class Exchange$z extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -171099,7 +171781,7 @@ class huobi$1 extends htx$1 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$y extends Exchange$1q {
+class Exchange$y extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -173048,7 +173730,7 @@ class huobijp$1 extends Exchange$y {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$x extends Exchange$1q {
+class Exchange$x extends Exchange$1r {
 }
 
 // Various per round constants calculations
@@ -176278,7 +176960,7 @@ class idex$1 extends Exchange$x {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$w extends Exchange$1q {
+class Exchange$w extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -177035,7 +177717,7 @@ class independentreserve$1 extends Exchange$w {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$v extends Exchange$1q {
+class Exchange$v extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -178100,7 +178782,7 @@ class indodax extends Exchange$v {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$u extends Exchange$1q {
+class Exchange$u extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -181027,7 +181709,7 @@ class kraken$1 extends Exchange$u {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$t extends Exchange$1q {
+class Exchange$t extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -183571,7 +184253,7 @@ class krakenfutures$1 extends Exchange$t {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$s extends Exchange$1q {
+class Exchange$s extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -190593,7 +191275,7 @@ class kucoinfutures$1 extends kucoin$1 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$r extends Exchange$1q {
+class Exchange$r extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -192536,7 +193218,7 @@ class kuna extends Exchange$r {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$q extends Exchange$1q {
+class Exchange$q extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -194261,7 +194943,7 @@ class latoken extends Exchange$q {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$p extends Exchange$1q {
+class Exchange$p extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -197107,7 +197789,7 @@ class lbank$1 extends Exchange$p {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$o extends Exchange$1q {
+class Exchange$o extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -198229,7 +198911,7 @@ class luno$1 extends Exchange$o {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$n extends Exchange$1q {
+class Exchange$n extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -199528,7 +200210,7 @@ class lykke extends Exchange$n {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$m extends Exchange$1q {
+class Exchange$m extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -200421,7 +201103,7 @@ class mercado extends Exchange$m {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$l extends Exchange$1q {
+class Exchange$l extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -205919,7 +206601,7 @@ class mexc$1 extends Exchange$l {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$k extends Exchange$1q {
+class Exchange$k extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -208363,7 +209045,7 @@ class ndax$1 extends Exchange$k {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$j extends Exchange$1q {
+class Exchange$j extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -209917,7 +210599,7 @@ class novadax extends Exchange$j {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$i extends Exchange$1q {
+class Exchange$i extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -210876,7 +211558,7 @@ class oceanex extends Exchange$i {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$h extends Exchange$1q {
+class Exchange$h extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -213989,7 +214671,7 @@ class okcoin$1 extends Exchange$h {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$g extends Exchange$1q {
+class Exchange$g extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -221371,7 +222053,7 @@ class okx$1 extends Exchange$g {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$f extends Exchange$1q {
+class Exchange$f extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -222611,7 +223293,7 @@ class p2b$1 extends Exchange$f {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$e extends Exchange$1q {
+class Exchange$e extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -223203,7 +223885,7 @@ class paymium extends Exchange$e {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$d extends Exchange$1q {
+class Exchange$d extends Exchange$1r {
 }
 
 // ----------------------------------------------------------------------------
@@ -227940,7 +228622,7 @@ class phemex$1 extends Exchange$d {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$c extends Exchange$1q {
+class Exchange$c extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -230298,7 +230980,7 @@ class poloniex$1 extends Exchange$c {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$b extends Exchange$1q {
+class Exchange$b extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -232097,7 +232779,7 @@ class poloniexfutures$1 extends Exchange$b {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$a extends Exchange$1q {
+class Exchange$a extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -233960,7 +234642,7 @@ class probit$1 extends Exchange$a {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$9 extends Exchange$1q {
+class Exchange$9 extends Exchange$1r {
 }
 
 /**
@@ -235583,7 +236265,7 @@ class timex extends Exchange$9 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$8 extends Exchange$1q {
+class Exchange$8 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -238120,7 +238802,7 @@ class tokocrypto extends Exchange$8 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$7 extends Exchange$1q {
+class Exchange$7 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -239967,7 +240649,7 @@ class upbit$1 extends Exchange$7 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$6 extends Exchange$1q {
+class Exchange$6 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -242570,7 +243252,7 @@ class wavesexchange extends Exchange$6 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$5 extends Exchange$1q {
+class Exchange$5 extends Exchange$1r {
 }
 
 /**
@@ -243518,7 +244200,7 @@ class wazirx$1 extends Exchange$5 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$4 extends Exchange$1q {
+class Exchange$4 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -245823,7 +246505,7 @@ class whitebit$1 extends Exchange$4 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$3 extends Exchange$1q {
+class Exchange$3 extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -248616,7 +249298,7 @@ class woo$1 extends Exchange$3 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$2 extends Exchange$1q {
+class Exchange$2 extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -253616,7 +254298,7 @@ class xt extends Exchange$2 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange$1 extends Exchange$1q {
+class Exchange$1 extends Exchange$1r {
 }
 
 // ---------------------------------------------------------------------------
@@ -254964,7 +255646,7 @@ class yobit extends Exchange$1 {
 }
 
 // -------------------------------------------------------------------------------
-class Exchange extends Exchange$1q {
+class Exchange extends Exchange$1r {
 }
 
 //  ---------------------------------------------------------------------------
@@ -308689,8 +309371,8 @@ class woo extends woo$1 {
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.68';
-Exchange$1q.ccxtVersion = version;
+const version = '4.2.69';
+Exchange$1r.ccxtVersion = version;
 const exchanges = {
     'ace': ace,
     'alpaca': alpaca$1,
@@ -308729,6 +309411,7 @@ const exchanges = {
     'btcbox': btcbox,
     'btcmarkets': btcmarkets,
     'btcturk': btcturk,
+    'btse': btse,
     'bybit': bybit$1,
     'cex': cex$1,
     'coinbase': coinbase$1,
@@ -308859,9 +309542,9 @@ const pro = {
     'woo': woo,
 };
 pro.exchanges = Object.keys(pro);
-pro['Exchange'] = Exchange$1q; // now the same for rest and ts
+pro['Exchange'] = Exchange$1r; // now the same for rest and ts
 //-----------------------------------------------------------------------------
-const ccxt = Object.assign({ version, Exchange: Exchange$1q, Precise, 'exchanges': Object.keys(exchanges), 'pro': pro }, exchanges, functions, errors$1);
+const ccxt = Object.assign({ version, Exchange: Exchange$1r, Precise, 'exchanges': Object.keys(exchanges), 'pro': pro }, exchanges, functions, errors$1);
 //-----------------------------------------------------------------------------
 
 function isSecureEndpoint$1() {
@@ -312494,7 +313177,7 @@ exports.BaseError = BaseError;
 exports.CancelPending = CancelPending;
 exports.DDoSProtection = DDoSProtection;
 exports.DuplicateOrderId = DuplicateOrderId;
-exports.Exchange = Exchange$1q;
+exports.Exchange = Exchange$1r;
 exports.ExchangeError = ExchangeError;
 exports.ExchangeNotAvailable = ExchangeNotAvailable;
 exports.InsufficientFunds = InsufficientFunds;
@@ -312554,6 +313237,7 @@ exports.btcalpha = btcalpha;
 exports.btcbox = btcbox;
 exports.btcmarkets = btcmarkets;
 exports.btcturk = btcturk;
+exports.btse = btse;
 exports.bybit = bybit$1;
 exports.cex = cex$1;
 exports.coinbase = coinbase$1;

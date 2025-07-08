@@ -40,7 +40,7 @@ import { BaseError, ExchangeError, PermissionDenied, AccountNotEnabled, AccountS
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
 
-const version = '4.2.68';
+const version = '4.2.69';
 
 (Exchange as any).ccxtVersion = version
 
@@ -83,6 +83,7 @@ import btcalpha from  './src/btcalpha.js'
 import btcbox from  './src/btcbox.js'
 import btcmarkets from  './src/btcmarkets.js'
 import btcturk from  './src/btcturk.js'
+import btse from  './src/btse.js'
 import bybit from  './src/bybit.js'
 import cex from  './src/cex.js'
 import coinbase from  './src/coinbase.js'
@@ -251,6 +252,7 @@ const exchanges = {
     'btcbox':                 btcbox,
     'btcmarkets':             btcmarkets,
     'btcturk':                btcturk,
+    'btse':                   btse,
     'bybit':                  bybit,
     'cex':                    cex,
     'coinbase':               coinbase,
@@ -499,6 +501,7 @@ export {
     btcbox,
     btcmarkets,
     btcturk,
+    btse,
     bybit,
     cex,
     coinbase,
