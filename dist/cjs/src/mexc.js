@@ -30,6 +30,7 @@ class mexc extends mexc$1 {
                 'future': false,
                 'option': false,
                 'addMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': undefined,
@@ -887,7 +888,7 @@ class mexc extends mexc$1 {
                     '700004': errors.BadRequest,
                     '700005': errors.InvalidNonce,
                     '700006': errors.BadRequest,
-                    '700007': errors.AuthenticationError,
+                    '700007': errors.PermissionDenied,
                     '700008': errors.BadRequest,
                     '730001': errors.BadRequest,
                     '730002': errors.BadRequest,
@@ -924,6 +925,16 @@ class mexc extends mexc$1 {
                 },
             },
         });
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name mexc#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the mexc api endpoint
+         * @param {marketData} data extra parameters specific to the mexc api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     async fetchStatus(params = {}) {
         /**

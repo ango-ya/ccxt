@@ -37,6 +37,7 @@ export default class binance extends Exchange {
                 'addMargin': true,
                 'borrowCrossMargin': true,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,  // contract only
@@ -2316,6 +2317,17 @@ export default class binance extends Exchange {
                 },
             },
         });
+    }
+
+    async callLoadMarkets (coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name gate#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the gateio api endpoint
+         * @param {marketData} data extra parameters specific to the gateio api endpoint
+         */
+        await this.loadMarkets (coinListData, marketData);
     }
 
     isInverse (type, subType = undefined): boolean {

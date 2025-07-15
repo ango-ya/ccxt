@@ -6,6 +6,7 @@ import type { TransferEntry, IndexType, Int, OrderSide, Balances, OrderType, OHL
  */
 export default class mexc extends Exchange {
     describe(): any;
+    callLoadMarkets(coinListData?: any, marketData?: any): Promise<void>;
     fetchStatus(params?: {}): Promise<{
         status: any;
         updated: any;

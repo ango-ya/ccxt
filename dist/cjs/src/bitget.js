@@ -32,6 +32,7 @@ class bitget extends bitget$1 {
                 'addMargin': true,
                 'borrowCrossMargin': true,
                 'borrowIsolatedMargin': true,
+                'callLoadMarkets': true,
                 'cancelAllOrders': true,
                 'cancelOrder': true,
                 'cancelOrders': true,
@@ -1213,10 +1214,14 @@ class bitget extends bitget$1 {
                     '40714': errors.ExchangeError,
                     '40768': errors.OrderNotFound,
                     '41114': errors.OnMaintenance,
+                    '43006': errors.InvalidOrder,
+                    '43008': errors.InvalidRangeOrder,
+                    '43009': errors.InvalidRangeOrder,
                     '43011': errors.InvalidOrder,
+                    '43012': errors.InvalidOrder,
                     '43025': errors.InvalidOrder,
                     '43115': errors.OnMaintenance,
-                    '45110': errors.InvalidOrder,
+                    '45110': errors.InvalidUsdOrder,
                     // spot
                     'invalid sign': errors.AuthenticationError,
                     'invalid currency': errors.BadSymbol,
@@ -1383,6 +1388,15 @@ class bitget extends bitget$1 {
                 'defaultTimeInForce': 'GTC', // 'GTC' = Good To Cancel (default), 'IOC' = Immediate Or Cancel
             },
         });
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name bitget#callLoadMarkets
+         * @description call fetch currencies and fetch markets
+         * @param {object} data extra parameters specific to the bitget api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     setSandboxMode(enabled) {
         this.options['sandboxMode'] = enabled;
@@ -2191,7 +2205,6 @@ class bitget extends bitget$1 {
         if (chain === undefined) {
             throw new errors.ArgumentsRequired(this.id + ' withdraw() requires a chain parameter or a network parameter');
         }
-        await this.loadMarkets();
         const currency = this.currency(code);
         const networkId = this.networkCodeToId(chain);
         const request = {
@@ -2647,7 +2660,6 @@ class bitget extends bitget$1 {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/#/?id=ticker-structure}
          */
-        await this.loadMarkets();
         const sandboxMode = this.safeValue(this.options, 'sandboxMode', false);
         let market = undefined;
         if (sandboxMode) {
@@ -3377,7 +3389,6 @@ class bitget extends bitget$1 {
          * @param {string} [params.productType] *contract only* 'USDT-FUTURES', 'USDC-FUTURES', 'COIN-FUTURES', 'SUSDT-FUTURES', 'SUSDC-FUTURES' or 'SCOIN-FUTURES'
          * @returns {object} a [balance structure]{@link https://docs.ccxt.com/#/?id=balance-structure}
          */
-        await this.loadMarkets();
         const request = {};
         let marketType = undefined;
         let marginMode = undefined;
@@ -4053,7 +4064,6 @@ class bitget extends bitget$1 {
          * @param {boolean} [params.oneWayMode] *swap and future only* required to set this to true in one_way_mode and you can leave this as undefined in hedge_mode, can adjust the mode using the setPositionMode() method
          * @returns {object} an [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
-        await this.loadMarkets();
         const market = this.market(symbol);
         const marginParams = this.handleMarginModeAndParams('createOrder', params);
         const marginMode = marginParams[0];
@@ -4641,7 +4651,6 @@ class bitget extends bitget$1 {
         if (symbol === undefined) {
             throw new errors.ArgumentsRequired(this.id + ' cancelOrder() requires a symbol argument');
         }
-        await this.loadMarkets();
         const sandboxMode = this.safeValue(this.options, 'sandboxMode', false);
         let market = undefined;
         if (sandboxMode) {
@@ -4979,7 +4988,6 @@ class bitget extends bitget$1 {
         if (symbol === undefined) {
             throw new errors.ArgumentsRequired(this.id + ' fetchOrder() requires a symbol argument');
         }
-        await this.loadMarkets();
         const sandboxMode = this.safeValue(this.options, 'sandboxMode', false);
         let market = undefined;
         if (sandboxMode) {

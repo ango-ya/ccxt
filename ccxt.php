@@ -84,6 +84,8 @@ require_once PATH_TO_CCXT . 'OrderImmediatelyFillable.php';
 require_once PATH_TO_CCXT . 'OrderNotFillable.php';
 require_once PATH_TO_CCXT . 'DuplicateOrderId.php';
 require_once PATH_TO_CCXT . 'ContractUnavailable.php';
+require_once PATH_TO_CCXT . 'InvalidUsdOrder.php';
+require_once PATH_TO_CCXT . 'InvalidRangeOrder.php';
 require_once PATH_TO_CCXT . 'NotSupported.php';
 require_once PATH_TO_CCXT . 'ProxyError.php';
 require_once PATH_TO_CCXT . 'OperationFailed.php';

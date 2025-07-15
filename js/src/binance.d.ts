@@ -6,6 +6,7 @@ import type { TransferEntry, Int, OrderSide, Balances, OrderType, Trade, OHLCV, 
  */
 export default class binance extends Exchange {
     describe(): any;
+    callLoadMarkets(coinListData?: any, marketData?: any): Promise<void>;
     isInverse(type: any, subType?: any): boolean;
     isLinear(type: any, subType?: any): boolean;
     setSandboxMode(enable: any): void;

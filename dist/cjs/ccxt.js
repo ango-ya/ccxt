@@ -49,6 +49,7 @@ var btcalpha = require('./src/btcalpha.js');
 var btcbox = require('./src/btcbox.js');
 var btcmarkets = require('./src/btcmarkets.js');
 var btcturk = require('./src/btcturk.js');
+var btse = require('./src/btse.js');
 var bybit = require('./src/bybit.js');
 var cex = require('./src/cex.js');
 var coinbase = require('./src/coinbase.js');
@@ -110,6 +111,7 @@ var wavesexchange = require('./src/wavesexchange.js');
 var wazirx = require('./src/wazirx.js');
 var whitebit = require('./src/whitebit.js');
 var woo = require('./src/woo.js');
+var xt = require('./src/xt.js');
 var yobit = require('./src/yobit.js');
 var zaif = require('./src/zaif.js');
 var zonda = require('./src/zonda.js');
@@ -177,7 +179,7 @@ var woo$1 = require('./src/pro/woo.js');
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.45';
+const version = '4.2.72';
 Exchange["default"].ccxtVersion = version;
 const exchanges = {
     'ace': ace,
@@ -217,6 +219,7 @@ const exchanges = {
     'btcbox': btcbox,
     'btcmarkets': btcmarkets,
     'btcturk': btcturk,
+    'btse': btse,
     'bybit': bybit,
     'cex': cex,
     'coinbase': coinbase,
@@ -278,6 +281,7 @@ const exchanges = {
     'wazirx': wazirx,
     'whitebit': whitebit,
     'woo': woo,
+    'xt': xt,
     'yobit': yobit,
     'zaif': zaif,
     'zonda': zonda,
@@ -372,6 +376,8 @@ exports.InsufficientFunds = errors.InsufficientFunds;
 exports.InvalidAddress = errors.InvalidAddress;
 exports.InvalidNonce = errors.InvalidNonce;
 exports.InvalidOrder = errors.InvalidOrder;
+exports.InvalidRangeOrder = errors.InvalidRangeOrder;
+exports.InvalidUsdOrder = errors.InvalidUsdOrder;
 exports.MarginModeAlreadySet = errors.MarginModeAlreadySet;
 exports.NetworkError = errors.NetworkError;
 exports.NoChange = errors.NoChange;
@@ -423,6 +429,7 @@ exports.btcalpha = btcalpha;
 exports.btcbox = btcbox;
 exports.btcmarkets = btcmarkets;
 exports.btcturk = btcturk;
+exports.btse = btse;
 exports.bybit = bybit;
 exports.cex = cex;
 exports.coinbase = coinbase;
@@ -484,6 +491,7 @@ exports.wavesexchange = wavesexchange;
 exports.wazirx = wazirx;
 exports.whitebit = whitebit;
 exports.woo = woo;
+exports.xt = xt;
 exports.yobit = yobit;
 exports.zaif = zaif;
 exports.zonda = zonda;

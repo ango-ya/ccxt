@@ -1,4 +1,5 @@
 export type Int = number | undefined;
+export type int = number;
 
 export type Str = string | undefined;
 export type Strings = string[] | undefined;
@@ -214,10 +215,11 @@ export interface Balances extends Dictionary<Balance> {
 }
 
 export interface DepositAddress {
-    currency: string;
-    address: string;
-    status: string;
     info: any;
+    currency: string;
+    network?: string;
+    address: string;
+    tag?: Str;
 }
 
 export interface WithdrawalResponse {
@@ -442,3 +444,49 @@ export type implicitReturnType = any;
 
 export type Market = MarketInterface | undefined;
 export type Currency = CurrencyInterface | undefined;
+
+export interface IsolatedBorrowRate {
+    info: any,
+    symbol: string,
+    base: string,
+    baseRate: number,
+    quote: string,
+    quoteRate: number,
+    period?: Int,
+    timestamp?: Int,
+    datetime?: Str,
+}
+
+export interface IsolatedBorrowRates extends Dictionary<IsolatedBorrowRates> {
+}
+
+export interface TradingFeeInterface {
+    info: any;
+    symbol: Str;
+    maker: Num;
+    taker: Num;
+    percentage: Bool;
+    tierBased: Bool;
+}
+
+export interface Currencies extends Dictionary<CurrencyInterface> {
+}
+
+export interface TradingFees extends Dictionary<TradingFeeInterface> {
+}
+
+export interface MarginModification {
+    'info': any,
+    'symbol': string,
+    'type': 'add' | 'reduce' | 'set' | undefined,
+    'marginMode': 'cross' | 'isolated' | undefined,
+    'amount': Num,
+    'total': Num,
+    'code': Str,
+    'status': Str,
+    'timestamp': Int,
+    'datetime': Str,
+}
+
+export interface LeverageTiers extends Dictionary<LeverageTier[]> {
+}

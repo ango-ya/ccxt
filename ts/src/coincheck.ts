@@ -28,6 +28,7 @@ export default class coincheck extends Exchange {
                 'future': false,
                 'option': false,
                 'addMargin': false,
+                'callLoadMarkets': true,
                 'cancelOrder': true,
                 'closeAllPositions': false,
                 'closePosition': false,
@@ -52,6 +53,7 @@ export default class coincheck extends Exchange {
                 'fetchMyTrades': true,
                 'fetchOpenInterestHistory': false,
                 'fetchOpenOrders': true,
+                'fetchOrder': true,
                 'fetchOrderBook': true,
                 'fetchPosition': false,
                 'fetchPositionMode': false,
@@ -67,6 +69,7 @@ export default class coincheck extends Exchange {
                 'setLeverage': false,
                 'setMarginMode': false,
                 'setPositionMode': false,
+                'withdraw': true,
                 'ws': true,
             },
             'urls': {
@@ -101,6 +104,7 @@ export default class coincheck extends Exchange {
                         'exchange/orders/opens',
                         'exchange/orders/transactions',
                         'exchange/orders/transactions_pagination',
+                        'exchange/orders/{id}',
                         'exchange/leverage/positions',
                         'lending/borrows/matches',
                         'send_money',
@@ -126,8 +130,9 @@ export default class coincheck extends Exchange {
             },
             'markets': {
                 'BTC/JPY': this.safeMarketStructure ({ 'id': 'btc_jpy', 'symbol': 'BTC/JPY', 'base': 'BTC', 'quote': 'JPY', 'baseId': 'btc', 'quoteId': 'jpy', 'type': 'spot', 'spot': true }), // the only real pair
-                // 'ETH/JPY': { 'id': 'eth_jpy', 'symbol': 'ETH/JPY', 'base': 'ETH', 'quote': 'JPY', 'baseId': 'eth', 'quoteId': 'jpy' },
+                'ETH/JPY': this.safeMarketStructure ({ 'id': 'eth_jpy', 'symbol': 'ETH/JPY', 'base': 'ETH', 'quote': 'JPY', 'baseId': 'eth', 'quoteId': 'jpy', 'type': 'spot', 'spot': true }),
                 'ETC/JPY': this.safeMarketStructure ({ 'id': 'etc_jpy', 'symbol': 'ETC/JPY', 'base': 'ETC', 'quote': 'JPY', 'baseId': 'etc', 'quoteId': 'jpy', 'type': 'spot', 'spot': true }),
+                'XRP/JPY': this.safeMarketStructure ({ 'id': 'xrp_jpy', 'symbol': 'XRP/JPY', 'base': 'XRP', 'quote': 'JPY', 'baseId': 'xrp', 'quoteId': 'jpy', 'type': 'spot', 'spot': true }),
                 // 'DAO/JPY': { 'id': 'dao_jpy', 'symbol': 'DAO/JPY', 'base': 'DAO', 'quote': 'JPY', 'baseId': 'dao', 'quoteId': 'jpy' },
                 // 'LSK/JPY': { 'id': 'lsk_jpy', 'symbol': 'LSK/JPY', 'base': 'LSK', 'quote': 'JPY', 'baseId': 'lsk', 'quoteId': 'jpy' },
                 'FCT/JPY': this.safeMarketStructure ({ 'id': 'fct_jpy', 'symbol': 'FCT/JPY', 'base': 'FCT', 'quote': 'JPY', 'baseId': 'fct', 'quoteId': 'jpy', 'type': 'spot', 'spot': true }),
@@ -139,6 +144,8 @@ export default class coincheck extends Exchange {
                 // 'XEM/JPY': { 'id': 'xem_jpy', 'symbol': 'XEM/JPY', 'base': 'XEM', 'quote': 'JPY', 'baseId': 'xem', 'quoteId': 'jpy' },
                 // 'LTC/JPY': { 'id': 'ltc_jpy', 'symbol': 'LTC/JPY', 'base': 'LTC', 'quote': 'JPY', 'baseId': 'ltc', 'quoteId': 'jpy' },
                 // 'DASH/JPY': { 'id': 'dash_jpy', 'symbol': 'DASH/JPY', 'base': 'DASH', 'quote': 'JPY', 'baseId': 'dash', 'quoteId': 'jpy' },
+                'BRIL/JPY': this.safeMarketStructure ({ 'id': 'bril_jpy', 'symbol': 'BRIL/JPY', 'base': 'BRIL', 'quote': 'JPY', 'baseId': 'bril', 'quoteId': 'jpy', 'type': 'spot', 'spot': true }),
+                'BC/JPY': this.safeMarketStructure ({ 'id': 'bc_jpy', 'symbol': 'BC/JPY', 'base': 'BC', 'quote': 'JPY', 'baseId': 'bc', 'quoteId': 'jpy', 'type': 'spot', 'spot': true }),
                 // 'ETH/BTC': { 'id': 'eth_btc', 'symbol': 'ETH/BTC', 'base': 'ETH', 'quote': 'BTC', 'baseId': 'eth', 'quoteId': 'btc' },
                 'ETC/BTC': this.safeMarketStructure ({ 'id': 'etc_btc', 'symbol': 'ETC/BTC', 'base': 'ETC', 'quote': 'BTC', 'baseId': 'etc', 'quoteId': 'btc', 'type': 'spot', 'spot': true }),
                 // 'LSK/BTC': { 'id': 'lsk_btc', 'symbol': 'LSK/BTC', 'base': 'LSK', 'quote': 'BTC', 'baseId': 'lsk', 'quoteId': 'btc' },
@@ -168,6 +175,17 @@ export default class coincheck extends Exchange {
                 'broad': {},
             },
         });
+    }
+
+    async callLoadMarkets (coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name gate#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the gateio api endpoint
+         * @param {marketData} data extra parameters specific to the gateio api endpoint
+         */
+        await this.loadMarkets (coinListData, marketData);
     }
 
     parseBalance (response): Balances {
@@ -300,6 +318,23 @@ export default class coincheck extends Exchange {
         return this.parseOrderBook (response, market['symbol']);
     }
 
+    async fetchOrder (id: string, symbol: string = undefined, params = {}): Promise<Order> {
+        /**
+         * @method
+         * @name coincheck#fetchOrder
+         * @description fetches order details
+         * @see https://coincheck.com/ja/documents/exchange/api#order-show
+         * @param {string} id order id
+         * @param {object} [params] extra parameters specific to the exchange API endpoint
+         * @returns {object} An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
+         */
+        await this.loadMarkets ();
+        const request = {
+            'id': id,
+        };
+        return await this.privateGetExchangeOrdersId (this.extend (request, params));
+    }
+
     parseTicker (ticker, market: Market = undefined): Ticker {
         //
         // {
@@ -349,9 +384,6 @@ export default class coincheck extends Exchange {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} a [ticker structure]{@link https://docs.ccxt.com/#/?id=ticker-structure}
          */
-        if (symbol !== 'BTC/JPY') {
-            throw new BadSymbol (this.id + ' fetchTicker() supports BTC/JPY only');
-        }
         await this.loadMarkets ();
         const market = this.market (symbol);
         const request = {
@@ -730,6 +762,36 @@ export default class coincheck extends Exchange {
         // }
         const data = this.safeValue (response, 'data', []);
         return this.parseTransactions (data, currency, since, limit, { 'type': 'withdrawal' });
+    }
+
+    async withdraw (code: string, amount: number, address: string, tag = undefined, params = {}) {
+        /**
+         * @method
+         * @name coincheck#withdraw
+         * @description make a withdraw made from an account
+         * @see https://coincheck.com/ja/documents/exchange/api#account-sendmoney
+         * @param {string} code unified currency code
+         * @param {float} amount the amount to withdraw
+         * @param {string} address the address to withdraw to
+         * @param {string} tag
+         * @param {object} [params] extra parameters specific to the exchange API endpoint
+         * @returns {object[]} a list of [transaction structures]{@link https://docs.ccxt.com/#/?id=transaction-structure}
+         */
+        await this.loadMarkets ();
+        this.checkAddress (address);
+        const currency = this.currency (code);
+        if (code !== 'BTC') {
+            throw new BadSymbol (this.id + 'withdraw () currently supports BTC only');
+        }
+        const request = {
+            'amount': amount.toString (),
+            'address': address,
+        };
+        if (tag !== undefined) {
+            request['tag'] = tag;
+        }
+        const response = await this.privatePostSendMoney (this.extend (request, params));
+        return this.parseTransaction (response, currency);
     }
 
     parseTransactionStatus (status) {

@@ -6,6 +6,7 @@ import type { Int, OrderSide, OrderType, OHLCV, Trade, FundingRateHistory, OpenI
  */
 export default class gate extends Exchange {
     describe(): any;
+    callLoadMarkets(coinListData?: any, marketData?: any): Promise<void>;
     setSandboxMode(enable: any): void;
     convertExpireDate(date: any): string;
     createExpiredOptionMarket(symbol: string): MarketInterface;

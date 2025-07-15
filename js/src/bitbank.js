@@ -29,6 +29,7 @@ export default class bitbank extends Exchange {
                 'future': false,
                 'option': false,
                 'addMargin': false,
+                'callLoadMarkets': true,
                 'cancelAllOrders': false,
                 'cancelOrder': true,
                 'closeAllPositions': false,
@@ -257,6 +258,16 @@ export default class bitbank extends Exchange {
             'created': undefined,
             'info': entry,
         };
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name gate#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the gateio api endpoint
+         * @param {marketData} data extra parameters specific to the gateio api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     parseTicker(ticker, market = undefined) {
         const symbol = this.safeSymbol(undefined, market);

@@ -6,6 +6,7 @@ import type { Balances, Currency, Int, Market, OHLCV, Order, OrderBook, OrderSid
  */
 export default class huobijp extends Exchange {
     describe(): any;
+    callLoadMarkets(coinListData?: any, marketData?: any): Promise<void>;
     fetchTime(params?: {}): Promise<number>;
     fetchTradingLimits(symbols?: Strings, params?: {}): Promise<{}>;
     fetchTradingLimitsById(id: string, params?: {}): Promise<{

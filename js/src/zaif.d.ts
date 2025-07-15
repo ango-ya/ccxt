@@ -6,6 +6,7 @@ import type { Balances, Currency, Int, Market, Order, OrderBook, OrderSide, Orde
  */
 export default class zaif extends Exchange {
     describe(): any;
+    callLoadMarkets(coinListData?: any, marketData?: any): Promise<void>;
     fetchMarkets(params?: {}): Promise<import("./base/types.js").MarketInterface[]>;
     parseMarket(market: any): Market;
     parseBalance(response: any): Balances;

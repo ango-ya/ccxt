@@ -28,6 +28,7 @@ class zaif extends zaif$1 {
                 'swap': false,
                 'future': false,
                 'option': false,
+                'callLoadMarkets': true,
                 'cancelOrder': true,
                 'createMarketOrder': false,
                 'createOrder': true,
@@ -137,6 +138,16 @@ class zaif extends zaif$1 {
                 'broad': {},
             },
         });
+    }
+    async callLoadMarkets(coinListData = undefined, marketData = undefined) {
+        /**
+         * @method
+         * @name zaif#callLoadMarkets
+         * @description call fetchCurrencies and fetchMarkets api
+         * @param {coinListData} data extra parameters specific to the zaif api endpoint
+         * @param {marketData} data extra parameters specific to the zaif api endpoint
+         */
+        await this.loadMarkets(coinListData, marketData);
     }
     async fetchMarkets(params = {}) {
         /**
@@ -473,8 +484,10 @@ class zaif extends zaif$1 {
          * @param {object} [params] extra parameters specific to the exchange API endpoint
          * @returns {object} An [order structure]{@link https://docs.ccxt.com/#/?id=order-structure}
          */
+        const market = this.market(symbol);
         const request = {
             'order_id': id,
+            'currency_pair': market['id'],
         };
         return await this.privatePostCancelOrder(this.extend(request, params));
     }
