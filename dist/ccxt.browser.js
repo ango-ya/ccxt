@@ -84192,8 +84192,8 @@ class btse extends _abstract_btse_js__WEBPACK_IMPORTED_MODULE_0__/* ["default"] 
                 'strike': undefined,
                 'optionType': undefined,
                 'precision': {
-                    'amount': this.safeInteger(market, 'minOrderSize') ? -Math.log10(this.safeNumber(market, 'minOrderSize')) : 8,
-                    'price': this.safeInteger(market, 'tickSize') ? -Math.log10(this.safeNumber(market, 'tickSize')) : 8,
+                    'amount': this.safeNumber(market, 'minOrderSize') ? -Math.log10(this.safeNumber(market, 'minOrderSize')) : 8,
+                    'price': this.safeNumber(market, 'minPriceIncrement') ? -Math.log10(this.safeNumber(market, 'minPriceIncrement')) : 8,
                 },
                 'limits': {
                     'leverage': {
@@ -313308,7 +313308,7 @@ SOFTWARE.
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.70';
+const version = '4.2.71';
 _src_base_Exchange_js__WEBPACK_IMPORTED_MODULE_0__/* .Exchange */ .k.ccxtVersion = version;
 //-----------------------------------------------------------------------------
 

@@ -244,8 +244,8 @@ class btse extends btse$1 {
                 'strike': undefined,
                 'optionType': undefined,
                 'precision': {
-                    'amount': this.safeInteger(market, 'minOrderSize') ? -Math.log10(this.safeNumber(market, 'minOrderSize')) : 8,
-                    'price': this.safeInteger(market, 'tickSize') ? -Math.log10(this.safeNumber(market, 'tickSize')) : 8,
+                    'amount': this.safeNumber(market, 'minOrderSize') ? -Math.log10(this.safeNumber(market, 'minOrderSize')) : 8,
+                    'price': this.safeNumber(market, 'minPriceIncrement') ? -Math.log10(this.safeNumber(market, 'minPriceIncrement')) : 8,
                 },
                 'limits': {
                     'leverage': {
