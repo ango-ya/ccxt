@@ -102348,8 +102348,8 @@ class btse extends Exchange$V {
                 'strike': undefined,
                 'optionType': undefined,
                 'precision': {
-                    'amount': this.safeInteger(market, 'minOrderSize') ? -Math.log10(this.safeNumber(market, 'minOrderSize')) : 8,
-                    'price': this.safeInteger(market, 'tickSize') ? -Math.log10(this.safeNumber(market, 'tickSize')) : 8,
+                    'amount': this.safeNumber(market, 'minOrderSize') ? -Math.log10(this.safeNumber(market, 'minOrderSize')) : 8,
+                    'price': this.safeNumber(market, 'minPriceIncrement') ? -Math.log10(this.safeNumber(market, 'minPriceIncrement')) : 8,
                 },
                 'limits': {
                     'leverage': {
@@ -309375,7 +309375,7 @@ class woo extends woo$1 {
 
 //-----------------------------------------------------------------------------
 // this is updated by vss.js when building
-const version = '4.2.70';
+const version = '4.2.71';
 Exchange$1r.ccxtVersion = version;
 const exchanges = {
     'ace': ace,
