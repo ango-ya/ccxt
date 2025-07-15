@@ -95,15 +95,16 @@ class btse extends btse$1 {
                 'withdraw': false,
             },
             'timeframes': {
-                '1m': '1m',
-                '5m': '5m',
-                '15m': '15m',
-                '30m': '30m',
-                '1h': '1h',
-                '4h': '4h',
-                '1d': '1d',
-                '1w': '1w',
-                '1M': '1M',
+                '1m': '1',
+                '5m': '5',
+                '15m': '15',
+                '30m': '30',
+                '1h': '60',
+                '4h': '240',
+                '6h': '360',
+                '1d': '1440',
+                '1w': '10080',
+                '1M': '43200',
             },
             'urls': {
                 'logo': 'https://user-images.githubusercontent.com/1294454/104117117-f2fd9500-52d9-11eb-9b88-cc9e3e8f5ad1.jpg',
@@ -471,8 +472,14 @@ class btse extends btse$1 {
             'symbol': marketId,
             'resolution': this.timeframes[timeframe],
         };
+        if (since !== undefined) {
+            request['start'] = since;
+        }
         if (limit !== undefined) {
-            request['limit'] = limit;
+            const now = this.milliseconds();
+            const duration = this.parseTimeframe(timeframe) * 1000;
+            const end = since !== undefined ? since + (limit * duration) : now;
+            request['end'] = end;
         }
         const response = await this.request('api/v3.2/ohlcv', 'public', 'GET', request);
         const ohlcvs = Array.isArray(response) ? response : [];
