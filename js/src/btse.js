@@ -199,14 +199,18 @@ export default class btse extends Exchange {
             },
         });
     }
-    async fetchMarkets(params = {}) {
+    async fetchMarkets(symbol = undefined, params = {}) {
         const response = await this.request('api/v3.2/market_summary', 'public', 'GET', params);
         const markets = Array.isArray(response) ? response : this.safeList(response, 'data', []);
         const result = [];
+        const targetMarketId = (symbol && typeof symbol === 'string') ? symbol.replace('/', '-') : undefined;
         for (let i = 0; i < markets.length; i++) {
             const market = markets[i];
             const id = this.safeString(market, 'symbol');
             if (id === undefined) {
+                continue;
+            }
+            if (targetMarketId && id !== targetMarketId) {
                 continue;
             }
             const parts = id.split('-');
@@ -217,10 +221,10 @@ export default class btse extends Exchange {
             const quoteId = parts[1];
             const base = this.safeCurrencyCode(baseId);
             const quote = this.safeCurrencyCode(quoteId);
-            const symbol = base + '/' + quote;
+            const marketSymbol = base + '/' + quote;
             result.push({
                 'id': id,
-                'symbol': symbol,
+                'symbol': marketSymbol,
                 'base': base,
                 'quote': quote,
                 'settle': undefined,
@@ -243,8 +247,8 @@ export default class btse extends Exchange {
                 'strike': undefined,
                 'optionType': undefined,
                 'precision': {
-                    'amount': undefined,
-                    'price': undefined,
+                    'amount': this.safeInteger(market, 'minOrderSize') ? -Math.log10(this.safeNumber(market, 'minOrderSize')) : 8,
+                    'price': this.safeInteger(market, 'tickSize') ? -Math.log10(this.safeNumber(market, 'tickSize')) : 8,
                 },
                 'limits': {
                     'leverage': {
@@ -252,15 +256,15 @@ export default class btse extends Exchange {
                         'max': undefined,
                     },
                     'amount': {
-                        'min': undefined,
-                        'max': undefined,
+                        'min': this.safeNumber(market, 'minOrderSize'),
+                        'max': this.safeNumber(market, 'maxOrderSize'),
                     },
                     'price': {
-                        'min': undefined,
+                        'min': this.safeNumber(market, 'tickSize'),
                         'max': undefined,
                     },
                     'cost': {
-                        'min': undefined,
+                        'min': this.safeNumber(market, 'minNotional'),
                         'max': undefined,
                     },
                 },
@@ -665,7 +669,7 @@ export default class btse extends Exchange {
         if (code >= 400) {
             let message = reason || 'Unknown error';
             if (response && typeof response === 'object') {
-                message = this.safeString(response, 'message', this.safeString(response, 'error', message));
+                message = this.safeString(response, 'msg', this.safeString(response, 'message', this.safeString(response, 'error', message)));
             }
             // Handle 404 errors for order-related endpoints
             if (code === 404 && (url.includes('/order') || url.includes('/user/order'))) {
@@ -675,7 +679,7 @@ export default class btse extends Exchange {
         }
         const success = this.safeValue(response, 'success');
         if (success !== undefined && !success) {
-            const message = this.safeString(response, 'message', 'Unknown error');
+            const message = this.safeString(response, 'msg', this.safeString(response, 'message', 'Unknown error'));
             const errorCode = this.safeString(response, 'code');
             this.throwExactlyMatchedException(this.exceptions['exact'], errorCode, message);
             this.throwBroadlyMatchedException(this.exceptions['broad'], message, message);

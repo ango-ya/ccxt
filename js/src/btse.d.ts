@@ -3,7 +3,7 @@ import type { Balances, Int, Market, Ticker, OrderBook, Dict, Order, Trade, OHLC
 export default class btse extends Exchange {
     constructor(options?: {});
     describe(): any;
-    fetchMarkets(params?: {}): Promise<any[]>;
+    fetchMarkets(symbol?: any, params?: {}): Promise<Market[]>;
     fetchTicker(symbol: string, params?: {}): Promise<Ticker>;
     parseTicker(ticker: Dict, market?: Market): Ticker;
     fetchOrderBook(symbol: string, limit?: Int, params?: {}): Promise<OrderBook>;
